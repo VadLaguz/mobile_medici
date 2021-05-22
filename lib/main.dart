@@ -24,27 +24,28 @@ class MyApp extends StatelessWidget {
   }
 }
 
-List<int> counters = [];
 List<IsolateInitializer> initializers = [];
-List<Future<Isolate>> isolates = [];
 
 class IsolateInitializer {
   late ReceivePort port;
   late int index;
+  late Isolate isolate;
+  var count = 0;
 
   IsolateInitializer(this.index) {
     port = ReceivePort();
     port.listen((message) {
-      counters[index] = message;
+      count = message;
     });
   }
 }
 
-void foo(List<Object> message) {
-  print('Starting deck ${message[0]} at ${DateTime.now()}');
+void isolateFunc(List<Object> message) {
+  SendPort port = message[1] as SendPort;
+  print('Starting thread ${message[0]} at ${DateTime.now()}');
   final deck = Deck();
   deck.setMask(
-      "Вп * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * Тп20 * * * *");
+      "Вп * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * Тп25 * * * *");
   var counter = 0;
   var circleWatch = Stopwatch()..start();
   while (true) {
@@ -63,7 +64,6 @@ void foo(List<Object> message) {
     }
     if (circleWatch.elapsedMilliseconds >= 1000) {
       circleWatch.reset();
-      SendPort port = message[1] as SendPort;
       port.send(counter);
       counter = 0;
     }
@@ -73,21 +73,29 @@ void foo(List<Object> message) {
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key? key, required this.title}) : super(key: key);
   final String title;
+  Timer? timer;
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
 
   void doSpawn() {
-    List.generate(5, (index) {
-      counters.add(0);
+    if (initializers.isNotEmpty) {
+      timer!.cancel();
+      print("Stopping ${initializers.length} threads");
+      initializers.forEach((element) {
+        element.isolate.kill(priority: Isolate.immediate);
+      });
+      return;
+    }
+    List.generate(5, (index) async {
       var isolateInitializer = IsolateInitializer(index);
       initializers.add(isolateInitializer);
-      var spawn = Isolate.spawn(foo, [index, isolateInitializer.port.sendPort]);
-      isolates.add(spawn);
+      isolateInitializer.isolate = await Isolate.spawn(
+          isolateFunc, [index, isolateInitializer.port.sendPort]);
     });
-    Timer.periodic(Duration(seconds: 5), (timer) {
-      var sum = counters.fold<int>(
-          0, (previousValue, element) => previousValue + element);
+    timer = Timer.periodic(Duration(seconds: 5), (timer) {
+      var sum = initializers.fold<int>(
+          0, (previousValue, element) => previousValue + element.count);
       print("Computed $sum chains in second");
     });
   }
