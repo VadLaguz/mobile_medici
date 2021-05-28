@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:quiver/iterables.dart';
 
 var hexTable = ("#11 (111000) Расцвет\n" +
         "#46 (011000) Подъем\n" +
@@ -67,7 +66,7 @@ var hexTable = ("#11 (111000) Расцвет\n" +
         "#12 (000111) Упадок")
     .split('\n');
 
-enum Suit { hearts, diamonds, clubs, spades }
+enum CardSuit { hearts, diamonds, clubs, spades }
 
 enum Nominal { six, seven, eight, nine, ten, jack, queen, king, ace }
 
@@ -84,10 +83,10 @@ var nominalsToRu = {
 };
 
 var suitsToRu = {
-  Suit.clubs: "К",
-  Suit.diamonds: "Б",
-  Suit.hearts: "Ч",
-  Suit.spades: "П",
+  CardSuit.clubs: "К",
+  CardSuit.diamonds: "Б",
+  CardSuit.hearts: "Ч",
+  CardSuit.spades: "П",
 };
 
 final cardsToHexLines = {
@@ -100,14 +99,14 @@ final cardsToHexLines = {
 };
 
 var hexToEmoji = {
-  Suit.hearts: "♥️",
-  Suit.diamonds: "♦️",
-  Suit.clubs: "♣️️",
-  Suit.spades: "♠️️"
+  CardSuit.hearts: "♥️",
+  CardSuit.diamonds: "♦️",
+  CardSuit.clubs: "♣️️",
+  CardSuit.spades: "♠️️"
 };
 
-class Card {
-  Suit? suit;
+class CardItem {
+  CardSuit? suit;
   Nominal? nominal;
   var indexInDeck = 0;
   var efl = 0;
@@ -115,14 +114,14 @@ class Card {
   var maskCard = false;
   String? cardString;
 
-  Card(this.suit, this.nominal);
+  CardItem(this.suit, this.nominal);
 
   @override
   String toString() {
     return "${nominalsToRu[nominal]}${suitsToRu[suit]!.toLowerCase()}";
   }
 
-  Card.fromString(this.cardString) : super() {
+  CardItem.fromString(this.cardString) : super() {
     var lowerCased = cardString!.toLowerCase();
     suitsToRu.map((key, value) {
       if (value.toLowerCase() == lowerCased.substring(1, 2)) {
@@ -147,7 +146,7 @@ class Card {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is Card &&
+      other is CardItem &&
           runtimeType == other.runtimeType &&
           suit == other.suit &&
           nominal == other.nominal;
@@ -157,20 +156,20 @@ class Card {
 }
 
 class Deck {
-  List<Card> stationars = [];
-  List<Card> mobiles = [];
-  List<Card> cards = [];
-  Map<Suit, String> hex = {};
-  Card? rightTransit;
-  List<Card> maskCards = [];
+  List<CardItem> stationars = [];
+  List<CardItem> mobiles = [];
+  List<CardItem> cards = [];
+  Map<CardSuit, String> hex = {};
+  CardItem? rightTransit;
+  List<CardItem> maskCards = [];
   final okSymbols = nominalsToRu.values.map((e) => e.toLowerCase()).toList() +
       suitsToRu.values.map((e) => e.toLowerCase()).toList();
 
   Deck() {
     cards.clear();
-    Suit.values.forEach((suit) {
+    CardSuit.values.forEach((suit) {
       Nominal.values.forEach((nominal) {
-        cards.add(Card(suit, nominal));
+        cards.add(CardItem(suit, nominal));
       });
     });
   }
@@ -209,7 +208,7 @@ class Deck {
     maskCards.clear();
     mask.asMap().forEach((key, value) {
       if (value != "*") {
-        final card = Card.fromString(value);
+        final card = CardItem.fromString(value);
         card.maskCard = true;
         card.indexInDeck = key;
         maskCards.add(card);
@@ -231,14 +230,14 @@ class Deck {
     });
 
     for (var i = 0; i < fixedChain.length; i += 2) {
-      final card = Card.fromString(fixedChain.substring(i, i + 2));
+      final card = CardItem.fromString(fixedChain.substring(i, i + 2));
       card.indexInDeck = cards.length;
       cards.add(card);
     }
     print(cards);
   }
 
-  List<Card> process(List<Card> list) {
+  List<CardItem> process(List<CardItem> list) {
     for (var i = 0; i < list.length - 2; i++) {
       var left = list[i];
       var middle = list[i + 1];
@@ -271,11 +270,11 @@ class Deck {
     }
     var bool = result.length == 2;
     if (bool) {
-      Suit.values.forEach((suit) {
+      CardSuit.values.forEach((suit) {
         var hex = "";
         List.generate(6, (index) {
           final cardsInLine = cardsToHexLines[index];
-          if (mobiles.contains(Card(suit, cardsInLine!.first))) {
+          if (mobiles.contains(CardItem(suit, cardsInLine!.first))) {
             hex += "1";
           } else {
             hex += "0";
