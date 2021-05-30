@@ -110,9 +110,10 @@ class CardItem {
   Nominal? nominal;
   var indexInDeck = 0;
   var efl = 0;
-  var minEfl = 0;
   var maskCard = false;
   String? cardString;
+  var fixed = false;
+  RangeValues? minMaxEfl;
 
   CardItem(this.suit, this.nominal);
 
@@ -139,7 +140,8 @@ class CardItem {
       throw Exception("Invalid card: $cardString");
     }
     if (lowerCased.length > 2) {
-      this.minEfl = int.parse(lowerCased.substring(2));
+      this.minMaxEfl =
+          RangeValues(int.parse(lowerCased.substring(2)).toDouble(), 36);
     }
   }
 
@@ -214,6 +216,23 @@ class Deck {
         maskCards.add(card);
       }
     });
+  }
+
+  void setMaskByList(List<CardItem> chainModel) {
+    maskCards.clear();
+    cards.clear();
+    for (var i = 0; i < chainModel.length; i++) {
+      var item = chainModel[i];
+      if (item.fixed) {
+        item.maskCard = true;
+        item.indexInDeck = i;
+        maskCards.add(item);
+      } else {
+        item.maskCard = false;
+        item.indexInDeck = 0;
+      }
+      cards.add(item);
+    }
   }
 
   void parse(String s) {

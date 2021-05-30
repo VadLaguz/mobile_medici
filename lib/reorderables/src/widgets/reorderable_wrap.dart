@@ -495,8 +495,8 @@ class _ReorderableWrapContentState extends State<_ReorderableWrapContent>
 
   // Animates the droppable space from _currentIndex to _nextIndex.
   void _requestAnimationToNextIndex({bool isAcceptingNewTarget = false}) {
-    debugPrint(
-        '_requestAnimationToNextIndex _dragStartIndex:$_dragStartIndex _ghostDisplayIndex:$_ghostDisplayIndex _currentDisplayIndex:$_currentDisplayIndex _nextDisplayIndex:$_nextDisplayIndex isAcceptingNewTarget:$isAcceptingNewTarget isCompleted:${_entranceController.isCompleted}');
+    // debugPrint(
+    //     '_requestAnimationToNextIndex _dragStartIndex:$_dragStartIndex _ghostDisplayIndex:$_ghostDisplayIndex _currentDisplayIndex:$_currentDisplayIndex _nextDisplayIndex:$_nextDisplayIndex isAcceptingNewTarget:$isAcceptingNewTarget isCompleted:${_entranceController.isCompleted}');
     if (_entranceController.isCompleted) {
       _ghostDisplayIndex = _currentDisplayIndex;
       if (!isAcceptingNewTarget && _nextDisplayIndex == _currentDisplayIndex) {
@@ -661,10 +661,10 @@ class _ReorderableWrapContentState extends State<_ReorderableWrapContent>
         }
 
 
-        print("_wrapChildRunIndexes: ${_wrapChildRunIndexes}");
+        /*print("_wrapChildRunIndexes: ${_wrapChildRunIndexes}");
         print("_childRunIndexes: ${_childRunIndexes}");
         print("_nextChildRunIndexes: ${_nextChildRunIndexes}");
-        print("_wrapChildren: ${_wrapChildren}");
+        print("_wrapChildren: ${_wrapChildren}");*/
 //        debugPrint('onDragStarted: index:$index _ghostDisplayIndex:$_ghostDisplayIndex _currentDisplayIndex:$_currentDisplayIndex _dragStartIndex:$_dragStartIndex');
         widget.onReorderStarted?.call(index);
       });
@@ -1230,10 +1230,10 @@ class _ReorderableWrapContentState extends State<_ReorderableWrapContent>
     }
 
 
-    print("_wrapChildRunIndexes: ${_wrapChildRunIndexes}");
+    /*print("_wrapChildRunIndexes: ${_wrapChildRunIndexes}");
     print("_childRunIndexes: ${_childRunIndexes}");
     print("_nextChildRunIndexes: ${_nextChildRunIndexes}");
-    print("_wrapChildren: ${_wrapChildren}");
+    print("_wrapChildren: ${_wrapChildren}");*/
 
     if (widget.controller != null &&
         PrimaryScrollController.of(context) == null) {
