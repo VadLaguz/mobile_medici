@@ -7,7 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_medici/reorderables/src/widgets/reorderable_wrap.dart';
 import 'package:range_slider_dialog/range_slider_dialog.dart';
+import 'package:sliding_panel_pro/sliding_panel_pro.dart';
 
+import 'IChingSelectWidget.dart';
 import 'model/Deck.dart';
 
 void main() {
@@ -52,28 +54,17 @@ class IsolateInitializer {
 
 void isolateFunc(List<Object> message) {
   SendPort port = message[1] as SendPort;
-  List<CardItem> chainModel = message[2] as List<CardItem>;
+  DeckTask task = message[2] as DeckTask;
   final deck = Deck();
-  deck.setMaskByList(chainModel);
+  deck.setMaskByList(task.mask);
+  deck.needHex = task.needHex;
   var counter = 0;
   var circleWatch = Stopwatch()..start();
   while (true) {
     counter++;
     deck.shuffle();
     if (deck.check()) {
-      var okDeck = true;
-      deck.cards.forEach((element) {
-        if (element.minMaxEfl != null) {
-          final okCard = element.efl <= element.minMaxEfl!.end &&
-              element.efl >= element.minMaxEfl!.start;
-          if (!okCard) {
-            okDeck = false;
-          }
-        }
-      });
-      if (okDeck) {
-        port.send(deck);
-      }
+      port.send(deck);
     }
     if (circleWatch.elapsedMilliseconds >= 1000) {
       circleWatch.reset();
@@ -95,6 +86,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   var chainModel = <CardItem>[];
+  Map<CardSuit, List<int>> needHex = {};
   Timer? timer;
   var calculating = false;
   var foundItems = <Deck>[];
@@ -129,8 +121,9 @@ class _MyHomePageState extends State<MyHomePage> {
         });
       });
       initializers.add(isolateInitializer);
+      var deckTask = DeckTask(chain, needHex);
       isolateInitializer.isolate = await Isolate.spawn(
-          isolateFunc, [index, isolateInitializer.port.sendPort, chain]);
+          isolateFunc, [index, isolateInitializer.port.sendPort, deckTask]);
     });
     timer = Timer.periodic(Duration(seconds: 1), (timer) {
       var sum = initializers.fold<int>(
@@ -139,7 +132,7 @@ class _MyHomePageState extends State<MyHomePage> {
         checkedCount += sum;
         speed = sum;
       });
-      print("Computed $sum chains in second");
+      //print("Computed $sum chains in second");
     });
   }
 
@@ -156,6 +149,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void resetChain() {
+    needHex = {};
     checkedCount = 0;
     selectedItem = -1;
     speed = 0;
@@ -165,6 +159,11 @@ class _MyHomePageState extends State<MyHomePage> {
         chainModel.add(CardItem(suit, nom));
       });
     });
+    foundItems.clear();
+  }
+
+  void clearResults() {
+    selectedItem = -1;
     foundItems.clear();
   }
 
@@ -284,13 +283,64 @@ class _MyHomePageState extends State<MyHomePage> {
 
   var scrollController = ScrollController();
 
+  void setIChing(BuildContext context, CardSuit suit) {
+    if (needHex[suit] == null) {
+      needHex[suit] = [];
+    }
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Center(
+            child: IChingSelectWidget(needHex[suit]!, () {
+          setState(() {
+            print(suit);
+            print(needHex[suit]);
+          });
+        }));
+      },
+    );
+  }
+
+  List<Widget> iChingButtons(BuildContext context) {
+    var suits = [
+      CardSuit.hearts,
+      CardSuit.diamonds,
+      CardSuit.spades,
+      CardSuit.clubs
+    ];
+    return List.generate(4, (index) {
+      var suit = suits[index];
+      return Stack(
+        children: [
+          TextButton(
+              onPressed: () async {
+                setIChing(context, suit);
+              },
+              child: Text(
+                ["♥️", "♦️️", "♠️️️", "♣️️"][index],
+                style: TextStyle(fontSize: 48),
+              )),
+          IgnorePointer(
+            child: Container(
+              width: 10,
+              height: 10,
+              color: (needHex[suit] ?? []).length == 0
+                  ? Colors.transparent
+                  : Colors.red,
+            ),
+          )
+        ],
+        alignment: Alignment.center,
+      );
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     makeTiles();
     var wrap = ReorderableWrap(
         spacing: 0.0,
         runSpacing: 0.0,
-        maxMainAxisCount: 12,
         needsLongPressDraggable: false,
         padding: const EdgeInsets.all(4),
         children: makeTiles(),
@@ -326,33 +376,57 @@ class _MyHomePageState extends State<MyHomePage> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         wrap,
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            TextButton(
-                                onPressed: () {
-                                  calculate();
-                                },
-                                child: Text(
-                                  calculating ? "🛑" : "🎲",
-                                  style: TextStyle(fontSize: 48),
-                                )),
-                            TextButton(
-                                onPressed: () async {
-                                  var result = await showOkCancelAlertDialog(
-                                      context: context,
-                                      title: "Clear? Really?");
-                                  if (result == OkCancelResult.ok) {
-                                    setState(() {
-                                      resetChain();
-                                    });
-                                  }
-                                },
-                                child: Text(
-                                  "🗑",
-                                  style: TextStyle(fontSize: 48),
-                                )),
-                          ],
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: iChingButtons(context) +
+                                [
+                                  Spacer(),
+                                  Text(
+                                      "Checked: $checkedCount ($speed / sec.)\nFound: ${foundItems.length}"),
+                                  TextButton(
+                                      onPressed: () {
+                                        calculate();
+                                      },
+                                      child: Text(
+                                        calculating ? "🛑" : "🚀",
+                                        style: TextStyle(fontSize: 48),
+                                      )),
+                                  Align(
+                                    child: TextButton(
+                                        onPressed: () async {
+                                          var result = await showAlertDialog(
+                                              actions: [
+                                                AlertDialogAction(
+                                                    key: 1,
+                                                    label: "Clear results"),
+                                                AlertDialogAction(
+                                                    key: 2,
+                                                    label:
+                                                        "Clear Task & Results"),
+                                                AlertDialogAction(
+                                                    key: 3, label: "Cancel")
+                                              ],
+                                              context: context,
+                                              title: "Clear? Really?");
+                                          if (result == 1) {
+                                            setState(() {
+                                              clearResults();
+                                            });
+                                          } else if (result == 2) {
+                                            setState(() {
+                                              resetChain();
+                                            });
+                                          }
+                                        },
+                                        child: Text(
+                                          "🗑",
+                                          style: TextStyle(fontSize: 48),
+                                        )),
+                                  ),
+                                ],
+                          ),
                         ),
                       ],
                     ),
@@ -364,51 +438,56 @@ class _MyHomePageState extends State<MyHomePage> {
                   children: [
                     Expanded(
                       flex: 2,
-                      child: Container(
-                        child: ListView.builder(
-                          itemBuilder: (context, index) {
-                            var asString = foundItems[index].asString(true);
-                            return InkWell(
-                              onTap: () {
-                                setState(() {
-                                  selectedItem = index;
-                                });
-                              },
-                              child: Container(
-                                  color: selectedItem == index
-                                      ? Colors.blue.withAlpha(100)
-                                      : Colors.transparent,
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(asString),
-                                  )),
-                            );
-                          },
-                          itemCount: foundItems.length,
+                      child: Card(
+                        elevation: 2,
+                        child: Container(
+                          child: ListView.builder(
+                            itemBuilder: (context, index) {
+                              var asString = foundItems[index].asString(true);
+                              return InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    selectedItem = index;
+                                  });
+                                },
+                                child: Container(
+                                    color: selectedItem == index
+                                        ? Colors.blue.withAlpha(100)
+                                        : Colors.transparent,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text(asString),
+                                    )),
+                              );
+                            },
+                            itemCount: foundItems.length,
+                          ),
                         ),
                       ),
                     ),
                     Expanded(
                         flex: 2,
                         child: Padding(
-                          padding: const EdgeInsets.only(left: 16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              checkedCount > 0
-                                  ? Text(
-                                      "Checked: $checkedCount ($speed / sec.)\nFound: ${foundItems.length}")
-                                  : Container(),
-                              selectedItem >= 0
-                                  ? TextButton(
-                                      onPressed: () {
-                                        Clipboard.setData(ClipboardData(
-                                            text: foundItems[selectedItem]
-                                                .asString(true)));
-                                      },
-                                      child: Text("Копировать"))
-                                  : Container()
-                            ],
+                          padding: const EdgeInsets.only(left: 8),
+                          child: Card(
+                            elevation: 2,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                selectedItem >= 0
+                                    ? TextButton(
+                                        onPressed: () {
+                                          Clipboard.setData(ClipboardData(
+                                              text: foundItems[selectedItem]
+                                                  .asString(true)));
+                                        },
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Text("Копировать"),
+                                        ))
+                                    : Container()
+                              ],
+                            ),
                           ),
                         ))
                   ],

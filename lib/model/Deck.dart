@@ -105,6 +105,13 @@ var hexToEmoji = {
   CardSuit.spades: "♠️️"
 };
 
+class DeckTask {
+  List<CardItem> mask;
+  Map<CardSuit, List<int>> needHex;
+
+  DeckTask(this.mask, this.needHex);
+}
+
 class CardItem {
   CardSuit? suit;
   Nominal? nominal;
@@ -162,13 +169,24 @@ class Deck {
   List<CardItem> mobiles = [];
   List<CardItem> cards = [];
   Map<CardSuit, String> hex = {};
+  Map<CardSuit, List<int>> needHex = {};
   CardItem? rightTransit;
   List<CardItem> maskCards = [];
   final okSymbols = nominalsToRu.values.map((e) => e.toLowerCase()).toList() +
       suitsToRu.values.map((e) => e.toLowerCase()).toList();
 
+  Map<String, int> hexToNumberMap = {};
+
   Deck() {
+    hexTable.forEach((element) {
+      var val = element.substring(element.indexOf('(') + 1);
+      val = val.substring(0, val.indexOf(')'));
+      final inNum =
+          int.parse(element.substring(0, element.indexOf(' ')).substring(1));
+      hexToNumberMap[val] = inNum;
+    });
     cards.clear();
+    needHex.clear();
     CardSuit.values.forEach((suit) {
       Nominal.values.forEach((nominal) {
         cards.add(CardItem(suit, nominal));
@@ -288,6 +306,15 @@ class Deck {
       mobiles.add(cards.last);
     }
     var bool = result.length == 2;
+    cards.forEach((element) {
+      if (element.minMaxEfl != null) {
+        final okCard = element.efl <= element.minMaxEfl!.end &&
+            element.efl >= element.minMaxEfl!.start;
+        if (!okCard) {
+          bool = false;
+        }
+      }
+    });
     if (bool) {
       CardSuit.values.forEach((suit) {
         var hex = "";
@@ -300,6 +327,27 @@ class Deck {
           }
         });
         this.hex[suit] = hex;
+      });
+      needHex.keys.forEach((suit) {
+        final val = needHex[suit] ?? [];
+        if (val.length == 1) {
+          if (val.first == -1) {
+            //хорошие
+          } else if (val.first == -2) {
+            //G.-гексы
+          } else {
+            //точно
+            if (!val.contains(hexToNumberMap[this.hex[suit]])) {
+              bool = false;
+            }
+          }
+        } else if (val.length > 1) {
+          //любая точно
+          //точно
+          if (!val.contains(hexToNumberMap[this.hex[suit]])) {
+            bool = false;
+          }
+        }
       });
     }
     return bool;

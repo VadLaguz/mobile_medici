@@ -31,6 +31,7 @@ dependencies:
   isolate_handler: ^1.0.0
   range_slider_dialog: ^0.0.3
   adaptive_dialog: ^1.0.0
+  sliding_panel_pro: ^1.0.0-nullsafety.2
 
 #  drag_and_drop_gridview: ^1.0.8
 dev_dependencies:
