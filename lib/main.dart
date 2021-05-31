@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_medici/reorderables/src/widgets/reorderable_wrap.dart';
 import 'package:range_slider_dialog/range_slider_dialog.dart';
-import 'package:sliding_panel_pro/sliding_panel_pro.dart';
 
 import 'IChingSelectWidget.dart';
 import 'model/Deck.dart';
@@ -114,6 +113,7 @@ class _MyHomePageState extends State<MyHomePage> {
       });
       return;
     }
+    initializers.clear();
     List.generate(5, (index) async {
       var isolateInitializer = IsolateInitializer(index, (Deck param) {
         setState(() {
