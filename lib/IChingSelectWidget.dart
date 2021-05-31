@@ -69,90 +69,105 @@ class IChingSelectState extends State<IChingSelectWidget> {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     return Material(
-      child: Container(
-        width: width / 3,
-        height: width / 2.5,
-        color: Colors.white,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  TextButton(
-                      onPressed: () {
-                        setState(() {
-                          widget.selectedHexes.clear();
-                          widget.selectedHexes.addAll(widget.positivehex);
-                          widget.onUpdate();
-                        });
-                      },
-                      child: Text(
-                        "⬆️",
-                        style: TextStyle(fontSize: 48),
-                      )),
-                  TextButton(
-                      onPressed: () {
-                        setState(() {
-                          widget.selectedHexes.clear();
-                          widget.selectedHexes.addAll(widget.gHex);
-                          widget.onUpdate();
-                        });
-                      },
-                      child: Text(
-                        "⬇️️",
-                        style: TextStyle(fontSize: 48),
-                      )),
-                  TextButton(
-                      onPressed: () {
-                        setState(() {
-                          widget.selectedHexes.clear();
-                          widget.onUpdate();
-                        });
-                      },
-                      child: Text(
-                        "🗑️️",
-                        style: TextStyle(fontSize: 48),
-                      )),
-                ],
-              ),
-              Expanded(
-                child: GridView.count(
-                  crossAxisCount: 8,
-                  children: List.generate(64, (index) {
-                    var number = index + 1;
-                    return InkWell(
-                      onTap: () {
-                        setState(() {
-                          if (widget.selectedHexes.contains(number)) {
-                            widget.selectedHexes.remove(number);
-                          } else {
-                            widget.selectedHexes.add(number);
-                          }
-                          widget.onUpdate();
-                        });
-                      },
-                      child: Container(
-                        color: widget.selectedHexes.contains(number)
-                            ? Colors.blue.withAlpha(200)
-                            : Colors.white,
-                        width: width,
-                        height: width,
-                        child: Center(
-                            child: Text(
-                          "${index + 1}",
-                          style: TextStyle(
-                              fontSize: 20,
-                              color: Colors.black,
-                              decoration: null),
+      child: FractionallySizedBox(
+        widthFactor: 1,
+        heightFactor: 1,
+        child: Container(
+          color: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    TextButton(
+                        onPressed: () {
+                          setState(() {
+                            widget.selectedHexes.clear();
+                            widget.selectedHexes.addAll(widget.positivehex);
+                            widget.onUpdate();
+                          });
+                        },
+                        child: Text(
+                          "🙂️",
+                          style: TextStyle(fontSize: 48),
                         )),
-                      ),
-                    );
-                  }),
+                    TextButton(
+                        onPressed: () {
+                          setState(() {
+                            widget.selectedHexes.clear();
+                            widget.selectedHexes.addAll(widget.gHex);
+                            widget.onUpdate();
+                          });
+                        },
+                        child: Text(
+                          "🙃️",
+                          style: TextStyle(fontSize: 48),
+                        )),
+                    TextButton(
+                        onPressed: () {
+                          setState(() {
+                            widget.selectedHexes.clear();
+                            widget.onUpdate();
+                          });
+                        },
+                        child: Text(
+                          "🗑️️",
+                          style: TextStyle(fontSize: 48),
+                        )),
+                  ],
                 ),
-              ),
-            ],
+                Expanded(
+                  child: GridView.count(
+                    crossAxisCount: 12,
+                    children: List.generate(64, (index) {
+                      var number = index + 1;
+                      return InkWell(
+                        onTap: () {
+                          setState(() {
+                            if (widget.selectedHexes.contains(number)) {
+                              widget.selectedHexes.remove(number);
+                            } else {
+                              widget.selectedHexes.add(number);
+                            }
+                            widget.onUpdate();
+                          });
+                        },
+                        child: Container(
+                          color: widget.selectedHexes.contains(number)
+                              ? Colors.blue.withAlpha(200)
+                              : Colors.white,
+                          width: width,
+                          height: width,
+                          child: Center(
+                              child: Text(
+                            "${index + 1}",
+                            style: TextStyle(
+                                fontSize: 20,
+                                color: Colors.black,
+                                decoration: null),
+                          )),
+                        ),
+                      );
+                    }),
+                  ),
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                        child: TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text("Close"),
+                            ))),
+                  ],
+                )
+              ],
+            ),
           ),
         ),
       ),

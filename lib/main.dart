@@ -385,44 +385,50 @@ class _MyHomePageState extends State<MyHomePage> {
         onReorder: onReorder);
 
     return Scaffold(
+        appBar: MediaQuery.of(context).orientation == Orientation.portrait
+            ? AppBar(
+                title: Text("Medici Calculator"),
+              )
+            : null,
         body: Container(
-      child: Column(
-        children: [
-          Row(
-            mainAxisSize: MainAxisSize.max,
+          child: Column(
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    wrap,
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: iChingButtons(context) +
-                            [
-                              Spacer(),
-                              Text(
-                                  "Checked: $checkedCount ($speed / sec.)\nFound: ${foundItems.length}"),
-                              TextButton(
-                                  onPressed: () {
-                                    calculate();
-                                  },
-                                  child: Text(
-                                    calculating ? "🛑" : "🚀",
-                                    style: TextStyle(fontSize: 48),
-                                  )),
-                              Align(
-                                child: TextButton(
+              Row(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        wrap,
+                        Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Text(
+                              "$checkedCount ($speed / sec.), ${foundItems.length} found"),
+                        ),
+                        Wrap(
+                          children: iChingButtons(context) +
+                              [
+                                Spacer(),
+                                TextButton(
+                                    onPressed: () {
+                                      calculate();
+                                    },
+                                    child: Text(
+                                      calculating ? "🛑" : "🚀",
+                                      style: TextStyle(fontSize: 48),
+                                    )),
+                                TextButton(
                                     onPressed: () async {
                                       var result = await showAlertDialog(
                                           actions: [
                                             AlertDialogAction(
-                                                key: 1, label: "Clear results"),
+                                                key: 1,
+                                                label: "Clear results"),
                                             AlertDialogAction(
                                                 key: 2,
-                                                label: "Clear Task & Results"),
+                                                label:
+                                                    "Clear Task & Results"),
                                             AlertDialogAction(
                                                 key: 3, label: "Cancel")
                                           ],
@@ -442,77 +448,75 @@ class _MyHomePageState extends State<MyHomePage> {
                                       "🗑",
                                       style: TextStyle(fontSize: 48),
                                     )),
-                              ),
-                            ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          Expanded(
-            child: Row(
-              children: [
-                Expanded(
-                  flex: 2,
-                  child: Card(
-                    elevation: 2,
-                    child: Container(
-                      child: ListView.builder(
-                        itemBuilder: (context, index) {
-                          var asString = foundItems[index].asString(true);
-                          return InkWell(
-                            onTap: () {
-                              setState(() {
-                                selectedItem = index;
-                              });
-                            },
-                            child: Container(
-                                color: selectedItem == index
-                                    ? Colors.blue.withAlpha(100)
-                                    : Colors.transparent,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(asString),
-                                )),
-                          );
-                        },
-                        itemCount: foundItems.length,
-                      ),
+                              ],
+                        ),
+                      ],
                     ),
                   ),
-                ),
-                Expanded(
-                    flex: 2,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 8),
+                ],
+              ),
+              Expanded(
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 2,
                       child: Card(
                         elevation: 2,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            selectedItem >= 0
-                                ? TextButton(
-                                    onPressed: () {
-                                      Clipboard.setData(ClipboardData(
-                                          text: foundItems[selectedItem]
-                                              .asString(true)));
-                                    },
+                        child: Container(
+                          child: ListView.builder(
+                            itemBuilder: (context, index) {
+                              var asString = foundItems[index].asString(true);
+                              return InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    selectedItem = index;
+                                  });
+                                },
+                                child: Container(
+                                    color: selectedItem == index
+                                        ? Colors.blue.withAlpha(100)
+                                        : Colors.transparent,
                                     child: Padding(
                                       padding: const EdgeInsets.all(8.0),
-                                      child: Text("Копировать"),
-                                    ))
-                                : Container()
-                          ],
+                                      child: Text(asString),
+                                    )),
+                              );
+                            },
+                            itemCount: foundItems.length,
+                          ),
                         ),
                       ),
-                    ))
-              ],
-            ),
-          )
-        ],
-      ),
-    ));
+                    ),
+                    Expanded(
+                        flex: 2,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 8),
+                          child: Card(
+                            elevation: 2,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                selectedItem >= 0
+                                    ? TextButton(
+                                        onPressed: () {
+                                          Clipboard.setData(ClipboardData(
+                                              text: foundItems[selectedItem]
+                                                  .asString(true)));
+                                        },
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Text("Копировать"),
+                                        ))
+                                    : Container()
+                              ],
+                            ),
+                          ),
+                        ))
+                  ],
+                ),
+              )
+            ],
+          ),
+        ));
   }
 }
