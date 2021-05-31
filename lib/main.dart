@@ -92,6 +92,7 @@ class _MyHomePageState extends State<MyHomePage> {
   var selectedItem = -1;
   var checkedCount = 0;
   var speed = 0;
+  var threadsLaunching = false;
 
   void stop() {
     if (initializers.isNotEmpty) {
@@ -104,7 +105,7 @@ class _MyHomePageState extends State<MyHomePage> {
     initializers.clear();
   }
 
-  void doSpawn(List<CardItem> chain) {
+  Future<void> doSpawn(List<CardItem> chain) async {
     if (initializers.isNotEmpty) {
       timer!.cancel();
       print("Stopping ${initializers.length} threads");
@@ -114,7 +115,7 @@ class _MyHomePageState extends State<MyHomePage> {
       return;
     }
     initializers.clear();
-    List.generate(5, (index) async {
+    for (var index = 0; index < 5; index++) {
       var isolateInitializer = IsolateInitializer(index, (Deck param) {
         setState(() {
           foundItems.insert(0, param);
@@ -124,7 +125,7 @@ class _MyHomePageState extends State<MyHomePage> {
       var deckTask = DeckTask(chain, needHex);
       isolateInitializer.isolate = await Isolate.spawn(
           isolateFunc, [index, isolateInitializer.port.sendPort, deckTask]);
-    });
+    }
     timer = Timer.periodic(Duration(seconds: 1), (timer) {
       var sum = initializers.fold<int>(
           0, (previousValue, element) => previousValue + element.count);
@@ -216,7 +217,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                         ),
                         FractionallySizedBox(
-                          heightFactor: 0.2,
+                          heightFactor: 0.3,
                           child: Column(
                             children: [
                               Container(
@@ -238,7 +239,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                         child: Text(
                                           efl == null
                                               ? "️⚙️"
-                                              : "⚡️ ${efl.start.toInt()} - ${efl.end.toInt()}",
+                                              : "⚡️ ${efl.start.toInt()}-${efl.end.toInt()}",
                                           style: TextStyle(
                                               fontSize: 18,
                                               color: Colors.black87),
@@ -286,20 +287,24 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  void calculate() {
+  Future<void> calculate() async {
     if (calculating) {
+      threadsLaunching = false;
       stop();
+      calculating = false;
       setState(() {
-        calculating = false;
       });
     } else {
       selectedItem = -1;
-      foundItems.clear();
-      doSpawn(chainModel);
+      calculating = true;
       setState(() {
+        threadsLaunching = true;
+      });
+      await doSpawn(chainModel);
+      setState(() {
+        threadsLaunching = false;
         speed = 0;
         checkedCount = 0;
-        calculating = true;
       });
     }
   }
@@ -391,7 +396,12 @@ class _MyHomePageState extends State<MyHomePage> {
               )
             : null,
         body: Padding(
-          padding:  EdgeInsets.only(top: MediaQuery.of(context).orientation == Orientation.landscape && Platform.isAndroid ? 20 : 0),
+          padding: EdgeInsets.only(
+              top:
+                  MediaQuery.of(context).orientation == Orientation.landscape &&
+                          Platform.isAndroid
+                      ? 20
+                      : 0),
           child: Container(
             child: Column(
               children: [
@@ -413,7 +423,11 @@ class _MyHomePageState extends State<MyHomePage> {
                                 [
                                   TextButton(
                                       onPressed: () {
-                                        calculate();
+                                        if (!threadsLaunching) {
+                                          calculate();
+                                        } else {
+                                          print("Spawning in process");
+                                        }
                                       },
                                       child: Text(
                                         calculating ? "🛑" : "🚀",
