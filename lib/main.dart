@@ -292,8 +292,7 @@ class _MyHomePageState extends State<MyHomePage> {
       threadsLaunching = false;
       stop();
       calculating = false;
-      setState(() {
-      });
+      setState(() {});
     } else {
       selectedItem = -1;
       calculating = true;
@@ -310,6 +309,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   var scrollController = ScrollController();
+  var viewScrollController = ScrollController();
 
   void setIChing(BuildContext context, CardSuit suit) {
     if (needHex[suit] == null) {
@@ -402,135 +402,146 @@ class _MyHomePageState extends State<MyHomePage> {
                           Platform.isAndroid
                       ? 20
                       : 0),
-          child: Container(
-            child: Column(
-              children: [
-                Row(
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
+          child: SingleChildScrollView(
+            controller: viewScrollController,
+            child: Container(
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            wrap,
+                            Padding(
+                              padding: const EdgeInsets.only(top: 4),
+                              child: Text(
+                                  "$checkedCount ($speed / sec.), ${foundItems.length} found"),
+                            ),
+                            Wrap(
+                              children: iChingButtons(context) +
+                                  [
+                                    TextButton(
+                                        onPressed: () {
+                                          if (!threadsLaunching) {
+                                            calculate();
+                                          } else {
+                                            print("Spawning in process");
+                                          }
+                                        },
+                                        child: Text(
+                                          calculating ? "🛑" : "🚀",
+                                          style: TextStyle(fontSize: 48),
+                                        )),
+                                    TextButton(
+                                        onPressed: () async {
+                                          var result = await showAlertDialog(
+                                              actions: [
+                                                AlertDialogAction(
+                                                    key: 1,
+                                                    label: "Clear results"),
+                                                AlertDialogAction(
+                                                    key: 2,
+                                                    label:
+                                                        "Clear Task & Results"),
+                                                AlertDialogAction(
+                                                    key: 3, label: "Cancel")
+                                              ],
+                                              context: context,
+                                              title: "Clear? Really?");
+                                          if (result == 1) {
+                                            setState(() {
+                                              clearResults();
+                                            });
+                                          } else if (result == 2) {
+                                            setState(() {
+                                              resetChain();
+                                            });
+                                          }
+                                        },
+                                        child: Text(
+                                          "🗑",
+                                          style: TextStyle(fontSize: 48),
+                                        )),
+                                  ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  SafeArea(
+                    child: Container(
+                      height: MediaQuery.of(context).orientation ==
+                              Orientation.landscape
+                          ? 400
+                          : 400,
+                      child: Row(
                         children: [
-                          wrap,
-                          Padding(
-                            padding: const EdgeInsets.only(top: 4),
-                            child: Text(
-                                "$checkedCount ($speed / sec.), ${foundItems.length} found"),
-                          ),
-                          Wrap(
-                            children: iChingButtons(context) +
-                                [
-                                  TextButton(
-                                      onPressed: () {
-                                        if (!threadsLaunching) {
-                                          calculate();
-                                        } else {
-                                          print("Spawning in process");
-                                        }
+                          Expanded(
+                            flex: 2,
+                            child: Card(
+                              elevation: 2,
+                              child: Container(
+                                child: ListView.builder(
+                                  itemBuilder: (context, index) {
+                                    var asString =
+                                        foundItems[index].asString(true);
+                                    return InkWell(
+                                      onTap: () {
+                                        setState(() {
+                                          selectedItem = index;
+                                        });
                                       },
-                                      child: Text(
-                                        calculating ? "🛑" : "🚀",
-                                        style: TextStyle(fontSize: 48),
-                                      )),
-                                  TextButton(
-                                      onPressed: () async {
-                                        var result = await showAlertDialog(
-                                            actions: [
-                                              AlertDialogAction(
-                                                  key: 1,
-                                                  label: "Clear results"),
-                                              AlertDialogAction(
-                                                  key: 2,
-                                                  label:
-                                                      "Clear Task & Results"),
-                                              AlertDialogAction(
-                                                  key: 3, label: "Cancel")
-                                            ],
-                                            context: context,
-                                            title: "Clear? Really?");
-                                        if (result == 1) {
-                                          setState(() {
-                                            clearResults();
-                                          });
-                                        } else if (result == 2) {
-                                          setState(() {
-                                            resetChain();
-                                          });
-                                        }
-                                      },
-                                      child: Text(
-                                        "🗑",
-                                        style: TextStyle(fontSize: 48),
-                                      )),
-                                ],
+                                      child: Container(
+                                          color: selectedItem == index
+                                              ? Colors.blue.withAlpha(100)
+                                              : Colors.transparent,
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text(asString),
+                                          )),
+                                    );
+                                  },
+                                  itemCount: foundItems.length,
+                                ),
+                              ),
+                            ),
                           ),
+                          Expanded(
+                              flex: 2,
+                              child: Padding(
+                                padding: const EdgeInsets.only(left: 8),
+                                child: Card(
+                                  elevation: 2,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      selectedItem >= 0
+                                          ? TextButton(
+                                              onPressed: () {
+                                                Clipboard.setData(ClipboardData(
+                                                    text: foundItems[selectedItem]
+                                                        .asString(true)));
+                                              },
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                child: Text("Копировать"),
+                                              ))
+                                          : Container()
+                                    ],
+                                  ),
+                                ),
+                              ))
                         ],
                       ),
                     ),
-                  ],
-                ),
-                Expanded(
-                  child: Row(
-                    children: [
-                      Expanded(
-                        flex: 2,
-                        child: Card(
-                          elevation: 2,
-                          child: Container(
-                            child: ListView.builder(
-                              itemBuilder: (context, index) {
-                                var asString = foundItems[index].asString(true);
-                                return InkWell(
-                                  onTap: () {
-                                    setState(() {
-                                      selectedItem = index;
-                                    });
-                                  },
-                                  child: Container(
-                                      color: selectedItem == index
-                                          ? Colors.blue.withAlpha(100)
-                                          : Colors.transparent,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Text(asString),
-                                      )),
-                                );
-                              },
-                              itemCount: foundItems.length,
-                            ),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                          flex: 2,
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 8),
-                            child: Card(
-                              elevation: 2,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  selectedItem >= 0
-                                      ? TextButton(
-                                          onPressed: () {
-                                            Clipboard.setData(ClipboardData(
-                                                text: foundItems[selectedItem]
-                                                    .asString(true)));
-                                          },
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Text("Копировать"),
-                                          ))
-                                      : Container()
-                                ],
-                              ),
-                            ),
-                          ))
-                    ],
-                  ),
-                )
-              ],
+                  )
+                ],
+              ),
             ),
           ),
         ));
