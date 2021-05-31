@@ -186,7 +186,7 @@ class _MyHomePageState extends State<MyHomePage> {
       replace.forEach((key, value) {
         name = name.replaceAll(key, value);
       });
-      final width = MediaQuery.of(context).size.width / 14;
+      final width = MediaQuery.of(context).size.width / 13;
       final height = width * 1.3;
       var efl = element.minMaxEfl;
       var card = GestureDetector(
@@ -200,38 +200,61 @@ class _MyHomePageState extends State<MyHomePage> {
             width: width,
             height: height,
             child: Card(
-                child: Column(
-              children: [
-                Container(
-                  height: height / 1.3,
-                  child: Image.asset(
-                    "assets/cards/$name",
-                    fit: BoxFit.scaleDown,
-                  ),
-                ),
-                Expanded(
+                elevation: 5,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(4.0),
                   child: Container(
-                    width: width,
-                    color: Colors.white,
-                    child: InkWell(
-                      onTap: () {
-                        eflDialog(context, element, () {
-                          setState(() {});
-                        });
-                      },
-                      child: Center(
-                        child: Text(
-                          efl == null
-                              ? "️😎"
-                              : "😎 ${efl.start.toInt()} - ${efl.end.toInt()}",
-                          style: TextStyle(fontSize: 12),
+                    height: height / 1.3,
+                    child: Stack(
+                      alignment: Alignment.bottomCenter,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(0.0),
+                          child: Image.asset(
+                            "assets/cards/$name",
+                            fit: BoxFit.cover,
+                          ),
                         ),
-                      ),
+                        FractionallySizedBox(
+                          heightFactor: 0.2,
+                          child: Column(
+                            children: [
+                              Container(
+                                height: 1,
+                                color: Colors.black12,
+                              ),
+                              Expanded(
+                                child: Container(
+                                  color: Colors.white,
+                                  child: InkWell(
+                                    onTap: () {
+                                      eflDialog(context, element, () {
+                                        setState(() {});
+                                      });
+                                    },
+                                    child: Center(
+                                      child: FittedBox(
+                                        fit: BoxFit.fitHeight,
+                                        child: Text(
+                                          efl == null
+                                              ? "️⚙️"
+                                              : "⚡️ ${efl.start.toInt()} - ${efl.end.toInt()}",
+                                          style: TextStyle(
+                                              fontSize: 18,
+                                              color: Colors.black87),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
                     ),
                   ),
-                )
-              ],
-            )),
+                )),
           ));
       tiles.add(card);
     });
@@ -362,139 +385,134 @@ class _MyHomePageState extends State<MyHomePage> {
         onReorder: onReorder);
 
     return Scaffold(
-        appBar: AppBar(
-          title: Text(widget.title),
-        ),
         body: Container(
-          child: Column(
+      child: Column(
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.max,
             children: [
-              Row(
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        wrap,
-                        Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: iChingButtons(context) +
-                                [
-                                  Spacer(),
-                                  Text(
-                                      "Checked: $checkedCount ($speed / sec.)\nFound: ${foundItems.length}"),
-                                  TextButton(
-                                      onPressed: () {
-                                        calculate();
-                                      },
-                                      child: Text(
-                                        calculating ? "🛑" : "🚀",
-                                        style: TextStyle(fontSize: 48),
-                                      )),
-                                  Align(
-                                    child: TextButton(
-                                        onPressed: () async {
-                                          var result = await showAlertDialog(
-                                              actions: [
-                                                AlertDialogAction(
-                                                    key: 1,
-                                                    label: "Clear results"),
-                                                AlertDialogAction(
-                                                    key: 2,
-                                                    label:
-                                                        "Clear Task & Results"),
-                                                AlertDialogAction(
-                                                    key: 3, label: "Cancel")
-                                              ],
-                                              context: context,
-                                              title: "Clear? Really?");
-                                          if (result == 1) {
-                                            setState(() {
-                                              clearResults();
-                                            });
-                                          } else if (result == 2) {
-                                            setState(() {
-                                              resetChain();
-                                            });
-                                          }
-                                        },
-                                        child: Text(
-                                          "🗑",
-                                          style: TextStyle(fontSize: 48),
-                                        )),
-                                  ),
-                                ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
               Expanded(
-                child: Row(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Expanded(
-                      flex: 2,
-                      child: Card(
-                        elevation: 2,
-                        child: Container(
-                          child: ListView.builder(
-                            itemBuilder: (context, index) {
-                              var asString = foundItems[index].asString(true);
-                              return InkWell(
-                                onTap: () {
-                                  setState(() {
-                                    selectedItem = index;
-                                  });
-                                },
-                                child: Container(
-                                    color: selectedItem == index
-                                        ? Colors.blue.withAlpha(100)
-                                        : Colors.transparent,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Text(asString),
+                    wrap,
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: iChingButtons(context) +
+                            [
+                              Spacer(),
+                              Text(
+                                  "Checked: $checkedCount ($speed / sec.)\nFound: ${foundItems.length}"),
+                              TextButton(
+                                  onPressed: () {
+                                    calculate();
+                                  },
+                                  child: Text(
+                                    calculating ? "🛑" : "🚀",
+                                    style: TextStyle(fontSize: 48),
+                                  )),
+                              Align(
+                                child: TextButton(
+                                    onPressed: () async {
+                                      var result = await showAlertDialog(
+                                          actions: [
+                                            AlertDialogAction(
+                                                key: 1, label: "Clear results"),
+                                            AlertDialogAction(
+                                                key: 2,
+                                                label: "Clear Task & Results"),
+                                            AlertDialogAction(
+                                                key: 3, label: "Cancel")
+                                          ],
+                                          context: context,
+                                          title: "Clear? Really?");
+                                      if (result == 1) {
+                                        setState(() {
+                                          clearResults();
+                                        });
+                                      } else if (result == 2) {
+                                        setState(() {
+                                          resetChain();
+                                        });
+                                      }
+                                    },
+                                    child: Text(
+                                      "🗑",
+                                      style: TextStyle(fontSize: 48),
                                     )),
-                              );
-                            },
-                            itemCount: foundItems.length,
-                          ),
-                        ),
+                              ),
+                            ],
                       ),
                     ),
-                    Expanded(
-                        flex: 2,
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 8),
-                          child: Card(
-                            elevation: 2,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                selectedItem >= 0
-                                    ? TextButton(
-                                        onPressed: () {
-                                          Clipboard.setData(ClipboardData(
-                                              text: foundItems[selectedItem]
-                                                  .asString(true)));
-                                        },
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Text("Копировать"),
-                                        ))
-                                    : Container()
-                              ],
-                            ),
-                          ),
-                        ))
                   ],
                 ),
-              )
+              ),
             ],
           ),
-        ));
+          Expanded(
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: Card(
+                    elevation: 2,
+                    child: Container(
+                      child: ListView.builder(
+                        itemBuilder: (context, index) {
+                          var asString = foundItems[index].asString(true);
+                          return InkWell(
+                            onTap: () {
+                              setState(() {
+                                selectedItem = index;
+                              });
+                            },
+                            child: Container(
+                                color: selectedItem == index
+                                    ? Colors.blue.withAlpha(100)
+                                    : Colors.transparent,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(asString),
+                                )),
+                          );
+                        },
+                        itemCount: foundItems.length,
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                    flex: 2,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 8),
+                      child: Card(
+                        elevation: 2,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            selectedItem >= 0
+                                ? TextButton(
+                                    onPressed: () {
+                                      Clipboard.setData(ClipboardData(
+                                          text: foundItems[selectedItem]
+                                              .asString(true)));
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text("Копировать"),
+                                    ))
+                                : Container()
+                          ],
+                        ),
+                      ),
+                    ))
+              ],
+            ),
+          )
+        ],
+      ),
+    ));
   }
 }
