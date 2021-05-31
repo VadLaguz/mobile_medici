@@ -390,132 +390,134 @@ class _MyHomePageState extends State<MyHomePage> {
                 title: Text("Medici Calculator"),
               )
             : null,
-        body: Container(
-          child: Column(
-            children: [
-              Row(
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        wrap,
-                        Padding(
-                          padding: const EdgeInsets.only(top: 4),
-                          child: Text(
-                              "$checkedCount ($speed / sec.), ${foundItems.length} found"),
-                        ),
-                        Wrap(
-                          children: iChingButtons(context) +
-                              [
-                                Spacer(),
-                                TextButton(
-                                    onPressed: () {
-                                      calculate();
-                                    },
-                                    child: Text(
-                                      calculating ? "🛑" : "🚀",
-                                      style: TextStyle(fontSize: 48),
-                                    )),
-                                TextButton(
-                                    onPressed: () async {
-                                      var result = await showAlertDialog(
-                                          actions: [
-                                            AlertDialogAction(
-                                                key: 1,
-                                                label: "Clear results"),
-                                            AlertDialogAction(
-                                                key: 2,
-                                                label:
-                                                    "Clear Task & Results"),
-                                            AlertDialogAction(
-                                                key: 3, label: "Cancel")
-                                          ],
-                                          context: context,
-                                          title: "Clear? Really?");
-                                      if (result == 1) {
-                                        setState(() {
-                                          clearResults();
-                                        });
-                                      } else if (result == 2) {
-                                        setState(() {
-                                          resetChain();
-                                        });
-                                      }
-                                    },
-                                    child: Text(
-                                      "🗑",
-                                      style: TextStyle(fontSize: 48),
-                                    )),
-                              ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              Expanded(
-                child: Row(
+        body: Padding(
+          padding:  EdgeInsets.only(top: MediaQuery.of(context).orientation == Orientation.landscape && Platform.isAndroid ? 20 : 0),
+          child: Container(
+            child: Column(
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.max,
                   children: [
                     Expanded(
-                      flex: 2,
-                      child: Card(
-                        elevation: 2,
-                        child: Container(
-                          child: ListView.builder(
-                            itemBuilder: (context, index) {
-                              var asString = foundItems[index].asString(true);
-                              return InkWell(
-                                onTap: () {
-                                  setState(() {
-                                    selectedItem = index;
-                                  });
-                                },
-                                child: Container(
-                                    color: selectedItem == index
-                                        ? Colors.blue.withAlpha(100)
-                                        : Colors.transparent,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Text(asString),
-                                    )),
-                              );
-                            },
-                            itemCount: foundItems.length,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          wrap,
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Text(
+                                "$checkedCount ($speed / sec.), ${foundItems.length} found"),
+                          ),
+                          Wrap(
+                            children: iChingButtons(context) +
+                                [
+                                  TextButton(
+                                      onPressed: () {
+                                        calculate();
+                                      },
+                                      child: Text(
+                                        calculating ? "🛑" : "🚀",
+                                        style: TextStyle(fontSize: 48),
+                                      )),
+                                  TextButton(
+                                      onPressed: () async {
+                                        var result = await showAlertDialog(
+                                            actions: [
+                                              AlertDialogAction(
+                                                  key: 1,
+                                                  label: "Clear results"),
+                                              AlertDialogAction(
+                                                  key: 2,
+                                                  label:
+                                                      "Clear Task & Results"),
+                                              AlertDialogAction(
+                                                  key: 3, label: "Cancel")
+                                            ],
+                                            context: context,
+                                            title: "Clear? Really?");
+                                        if (result == 1) {
+                                          setState(() {
+                                            clearResults();
+                                          });
+                                        } else if (result == 2) {
+                                          setState(() {
+                                            resetChain();
+                                          });
+                                        }
+                                      },
+                                      child: Text(
+                                        "🗑",
+                                        style: TextStyle(fontSize: 48),
+                                      )),
+                                ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: Card(
+                          elevation: 2,
+                          child: Container(
+                            child: ListView.builder(
+                              itemBuilder: (context, index) {
+                                var asString = foundItems[index].asString(true);
+                                return InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      selectedItem = index;
+                                    });
+                                  },
+                                  child: Container(
+                                      color: selectedItem == index
+                                          ? Colors.blue.withAlpha(100)
+                                          : Colors.transparent,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Text(asString),
+                                      )),
+                                );
+                              },
+                              itemCount: foundItems.length,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    Expanded(
-                        flex: 2,
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 8),
-                          child: Card(
-                            elevation: 2,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                selectedItem >= 0
-                                    ? TextButton(
-                                        onPressed: () {
-                                          Clipboard.setData(ClipboardData(
-                                              text: foundItems[selectedItem]
-                                                  .asString(true)));
-                                        },
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Text("Копировать"),
-                                        ))
-                                    : Container()
-                              ],
+                      Expanded(
+                          flex: 2,
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 8),
+                            child: Card(
+                              elevation: 2,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  selectedItem >= 0
+                                      ? TextButton(
+                                          onPressed: () {
+                                            Clipboard.setData(ClipboardData(
+                                                text: foundItems[selectedItem]
+                                                    .asString(true)));
+                                          },
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text("Копировать"),
+                                          ))
+                                      : Container()
+                                ],
+                              ),
                             ),
-                          ),
-                        ))
-                  ],
-                ),
-              )
-            ],
+                          ))
+                    ],
+                  ),
+                )
+              ],
+            ),
           ),
         ));
   }
