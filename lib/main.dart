@@ -5,6 +5,8 @@ import 'dart:isolate';
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mobile_medici/CalculateSettingsWidget.dart';
+import 'package:mobile_medici/model/Settings.dart';
 import 'package:mobile_medici/reorderables/src/widgets/reorderable_wrap.dart';
 import 'package:range_slider_dialog/range_slider_dialog.dart';
 
@@ -62,7 +64,7 @@ void isolateFunc(List<Object> message) {
   while (true) {
     counter++;
     deck.shuffle();
-    if (deck.check()) {
+    if (deck.check(maxTransits: task.maxTransits)) {
       port.send(deck);
     }
     if (circleWatch.elapsedMilliseconds >= 1000) {
@@ -93,6 +95,7 @@ class _MyHomePageState extends State<MyHomePage> {
   var checkedCount = 0;
   var speed = 0;
   var threadsLaunching = false;
+  var calcSettings = CalcSettings();
 
   void stop() {
     if (initializers.isNotEmpty) {
@@ -109,14 +112,14 @@ class _MyHomePageState extends State<MyHomePage> {
     if (initializers.isNotEmpty) {
       stop();
     }
-    for (var index = 0; index < 5; index++) {
+    for (var index = 0; index < calcSettings.threads; index++) {
       var isolateInitializer = IsolateInitializer(index, (Deck param) {
         setState(() {
           foundItems.insert(0, param);
         });
       });
       initializers.add(isolateInitializer);
-      var deckTask = DeckTask(chain, needHex);
+      var deckTask = DeckTask(chain, needHex, calcSettings.maxTransits);
       isolateInitializer.isolate = await Isolate.spawn(
           isolateFunc, [index, isolateInitializer.port.sendPort, deckTask]);
     }
@@ -358,9 +361,11 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Container(
               width: 10,
               height: 10,
-              color: (needHex[suit] ?? []).length == 0
-                  ? Colors.transparent
-                  : Colors.red,
+              decoration: BoxDecoration(
+                  color: (needHex[suit] ?? []).length == 0
+                      ? Colors.transparent
+                      : Colors.red,
+                  shape: BoxShape.circle),
             ),
           )
         ],
@@ -473,7 +478,10 @@ class _MyHomePageState extends State<MyHomePage> {
                                               await showTextInputDialog(
                                                   context: context,
                                                   textFields: [
-                                                DialogTextField(hintText: "Enter your chain here")
+                                                DialogTextField(
+                                                  maxLines: 10,
+                                                    hintText:
+                                                        "Enter your chain here")
                                               ]);
                                           if (result != null) {
                                             final deck = Deck();
@@ -502,6 +510,41 @@ class _MyHomePageState extends State<MyHomePage> {
                                           "✍️",
                                           style: TextStyle(fontSize: 48),
                                         )),
+                                    Stack(
+                                      alignment: Alignment.topRight,
+                                      children: [
+                                        TextButton(
+                                            onPressed: () async {
+                                              showDialog(
+                                                context: context,
+                                                builder: (context) {
+                                                  return Center(
+                                                      child:
+                                                          CalculateSettingsWidget(
+                                                              calcSettings, () {
+                                                    setState(() {});
+                                                  }));
+                                                },
+                                              );
+                                            },
+                                            child: Text(
+                                              "⚙️",
+                                              style: TextStyle(fontSize: 48),
+                                            )),
+                                        IgnorePointer(
+                                          child: Container(
+                                            width: 10,
+                                            height: 10,
+                                            decoration: BoxDecoration(
+                                                color: calcSettings.isDefault()
+                                                    ? Colors.transparent
+                                                    : Colors.red,
+                                                shape: BoxShape.circle
+                                            ),
+                                          ),
+                                        )
+                                      ],
+                                    ),
                                     TextButton(
                                         onPressed: () {
                                           if (!threadsLaunching) {

@@ -108,8 +108,9 @@ var hexToEmoji = {
 class DeckTask {
   List<CardItem> mask;
   Map<CardSuit, List<int>> needHex;
+  int maxTransits;
 
-  DeckTask(this.mask, this.needHex);
+  DeckTask(this.mask, this.needHex, this.maxTransits);
 }
 
 class CardItem {
@@ -201,7 +202,7 @@ class Deck {
       retVal += s + (card.efl > 0 && efl ? "!${card.efl}" : "") + " ";
     });
     if (withoutEfl) {
-      retVal+="\n";
+      retVal += "\n";
       cards.forEach((card) {
         var s = card.toString();
         retVal += s + " ";
@@ -304,7 +305,7 @@ class Deck {
     return list;
   }
 
-  bool check() {
+  bool check({int maxTransits = 0}) {
     mobiles.clear();
     stationars.clear();
     hex.clear();
@@ -323,6 +324,11 @@ class Deck {
         }
       }
     });
+    if (maxTransits > 0) {
+      if (cards.where((element) => element.efl > 0).length > maxTransits) {
+        bool = false;
+      }
+    }
     if (bool) {
       CardSuit.values.forEach((suit) {
         var hex = "";
