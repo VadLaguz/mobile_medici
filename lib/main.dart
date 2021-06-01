@@ -107,14 +107,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> doSpawn(List<CardItem> chain) async {
     if (initializers.isNotEmpty) {
-      timer!.cancel();
-      print("Stopping ${initializers.length} threads");
-      initializers.forEach((element) {
-        element.isolate.kill(priority: Isolate.immediate);
-      });
-      return;
+      stop();
     }
-    initializers.clear();
     for (var index = 0; index < 5; index++) {
       var isolateInitializer = IsolateInitializer(index, (Deck param) {
         setState(() {
@@ -190,10 +184,12 @@ class _MyHomePageState extends State<MyHomePage> {
       final width = MediaQuery.of(context).size.width / 13;
       final height = width * 1.3;
       var efl = element.minMaxEfl;
+      var currentEfl = selectedItem > -1 ? element.efl : 0;
       var card = GestureDetector(
           onTap: () {
             setState(() {
               element.fixed = !element.fixed;
+              selectedItem = -1;
             });
           },
           child: Container(
@@ -226,7 +222,9 @@ class _MyHomePageState extends State<MyHomePage> {
                               ),
                               Expanded(
                                 child: Container(
-                                  color: Colors.white,
+                                  color: currentEfl > 0
+                                      ? Colors.indigoAccent
+                                      : Colors.white,
                                   child: InkWell(
                                     onTap: () {
                                       eflDialog(context, element, () {
@@ -236,14 +234,21 @@ class _MyHomePageState extends State<MyHomePage> {
                                     child: Center(
                                       child: FittedBox(
                                         fit: BoxFit.fitHeight,
-                                        child: Text(
-                                          efl == null
-                                              ? "️⚙️"
-                                              : "⚡️ ${efl.start.toInt()}-${efl.end.toInt()}",
-                                          style: TextStyle(
-                                              fontSize: 18,
-                                              color: Colors.black87),
-                                        ),
+                                        child: currentEfl > 0
+                                            ? Text(
+                                                "⚡️️ ${currentEfl}",
+                                                style: TextStyle(
+                                                    fontSize: 18,
+                                                    color: Colors.white),
+                                              )
+                                            : Text(
+                                                efl == null
+                                                    ? "️⚙️"
+                                                    : "⚙️ ${efl.start.toInt()}-${efl.end.toInt()}",
+                                                style: TextStyle(
+                                                    fontSize: 18,
+                                                    color: Colors.black87),
+                                              ),
                                       ),
                                     ),
                                   ),
@@ -265,6 +270,9 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> eflDialog(
       BuildContext context, CardItem item, Function onSet) async {
     //return Future<Void>.;
+    setState(() {
+      selectedItem = -1;
+    });
     await RangeSliderDialog.display<int>(context,
         minValue: 0,
         width: Platform.isWindows || Platform.isMacOS || Platform.isLinux
@@ -296,9 +304,7 @@ class _MyHomePageState extends State<MyHomePage> {
     } else {
       selectedItem = -1;
       calculating = true;
-      setState(() {
-        threadsLaunching = true;
-      });
+      threadsLaunching = true;
       await doSpawn(chainModel);
       setState(() {
         threadsLaunching = false;
@@ -363,6 +369,41 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  void showSelectedDeck() {
+    if (selectedItem > -1) {
+      setState(() {
+        var item = foundItems[selectedItem];
+        /*for (var i = 0; i < item.cards.length; i++) {
+          chainModel.insert(i, chainModel.removeAt(chainModel.indexOf(item.cards[i])));
+        }*/
+        chainModel.clear();
+        chainModel.addAll(item.cards);
+      });
+    }
+  }
+
+  Widget buildDetailsPane(BuildContext context) {
+    //buildDetailsPane(context)
+
+    if (selectedItem >= 0) {
+      return Column(
+        children: [
+          TextButton(
+              onPressed: () {
+                Clipboard.setData(ClipboardData(
+                    text: foundItems[selectedItem].asString(true, true)));
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text("Копировать"),
+              ))
+        ],
+      );
+    }
+
+    return Container();
+  }
+
   @override
   Widget build(BuildContext context) {
     makeTiles();
@@ -386,6 +427,9 @@ class _MyHomePageState extends State<MyHomePage> {
           //this callback is optional
           /*debugPrint(
               '${DateTime.now().toString().substring(5, 22)} reorder started: index:$index');*/
+          setState(() {
+            selectedItem = -1;
+          });
         },
         onReorder: onReorder);
 
@@ -423,6 +467,41 @@ class _MyHomePageState extends State<MyHomePage> {
                             Wrap(
                               children: iChingButtons(context) +
                                   [
+                                    TextButton(
+                                        onPressed: () async {
+                                          final result =
+                                              await showTextInputDialog(
+                                                  context: context,
+                                                  textFields: [
+                                                DialogTextField(hintText: "Enter your chain here")
+                                              ]);
+                                          if (result != null) {
+                                            final deck = Deck();
+                                            if (deck.parse(result.first)) {
+                                              chainModel.clear();
+                                              chainModel.addAll(deck.cards);
+                                              setState(() {
+                                                if (deck.check()) {
+                                                  foundItems.insert(0, deck);
+                                                  selectedItem = 0;
+                                                }
+                                              });
+                                            } else {
+                                              showAlertDialog(
+                                                  context: context,
+                                                  title: "Error",
+                                                  message: "Invalid chain",
+                                                  actions: [
+                                                    AlertDialogAction(
+                                                        key: 1, label: "OK 🤨")
+                                                  ]);
+                                            }
+                                          }
+                                        },
+                                        child: Text(
+                                          "✍️",
+                                          style: TextStyle(fontSize: 48),
+                                        )),
                                     TextButton(
                                         onPressed: () {
                                           if (!threadsLaunching) {
@@ -488,11 +567,12 @@ class _MyHomePageState extends State<MyHomePage> {
                                 child: ListView.builder(
                                   itemBuilder: (context, index) {
                                     var asString =
-                                        foundItems[index].asString(true);
+                                        foundItems[index].asString(true, false);
                                     return InkWell(
                                       onTap: () {
                                         setState(() {
                                           selectedItem = index;
+                                          showSelectedDeck();
                                         });
                                       },
                                       child: Container(
@@ -516,24 +596,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 padding: const EdgeInsets.only(left: 8),
                                 child: Card(
                                   elevation: 2,
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      selectedItem >= 0
-                                          ? TextButton(
-                                              onPressed: () {
-                                                Clipboard.setData(ClipboardData(
-                                                    text: foundItems[selectedItem]
-                                                        .asString(true)));
-                                              },
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.all(8.0),
-                                                child: Text("Копировать"),
-                                              ))
-                                          : Container()
-                                    ],
-                                  ),
+                                  child: buildDetailsPane(context),
                                 ),
                               ))
                         ],

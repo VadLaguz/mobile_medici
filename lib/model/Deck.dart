@@ -194,13 +194,19 @@ class Deck {
     });
   }
 
-  String asString(bool efl) {
+  String asString(bool efl, bool withoutEfl) {
     var retVal = "";
     cards.forEach((card) {
       var s = card.toString();
       retVal += s + (card.efl > 0 && efl ? "!${card.efl}" : "") + " ";
     });
-
+    if (withoutEfl) {
+      retVal+="\n";
+      cards.forEach((card) {
+        var s = card.toString();
+        retVal += s + " ";
+      });
+    }
     var hexString = "";
     hex.forEach((key, value) {
       hexString += hexToEmoji[key]! +
@@ -253,7 +259,7 @@ class Deck {
     }
   }
 
-  void parse(String s) {
+  bool parse(String s) {
     cards.clear();
     final fixedChain = s
         .replaceAll("10", "X")
@@ -265,13 +271,15 @@ class Deck {
       return (previousValue ?? "").toString() +
           (okSymbols.contains(s) ? s : "");
     });
-
     for (var i = 0; i < fixedChain.length; i += 2) {
       final card = CardItem.fromString(fixedChain.substring(i, i + 2));
       card.indexInDeck = cards.length;
       cards.add(card);
     }
-    print(cards);
+    if (cards.length != 36) {
+      return false;
+    }
+    return true;
   }
 
   List<CardItem> process(List<CardItem> list) {
@@ -354,6 +362,6 @@ class Deck {
   }
 
   void printStats() {
-    print(asString(true));
+    //print(asString(true));
   }
 }
