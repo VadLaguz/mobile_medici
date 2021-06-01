@@ -39,6 +39,7 @@ class IsolateInitializer {
   late Isolate isolate;
   var count = 0;
   Function onUpdate;
+  SendPort? sendPort;
 
   IsolateInitializer(this.index, this.onUpdate) {
     port = ReceivePort();
@@ -48,20 +49,34 @@ class IsolateInitializer {
       } else if (message is Deck) {
         //message.printStats();
         onUpdate(message);
+      } else if (message is SendPort) {
+        sendPort = message;
       }
     });
   }
 }
 
-void isolateFunc(List<Object> message) {
+Future<void> isolateFunc(List<Object> message) async {
   SendPort port = message[1] as SendPort;
   DeckTask task = message[2] as DeckTask;
+
+  ReceivePort mainToIsolateStream = ReceivePort();
+  port.send(mainToIsolateStream.sendPort);
+
+  var work = true;
+  mainToIsolateStream.listen((data) {
+    if (data == "kill") {
+      work = false;
+    }
+  });
+
   final deck = Deck();
   deck.setMaskByList(task.mask);
   deck.needHex = task.needHex;
   var counter = 0;
   var circleWatch = Stopwatch()..start();
-  while (true) {
+  while (work) {
+    //work = false;
     counter++;
     deck.shuffle();
     if (deck.check(maxTransits: task.maxTransits)) {
@@ -72,6 +87,7 @@ void isolateFunc(List<Object> message) {
       port.send(counter);
       counter = 0;
     }
+    //await Future.delayed(Duration.zero);
   }
 }
 
@@ -102,6 +118,9 @@ class _MyHomePageState extends State<MyHomePage> {
       timer!.cancel();
       print("Stopping ${initializers.length} threads");
       initializers.forEach((element) {
+        if (element.sendPort != null) {
+          element.sendPort!.send("kill");
+        }
         element.isolate.kill(priority: Isolate.immediate);
       });
     }
@@ -561,7 +580,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                                 alignment: Alignment.center,
                                                 children: [
                                                   Text(
-                                                    "", //костыль для центрирования крутилки по вертикали сорян
+                                                    "",
+                                                    //костыль для центрирования крутилки по вертикали сорян
                                                     style:
                                                         TextStyle(fontSize: 48),
                                                   ),

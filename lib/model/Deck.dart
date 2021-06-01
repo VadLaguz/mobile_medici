@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 var hexTable = ("#11 (111000) Расцвет\n" +
@@ -122,6 +124,7 @@ class CardItem {
   String? cardString;
   var fixed = false;
   RangeValues? minMaxEfl;
+  var linked = <CardItem>[];
 
   CardItem(this.suit, this.nominal);
 
@@ -173,6 +176,7 @@ class Deck {
   Map<CardSuit, List<int>> needHex = {};
   CardItem? rightTransit;
   List<CardItem> maskCards = [];
+  List<CardItem> fixedTransits = [];
   final okSymbols = nominalsToRu.values.map((e) => e.toLowerCase()).toList() +
       suitsToRu.values.map((e) => e.toLowerCase()).toList();
 
@@ -224,6 +228,24 @@ class Deck {
     maskCards.forEach((element) {
       cards.insert(element.indexInDeck, element);
     });
+
+    var allLinked = <CardItem>[];
+    fixedTransits.forEach((item) {
+      if (item.indexInDeck > 1) {
+        item.linked.shuffle();
+        for (var linkedItem in item.linked) {
+          if (!allLinked.contains(linkedItem)) {
+            allLinked.add(linkedItem);
+            cards.remove(linkedItem);
+            var preTransitIdx = item.indexInDeck - 2;
+            cards.insert(preTransitIdx, linkedItem);
+            allLinked.add(linkedItem);
+            break;
+          }
+        }
+      }
+    });
+    cards = cards;
     cards.asMap().forEach((key, value) {
       value.indexInDeck = key;
       value.efl = 0;
@@ -233,6 +255,7 @@ class Deck {
   void setMask(String s) {
     final mask = s.split(" ");
     maskCards.clear();
+    fixedTransits.clear();
     mask.asMap().forEach((key, value) {
       if (value != "*") {
         final card = CardItem.fromString(value);
@@ -245,6 +268,7 @@ class Deck {
 
   void setMaskByList(List<CardItem> chainModel) {
     maskCards.clear();
+    fixedTransits.clear();
     cards.clear();
     for (var i = 0; i < chainModel.length; i++) {
       var item = chainModel[i];
@@ -257,6 +281,24 @@ class Deck {
         item.indexInDeck = 0;
       }
       cards.add(item);
+    }
+
+    for (var item in cards) {
+      if (item.minMaxEfl != null && item.minMaxEfl!.start > 0 && item.fixed) {
+        item.linked.clear();
+        CardSuit.values.forEach((suit) {
+          Nominal.values.forEach((nom) {
+            if (!(suit == item.suit && nom == item.nominal) && (suit == item.suit || nom == item.nominal)) {
+              //карта по номиналу или масти подходит для транзита, но не та же + не закрепленная
+              var firstWhere = cards.firstWhere((element) => element.suit == suit && element.nominal == nom);
+              if (!firstWhere.fixed) {
+                item.linked.add(firstWhere);
+              }
+            }
+          });
+        });
+        fixedTransits.add(item);
+      }
     }
   }
 
