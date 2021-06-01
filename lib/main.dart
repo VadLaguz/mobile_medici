@@ -506,7 +506,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                                   context: context,
                                                   textFields: [
                                                 DialogTextField(
-                                                    maxLines: 10,
+                                                    maxLines: 3,
                                                     hintText:
                                                         "Enter your chain here")
                                               ]);
