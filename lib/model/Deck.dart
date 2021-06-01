@@ -236,9 +236,11 @@ class Deck {
         for (var linkedItem in item.linked) {
           if (!allLinked.contains(linkedItem)) {
             allLinked.add(linkedItem);
-            cards.remove(linkedItem);
+            var linkedPos = cards.indexOf(linkedItem);
             var preTransitIdx = item.indexInDeck - 2;
-            cards.insert(preTransitIdx, linkedItem);
+            var temp = cards[preTransitIdx];
+            cards[preTransitIdx] =  linkedItem;
+            cards[linkedPos] = temp;
             allLinked.add(linkedItem);
             break;
           }
