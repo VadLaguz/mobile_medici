@@ -299,18 +299,26 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> calculate() async {
+    if (threadsLaunching) {
+      print("Spawning starting");
+      return;
+    }
     if (calculating) {
-      threadsLaunching = false;
       stop();
+      threadsLaunching = false;
       calculating = false;
       setState(() {});
     } else {
       selectedItem = -1;
-      calculating = true;
-      threadsLaunching = true;
-      await doSpawn(chainModel);
       setState(() {
-        threadsLaunching = false;
+        calculating = true;
+      });
+      setState(() {
+        threadsLaunching = true;
+      });
+      await doSpawn(chainModel);
+      threadsLaunching = false;
+      setState(() {
         speed = 0;
         checkedCount = 0;
       });
@@ -479,7 +487,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                                   context: context,
                                                   textFields: [
                                                 DialogTextField(
-                                                  maxLines: 10,
+                                                    maxLines: 10,
                                                     hintText:
                                                         "Enter your chain here")
                                               ]);
@@ -539,24 +547,31 @@ class _MyHomePageState extends State<MyHomePage> {
                                                 color: calcSettings.isDefault()
                                                     ? Colors.transparent
                                                     : Colors.red,
-                                                shape: BoxShape.circle
-                                            ),
+                                                shape: BoxShape.circle),
                                           ),
                                         )
                                       ],
                                     ),
                                     TextButton(
                                         onPressed: () {
-                                          if (!threadsLaunching) {
-                                            calculate();
-                                          } else {
-                                            print("Spawning in process");
-                                          }
+                                          calculate();
                                         },
-                                        child: Text(
-                                          calculating ? "🛑" : "🚀",
-                                          style: TextStyle(fontSize: 48),
-                                        )),
+                                        child: threadsLaunching
+                                            ? Stack(
+                                                alignment: Alignment.center,
+                                                children: [
+                                                  Text(
+                                                    "", //костыль для центрирования крутилки по вертикали сорян
+                                                    style:
+                                                        TextStyle(fontSize: 48),
+                                                  ),
+                                                  CircularProgressIndicator(),
+                                                ],
+                                              )
+                                            : Text(
+                                                calculating ? "🛑" : "🚀",
+                                                style: TextStyle(fontSize: 48),
+                                              )),
                                     TextButton(
                                         onPressed: () async {
                                           var result = await showAlertDialog(
