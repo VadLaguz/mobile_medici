@@ -239,7 +239,7 @@ class Deck {
             var linkedPos = cards.indexOf(linkedItem);
             var preTransitIdx = item.indexInDeck - 2;
             var temp = cards[preTransitIdx];
-            cards[preTransitIdx] =  linkedItem;
+            cards[preTransitIdx] = linkedItem;
             cards[linkedPos] = temp;
             allLinked.add(linkedItem);
             break;
@@ -290,9 +290,11 @@ class Deck {
         item.linked.clear();
         CardSuit.values.forEach((suit) {
           Nominal.values.forEach((nom) {
-            if (!(suit == item.suit && nom == item.nominal) && (suit == item.suit || nom == item.nominal)) {
+            if (!(suit == item.suit && nom == item.nominal) &&
+                (suit == item.suit || nom == item.nominal)) {
               //карта по номиналу или масти подходит для транзита, но не та же + не закрепленная
-              var firstWhere = cards.firstWhere((element) => element.suit == suit && element.nominal == nom);
+              var firstWhere = cards.firstWhere(
+                  (element) => element.suit == suit && element.nominal == nom);
               if (!firstWhere.fixed) {
                 item.linked.add(firstWhere);
               }
@@ -306,25 +308,32 @@ class Deck {
 
   bool parse(String s) {
     cards.clear();
-    final fixedChain = s
-        .replaceAll("10", "X")
-        .toLowerCase()
-        .runes
-        .toList()
-        .fold("", (previousValue, element) {
-      var s = String.fromCharCode(element);
-      return (previousValue ?? "").toString() +
-          (okSymbols.contains(s) ? s : "");
-    });
-    for (var i = 0; i < fixedChain.length; i += 2) {
-      final card = CardItem.fromString(fixedChain.substring(i, i + 2));
-      card.indexInDeck = cards.length;
-      cards.add(card);
-    }
-    if (cards.length != 36) {
+    try {
+      final fixedChain = s
+          .replaceAll("10", "X")
+          .toLowerCase()
+          .split(" ")
+          .map((e) => e.substring(0, 2))
+          .fold<String>("", (previousValue, element) => previousValue + element)
+          .runes
+          .toList()
+          .fold("", (previousValue, element) {
+        var s = String.fromCharCode(element);
+        return (previousValue ?? "").toString() +
+            (okSymbols.contains(s) ? s : "");
+      });
+      for (var i = 0; i < fixedChain.length; i += 2) {
+        final card = CardItem.fromString(fixedChain.substring(i, i + 2));
+        card.indexInDeck = cards.length;
+        cards.add(card);
+      }
+      if (cards.length != 36) {
+        return false;
+      }
+      return true;
+    } catch (e) {
       return false;
     }
-    return true;
   }
 
   List<CardItem> process(List<CardItem> list) {
