@@ -310,20 +310,54 @@ class Deck {
   bool parse(String s) {
     cards.clear();
     try {
-      final fixedChain = s
-          .trim()
-          .replaceAll("10", "X")
-          .toLowerCase()
-          .split(" ")
+      var fixedChain = s.trim();
+      if (fixedChain.contains("<")) {
+        fixedChain = s
+            .trim()
+            .replaceAll("10", "X")
+            .toLowerCase()
+        
+            .runes
+            .toList()
+            .fold("", (previousValue, element) {
+          var s = String.fromCharCode(element);
+          return (previousValue ?? "").toString() +
+              (okSymbols.contains(s) ? s : "");
+        });
+      } else if (fixedChain.contains(" ")) {
+        fixedChain = s
+            .trim()
+            .replaceAll("10", "X")
+            .toLowerCase()
+            .split(" ")
+            .map((e) => e.substring(0, 2))
+            .fold<String>(
+                "", (previousValue, element) => previousValue + element)
+            .runes
+            .toList()
+            .fold("", (previousValue, element) {
+          var s = String.fromCharCode(element);
+          return (previousValue ?? "").toString() +
+              (okSymbols.contains(s) ? s : "");
+        });
+      } else {
+        //гера формат
+        fixedChain = s
+            .trim()
+            .replaceAll("10", "X")
+            .toLowerCase()
+            /*.split(" ")
           .map((e) => e.substring(0, 2))
-          .fold<String>("", (previousValue, element) => previousValue + element)
-          .runes
-          .toList()
-          .fold("", (previousValue, element) {
-        var s = String.fromCharCode(element);
-        return (previousValue ?? "").toString() +
-            (okSymbols.contains(s) ? s : "");
-      });
+          .fold<String>("", (previousValue, element) => previousValue + element)*/
+            .runes
+            .toList()
+            .fold("", (previousValue, element) {
+          var s = String.fromCharCode(element);
+          return (previousValue ?? "").toString() +
+              (okSymbols.contains(s) ? s : "");
+        });
+      }
+
       for (var i = 0; i < fixedChain.length; i += 2) {
         final card = CardItem.fromString(fixedChain.substring(i, i + 2));
         card.indexInDeck = cards.length;
