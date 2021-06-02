@@ -311,6 +311,7 @@ class Deck {
     cards.clear();
     try {
       final fixedChain = s
+          .trim()
           .replaceAll("10", "X")
           .toLowerCase()
           .split(" ")
