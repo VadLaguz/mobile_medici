@@ -111,8 +111,9 @@ class DeckTask {
   List<CardItem> mask;
   Map<CardSuit, List<int>> needHex;
   int maxTransits;
+  int threadIdx;
 
-  DeckTask(this.mask, this.needHex, this.maxTransits);
+  DeckTask(this.mask, this.needHex, this.maxTransits, this.threadIdx);
 }
 
 class CardItem {

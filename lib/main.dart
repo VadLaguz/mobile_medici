@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:adaptive_dialog/adaptive_dialog.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_medici/CalculateSettingsWidget.dart';
@@ -51,6 +52,8 @@ class IsolateInitializer {
         onUpdate(message);
       } else if (message is SendPort) {
         sendPort = message;
+      } else if (message is String) {
+        onUpdate(message);
       }
     });
   }
@@ -69,7 +72,7 @@ Future<void> isolateFunc(List<Object> message) async {
       work = false;
     }
   });
-
+  port.send(task.threadIdx.toString());
   final deck = Deck();
   deck.setMaskByList(task.mask);
   deck.needHex = task.needHex;
@@ -111,7 +114,16 @@ class _MyHomePageState extends State<MyHomePage> {
   var checkedCount = 0;
   var speed = 0;
   var threadsLaunching = false;
+  var threadsLaunchingCount = 0;
   var calcSettings = CalcSettings();
+
+  var suitsList = [
+    CardSuit.hearts,
+    CardSuit.diamonds,
+    CardSuit.spades,
+    CardSuit.clubs
+  ];
+  var suitIcons = ["♥️", "♦️️", "♠️️️", "♣️️"];
 
   void stop() {
     if (initializers.isNotEmpty) {
@@ -131,14 +143,24 @@ class _MyHomePageState extends State<MyHomePage> {
     if (initializers.isNotEmpty) {
       stop();
     }
+    threadsLaunchingCount = calcSettings.threads;
     for (var index = 0; index < calcSettings.threads; index++) {
-      var isolateInitializer = IsolateInitializer(index, (Deck param) {
-        setState(() {
-          foundItems.insert(0, param);
-        });
+      var isolateInitializer = IsolateInitializer(index, (param) {
+        if (param is Deck) {
+          setState(() {
+            foundItems.insert(0, param);
+          });
+        } else if (param is String) {
+          threadsLaunchingCount--;
+          if (threadsLaunchingCount <= 0) {
+            setState(() {
+              threadsLaunching = false;
+            });
+          }
+        }
       });
       initializers.add(isolateInitializer);
-      var deckTask = DeckTask(chain, needHex, calcSettings.maxTransits);
+      var deckTask = DeckTask(chain, needHex, calcSettings.maxTransits, index);
       isolateInitializer.isolate = await Isolate.spawn(
           isolateFunc, [index, isolateInitializer.port.sendPort, deckTask]);
     }
@@ -324,7 +346,6 @@ class _MyHomePageState extends State<MyHomePage> {
     }
     if (calculating) {
       stop();
-      threadsLaunching = false;
       calculating = false;
       setState(() {});
     } else {
@@ -336,7 +357,6 @@ class _MyHomePageState extends State<MyHomePage> {
         threadsLaunching = true;
       });
       await doSpawn(chainModel);
-      threadsLaunching = false;
       setState(() {
         speed = 0;
         checkedCount = 0;
@@ -366,14 +386,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   List<Widget> iChingButtons(BuildContext context) {
-    var suits = [
-      CardSuit.hearts,
-      CardSuit.diamonds,
-      CardSuit.spades,
-      CardSuit.clubs
-    ];
     return List.generate(4, (index) {
-      var suit = suits[index];
+      var suit = suitsList[index];
       return Stack(
         children: [
           TextButton(
@@ -381,7 +395,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 setIChing(context, suit);
               },
               child: Text(
-                ["♥️", "♦️️", "♠️️️", "♣️️"][index],
+                suitIcons[index],
                 style: TextStyle(fontSize: 48),
               )),
           IgnorePointer(
@@ -391,7 +405,7 @@ class _MyHomePageState extends State<MyHomePage> {
               decoration: BoxDecoration(
                   color: (needHex[suit] ?? []).length == 0
                       ? Colors.transparent
-                      : Colors.red,
+                      : Colors.purpleAccent,
                   shape: BoxShape.circle),
             ),
           )
@@ -416,24 +430,177 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget buildDetailsPane(BuildContext context) {
     //buildDetailsPane(context)
-
     if (selectedItem >= 0) {
-      return Column(
-        children: [
-          TextButton(
-              onPressed: () {
-                Clipboard.setData(ClipboardData(
-                    text: foundItems[selectedItem].asString(true, true)));
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text("Копировать"),
-              ))
-        ],
+      var item = foundItems[selectedItem];
+      var transitCountsMap = CardSuit.values.map((e) => {
+            e: item.cards.where((element) => element.suit == e).fold<int>(
+                0,
+                (previousValue, element) =>
+                    previousValue + (element.efl > 0 ? 1 : 0))
+          });
+      var transitElfMap = CardSuit.values.map<Map<CardSuit, int>>((e) => {
+            e: item.cards.where((element) => element.suit == e).fold<int>(
+                0, (previousValue, element) => previousValue + element.efl)
+          });
+      print(transitElfMap);
+
+      var details = <Widget>[];
+      for (var i = 0; i < suitsList.length; i++) {
+        var icon = suitIcons[i];
+        var suit = suitsList[i];
+        var efl = transitElfMap
+            .where((element) => element.keys.first == suit)
+            .first
+            .values
+            .first
+            .toInt();
+        var count = transitCountsMap
+            .where((element) => element.keys.first == suit)
+            .first
+            .values
+            .first;
+        var double = efl.toDouble();
+        print(double);
+        var widget = Row(children: [
+          Text(
+            icon,
+            style: TextStyle(fontSize: 38),
+          ),
+          Expanded(
+            child: AbsorbPointer(
+              child: SliderTheme(
+                data: SliderTheme.of(context).copyWith(
+                  trackHeight: 10.0,
+                  thumbShape: RoundSliderThumbShape(enabledThumbRadius: 0.0)
+                ),
+                child: Slider(
+                  label: "2",
+                  value: double,
+                  onChanged: (value) => {},
+                  min: 0,
+                  max: 36,
+                ),
+              ),
+            ),
+          ),
+          Text("$efl : $count")
+        ]);
+        details.add(widget);
+      }
+      return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+            children: <Widget>[
+                  TextButton(
+                      onPressed: () {
+                        Clipboard.setData(ClipboardData(
+                            text:
+                                foundItems[selectedItem].asString(true, true)));
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text("Copy to clipboard"),
+                      )),
+                ] +
+                details),
       );
     }
 
     return Container();
+  }
+
+  LineChartData getLineCharData() {
+    return LineChartData(
+      lineTouchData: LineTouchData(
+        touchTooltipData: LineTouchTooltipData(
+          tooltipBgColor: Colors.blueGrey.withOpacity(0.8),
+        ),
+        touchCallback: (LineTouchResponse touchResponse) {},
+        handleBuiltInTouches: true,
+      ),
+      gridData: FlGridData(
+        show: false,
+      ),
+      titlesData: FlTitlesData(
+        bottomTitles: SideTitles(
+          showTitles: true,
+          reservedSize: 22,
+          getTextStyles: (value) => const TextStyle(
+            color: Color(0xff72719b),
+            fontWeight: FontWeight.w200,
+            fontSize: 10,
+          ),
+          margin: 10,
+          getTitles: (value) {
+            return '${value.toInt()}';
+          },
+        ),
+        leftTitles: SideTitles(
+          showTitles: true,
+          getTextStyles: (value) => const TextStyle(
+            color: Colors.blue,
+            fontWeight: FontWeight.w200,
+            fontSize: 10,
+          ),
+          getTitles: (value) {
+            return '${value.toInt()}';
+          },
+          margin: 8,
+          reservedSize: 30,
+        ),
+      ),
+      borderData: FlBorderData(
+        show: true,
+        border: const Border(
+          bottom: BorderSide(
+            color: Color(0xff4e4965),
+            width: 4,
+          ),
+          left: BorderSide(
+            color: Colors.transparent,
+          ),
+          right: BorderSide(
+            color: Colors.transparent,
+          ),
+          top: BorderSide(
+            color: Colors.transparent,
+          ),
+        ),
+      ),
+      minX: 1,
+      maxX: 35,
+      maxY: 36,
+      minY: 0,
+      lineBarsData: linesBarData1(),
+    );
+  }
+
+  List<LineChartBarData> linesBarData1() {
+    return CardSuit.values.map((e) {
+      var deck = foundItems[selectedItem];
+      var data = <FlSpot>[];
+      deck.cards.forEach((element) {
+        if (element.suit == e) {
+          data.add(
+              FlSpot(element.indexInDeck.toDouble(), element.efl.toDouble()));
+        }
+      });
+      return LineChartBarData(
+        spots: data,
+        isCurved: false,
+        colors: [
+          const Color(0xff4af699),
+        ],
+        barWidth: 2,
+        isStrokeCapRound: true,
+        dotData: FlDotData(
+          show: false,
+        ),
+        belowBarData: BarAreaData(
+          show: false,
+        ),
+      );
+    }).toList();
   }
 
   @override
@@ -565,7 +732,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                             decoration: BoxDecoration(
                                                 color: calcSettings.isDefault()
                                                     ? Colors.transparent
-                                                    : Colors.red,
+                                                    : Colors.purpleAccent,
                                                 shape: BoxShape.circle),
                                           ),
                                         )
