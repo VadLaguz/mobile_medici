@@ -231,7 +231,7 @@ class Deck {
     });
 
     var allLinked = <CardItem>[];
-    fixedTransits.forEach((item) {
+    for (var item in fixedTransits) {
       if (item.indexInDeck > 1) {
         item.linked.shuffle();
         for (var linkedItem in item.linked) {
@@ -240,6 +240,9 @@ class Deck {
             var linkedPos = cards.indexOf(linkedItem);
             var preTransitIdx = item.indexInDeck - 2;
             var temp = cards[preTransitIdx];
+            if (temp.fixed) {
+              break;
+            }
             cards[preTransitIdx] = linkedItem;
             cards[linkedPos] = temp;
             allLinked.add(linkedItem);
@@ -247,10 +250,13 @@ class Deck {
           }
         }
       }
-    });
+    };
     cards = cards;
     cards.asMap().forEach((key, value) {
       value.indexInDeck = key;
+      if (value.indexInDeck == 35) {
+        //print("oy vei");
+      }
       value.efl = 0;
     });
   }
@@ -316,7 +322,7 @@ class Deck {
             .trim()
             .replaceAll("10", "X")
             .toLowerCase()
-        
+
             .runes
             .toList()
             .fold("", (previousValue, element) {
@@ -337,7 +343,7 @@ class Deck {
             .toList()
             .fold("", (previousValue, element) {
           var s = String.fromCharCode(element);
-          return (previousValue ?? "").toString() +
+          return (previousValue).toString() +
               (okSymbols.contains(s) ? s : "");
         });
       } else {
@@ -353,7 +359,7 @@ class Deck {
             .toList()
             .fold("", (previousValue, element) {
           var s = String.fromCharCode(element);
-          return (previousValue ?? "").toString() +
+          return (previousValue).toString() +
               (okSymbols.contains(s) ? s : "");
         });
       }
@@ -431,27 +437,41 @@ class Deck {
         });
         this.hex[suit] = hex;
       });
-      needHex.keys.forEach((suit) {
-        final val = needHex[suit] ?? [];
-        if (val.length == 1) {
-          if (val.first == -1) {
-            //хорошие
-          } else if (val.first == -2) {
-            //G.-гексы
-          } else {
+
+      //поиск с полным балансом
+      /*for (var i = 0; i < cardsToHexLines.length; i++) {
+        var sum = 0;
+        CardSuit.values.forEach((element) {
+          sum += int.parse(this.hex[element]!.characters.characterAt(i).string);
+        });
+        if (sum != 2) {
+          bool = false;
+        }
+      }*/
+
+      if (bool) {
+        needHex.keys.forEach((suit) {
+          final val = needHex[suit] ?? [];
+          if (val.length == 1) {
+            if (val.first == -1) {
+              //хорошие
+            } else if (val.first == -2) {
+              //G.-гексы
+            } else {
+              //точно
+              if (!val.contains(hexToNumberMap[this.hex[suit]])) {
+                bool = false;
+              }
+            }
+          } else if (val.length > 1) {
+            //любая точно
             //точно
             if (!val.contains(hexToNumberMap[this.hex[suit]])) {
               bool = false;
             }
           }
-        } else if (val.length > 1) {
-          //любая точно
-          //точно
-          if (!val.contains(hexToNumberMap[this.hex[suit]])) {
-            bool = false;
-          }
-        }
-      });
+        });
+      }
     }
     return bool;
   }
