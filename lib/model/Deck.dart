@@ -112,8 +112,10 @@ class DeckTask {
   Map<CardSuit, List<int>> needHex;
   int maxTransits;
   int threadIdx;
+  bool reverse = false;
 
-  DeckTask(this.mask, this.needHex, this.maxTransits, this.threadIdx);
+  DeckTask(
+      this.mask, this.needHex, this.maxTransits, this.threadIdx, this.reverse);
 }
 
 class CardItem {
@@ -180,6 +182,7 @@ class Deck {
   List<CardItem> fixedTransits = [];
   final okSymbols = nominalsToRu.values.map((e) => e.toLowerCase()).toList() +
       suitsToRu.values.map((e) => e.toLowerCase()).toList();
+  Deck? reverseDeck;
 
   Map<String, int> hexToNumberMap = {};
 
@@ -218,9 +221,11 @@ class Deck {
       hexString += hexToEmoji[key]! +
           "${hexTable.firstWhere((element) => element.contains(value))}\n";
     });
-
     retVal += "\n" + hexString;
-    return retVal.trim().replaceAll("X", "10");
+    return retVal.trim().replaceAll("X", "10") +
+        (reverseDeck == null
+            ? ""
+            : "\nReverse:\n" + reverseDeck!.asString(efl, withoutEfl));
   }
 
   void shuffle() {
@@ -250,7 +255,8 @@ class Deck {
           }
         }
       }
-    };
+    }
+    ;
     cards = cards;
     cards.asMap().forEach((key, value) {
       value.indexInDeck = key;
@@ -316,19 +322,17 @@ class Deck {
   bool parse(String s) {
     cards.clear();
     try {
-      var fixedChain = s.trim();
+      var fixedChain = s.trim().replaceAll("Х", "X");
       if (fixedChain.contains("<")) {
         fixedChain = s
             .trim()
             .replaceAll("10", "X")
             .toLowerCase()
-
             .runes
             .toList()
             .fold("", (previousValue, element) {
           var s = String.fromCharCode(element);
-          return (previousValue ?? "").toString() +
-              (okSymbols.contains(s) ? s : "");
+          return (previousValue).toString() + (okSymbols.contains(s) ? s : "");
         });
       } else if (fixedChain.contains(" ")) {
         fixedChain = s
@@ -343,8 +347,7 @@ class Deck {
             .toList()
             .fold("", (previousValue, element) {
           var s = String.fromCharCode(element);
-          return (previousValue).toString() +
-              (okSymbols.contains(s) ? s : "");
+          return (previousValue).toString() + (okSymbols.contains(s) ? s : "");
         });
       } else {
         //гера формат
@@ -359,8 +362,7 @@ class Deck {
             .toList()
             .fold("", (previousValue, element) {
           var s = String.fromCharCode(element);
-          return (previousValue).toString() +
-              (okSymbols.contains(s) ? s : "");
+          return (previousValue).toString() + (okSymbols.contains(s) ? s : "");
         });
       }
 
@@ -400,7 +402,7 @@ class Deck {
     return list;
   }
 
-  bool check({int maxTransits = 0}) {
+  bool check({int maxTransits = 0, bool reverse = false}) {
     mobiles.clear();
     stationars.clear();
     hex.clear();
@@ -422,6 +424,22 @@ class Deck {
     if (maxTransits > 0) {
       if (cards.where((element) => element.efl > 0).length > maxTransits) {
         bool = false;
+      }
+    }
+    reverseDeck = null;
+    if (bool && reverse) {
+      final deck = Deck();
+      deck.cards.clear();
+      var index = 0;
+      deck.cards.addAll(cards.reversed.map((e) {
+        var cardItem = CardItem(e.suit, e.nominal);
+        cardItem.indexInDeck = index;
+        index++;
+        return cardItem;
+      }));
+      bool = deck.check(maxTransits: maxTransits);
+      if (bool) {
+        reverseDeck = deck;
       }
     }
     if (bool) {

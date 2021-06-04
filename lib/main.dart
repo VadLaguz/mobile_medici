@@ -83,7 +83,7 @@ Future<void> isolateFunc(List<Object> message) async {
     //work = false;
     counter++;
     deck.shuffle();
-    if (deck.check(maxTransits: task.maxTransits)) {
+    if (deck.check(maxTransits: task.maxTransits, reverse: task.reverse)) {
       port.send(deck);
     }
     if (circleWatch.elapsedMilliseconds >= 1000) {
@@ -150,6 +150,9 @@ class _MyHomePageState extends State<MyHomePage> {
         if (param is Deck) {
           setState(() {
             foundItems.insert(0, param);
+            if (selectedItem > -1) {
+              selectedItem++;
+            }
           });
         } else if (param is String) {
           threadsLaunchingCount--;
@@ -161,7 +164,7 @@ class _MyHomePageState extends State<MyHomePage> {
         }
       });
       initializers.add(isolateInitializer);
-      var deckTask = DeckTask(chain, needHex, calcSettings.maxTransits, index);
+      var deckTask = DeckTask(chain, needHex, calcSettings.maxTransits, index, calcSettings.reverse);
       isolateInitializer.isolate = await Isolate.spawn(
           isolateFunc, [index, isolateInitializer.port.sendPort, deckTask]);
     }
@@ -226,7 +229,7 @@ class _MyHomePageState extends State<MyHomePage> {
       replace.forEach((key, value) {
         name = name.replaceAll(key, value);
       });
-      final width = MediaQuery.of(context).size.width / 13;
+      final width = MediaQuery.of(context).size.width / (MediaQuery.of(context).orientation == Orientation.portrait ? 7 : 13);
       final height = width * 1.3;
       var efl = element.minMaxEfl;
       var currentEfl = selectedItem > -1 ? element.efl : 0;

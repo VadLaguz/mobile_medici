@@ -23,6 +23,7 @@ class CalculateSettingsState extends State<CalculateSettingsWidget> {
               child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
@@ -53,6 +54,18 @@ class CalculateSettingsState extends State<CalculateSettingsWidget> {
                         onChanged: (value) {
                           setState(() {
                             widget.settings.maxTransits = value.toInt();
+                          });
+                          widget.callback();
+                        },
+                      ),
+                      CheckboxListTile(
+                        controlAffinity: ListTileControlAffinity.leading,
+                        title: Text("Reverse chains only"),
+                        value: widget.settings.reverse,
+                        onChanged: (value) {
+                          setState(() {
+                            widget.settings.reverse =
+                                !widget.settings.reverse;
                           });
                           widget.callback();
                         },
