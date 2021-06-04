@@ -322,7 +322,7 @@ class Deck {
   bool parse(String s) {
     cards.clear();
     try {
-      var fixedChain = s.trim().replaceAll("Х", "X");
+      var fixedChain = s.trim().replaceAll("Х", "X").replaceAll("] ", "]");
       if (fixedChain.contains("<")) {
         fixedChain = s
             .trim()
@@ -334,22 +334,7 @@ class Deck {
           var s = String.fromCharCode(element);
           return (previousValue).toString() + (okSymbols.contains(s) ? s : "");
         });
-      } else if (fixedChain.contains(" ")) {
-        fixedChain = s
-            .trim()
-            .replaceAll("10", "X")
-            .toLowerCase()
-            .split(" ")
-            .map((e) => e.substring(0, 2))
-            .fold<String>(
-                "", (previousValue, element) => previousValue + element)
-            .runes
-            .toList()
-            .fold("", (previousValue, element) {
-          var s = String.fromCharCode(element);
-          return (previousValue).toString() + (okSymbols.contains(s) ? s : "");
-        });
-      } else {
+      } else if (fixedChain.contains("]")) {
         //гера формат
         fixedChain = s
             .trim()
@@ -358,6 +343,21 @@ class Deck {
             /*.split(" ")
           .map((e) => e.substring(0, 2))
           .fold<String>("", (previousValue, element) => previousValue + element)*/
+            .runes
+            .toList()
+            .fold("", (previousValue, element) {
+          var s = String.fromCharCode(element);
+          return (previousValue).toString() + (okSymbols.contains(s) ? s : "");
+        });
+      } else {
+        fixedChain = s
+            .trim()
+            .replaceAll("10", "X")
+            .toLowerCase()
+            .split(" ")
+            .map((e) => e.substring(0, 2))
+            .fold<String>(
+                "", (previousValue, element) => previousValue + element)
             .runes
             .toList()
             .fold("", (previousValue, element) {
