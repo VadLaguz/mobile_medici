@@ -7,6 +7,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_medici/CalculateSettingsWidget.dart';
+import 'package:mobile_medici/Helpers.dart';
 import 'package:mobile_medici/model/Settings.dart';
 import 'package:mobile_medici/reorderables/src/widgets/reorderable_wrap.dart';
 import 'package:range_slider_dialog/range_slider_dialog.dart';
@@ -22,6 +23,15 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+
+    if (!ruLocale()) {
+      suitsToLang = suitsToEn;
+      nominalsToLang = nominalsToEn;
+    } else {
+      suitsToLang = suitsToRu;
+      nominalsToLang = nominalsToRu;
+    }
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Medici Calculator',
@@ -105,7 +115,7 @@ class MyHomePage extends StatefulWidget {
   }
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   var chainModel = <CardItem>[];
   Map<CardSuit, List<int>> needHex = {};
   Timer? timer;
@@ -125,6 +135,18 @@ class _MyHomePageState extends State<MyHomePage> {
     CardSuit.clubs
   ];
   var suitIcons = ["♥️", "♦️️", "♠️️️", "♣️️"];
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    print("didChangeAppLifecycleState: ${state}");
+    super.didChangeAppLifecycleState(state);
+  }
+
+  @override
+  void dispose() {
+    print("OnDispose");
+    super.dispose();
+  }
 
   void stop() {
     if (initializers.isNotEmpty) {
@@ -189,6 +211,9 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     resetChain();
+    if (WidgetsBinding.instance != null) {
+      WidgetsBinding.instance!.addObserver(this);
+    }
   }
 
   void resetChain() {

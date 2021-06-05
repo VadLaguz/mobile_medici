@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:mobile_medici/Helpers.dart';
 
 var hexTable = ("#11 (111000) Расцвет\n" +
         "#46 (011000) Подъем\n" +
@@ -72,6 +74,9 @@ enum CardSuit { hearts, diamonds, clubs, spades }
 
 enum Nominal { six, seven, eight, nine, ten, jack, queen, king, ace }
 
+var nominalsToLang = {};
+var suitsToLang = {};
+
 var nominalsToRu = {
   Nominal.six: "6",
   Nominal.seven: "7",
@@ -89,6 +94,25 @@ var suitsToRu = {
   CardSuit.diamonds: "Б",
   CardSuit.hearts: "Ч",
   CardSuit.spades: "П",
+};
+
+var nominalsToEn = {
+  Nominal.six: "6",
+  Nominal.seven: "7",
+  Nominal.eight: "8",
+  Nominal.nine: "9",
+  Nominal.ten: "X",
+  Nominal.jack: "J",
+  Nominal.queen: "Q",
+  Nominal.king: "K",
+  Nominal.ace: "A"
+};
+
+var suitsToEn = {
+  CardSuit.clubs: "C",
+  CardSuit.diamonds: "D",
+  CardSuit.hearts: "H",
+  CardSuit.spades: "S",
 };
 
 final cardsToHexLines = {
@@ -133,18 +157,18 @@ class CardItem {
 
   @override
   String toString() {
-    return "${nominalsToRu[nominal]}${suitsToRu[suit]!.toLowerCase()}";
+    return "${nominalsToLang[nominal]}${suitsToLang[suit]!.toLowerCase()}";
   }
 
   CardItem.fromString(this.cardString) : super() {
     var lowerCased = cardString!.toLowerCase();
-    suitsToRu.map((key, value) {
+    suitsToLang.map((key, value) {
       if (value.toLowerCase() == lowerCased.substring(1, 2)) {
         suit = key;
       }
       return MapEntry(key, value);
     });
-    nominalsToRu.map((key, value) {
+    nominalsToLang.map((key, value) {
       if (value.toLowerCase() == lowerCased.substring(0, 1)) {
         nominal = key;
       }
@@ -180,8 +204,8 @@ class Deck {
   CardItem? rightTransit;
   List<CardItem> maskCards = [];
   List<CardItem> fixedTransits = [];
-  final okSymbols = nominalsToRu.values.map((e) => e.toLowerCase()).toList() +
-      suitsToRu.values.map((e) => e.toLowerCase()).toList();
+  final okSymbols = nominalsToLang.values.map((e) => e.toLowerCase()).toList() +
+      suitsToLang.values.map((e) => e.toLowerCase()).toList();
   Deck? reverseDeck;
 
   Map<String, int> hexToNumberMap = {};
@@ -216,12 +240,15 @@ class Deck {
         retVal += s + " ";
       });
     }
-    var hexString = "";
-    hex.forEach((key, value) {
-      hexString += hexToEmoji[key]! +
-          "${hexTable.firstWhere((element) => element.contains(value))}\n";
-    });
-    retVal += "\n" + hexString;
+    //пришлось отключить вывод на русском для не-русских локалей для прохождения ревью в апстор
+    if (ruLocale()) {
+      var hexString = "";
+      hex.forEach((key, value) {
+        hexString += hexToEmoji[key]! +
+            "${hexTable.firstWhere((element) => element.contains(value))}\n";
+      });
+      retVal += "\n" + hexString;
+    }
     return retVal.trim().replaceAll("X", "10") +
         (reverseDeck == null
             ? ""
@@ -235,6 +262,8 @@ class Deck {
       cards.insert(element.indexInDeck, element);
     });
 
+    //небольшая хитрость - если у нас есть заданные транзиты с фиксированноой позицией подставляем
+    // за одну карту до них только подходящие чтоб сделать их транзитом
     var allLinked = <CardItem>[];
     for (var item in fixedTransits) {
       if (item.indexInDeck > 1) {
