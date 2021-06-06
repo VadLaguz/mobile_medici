@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobile_medici/Helpers.dart';
@@ -35,7 +37,7 @@ class CalculateSettingsState extends State<CalculateSettingsWidget> {
                                 Slider(
                                   label: widget.settings.threads.toString(),
                                   min: 0,
-                                  max: 20,
+                                  max: Platform.isMacOS ? 12 : 8,
                                   value: widget.settings.threads.toDouble(),
                                   onChanged: (value) {
                                     setState(() {
@@ -71,6 +73,18 @@ class CalculateSettingsState extends State<CalculateSettingsWidget> {
                               setState(() {
                                 widget.settings.reverse =
                                     !widget.settings.reverse;
+                              });
+                              widget.callback();
+                            },
+                          ),
+                          CheckboxListTile(
+                            controlAffinity: ListTileControlAffinity.leading,
+                            title: Text("Full Balanced"),
+                            value: widget.settings.fullBalanced,
+                            onChanged: (value) {
+                              setState(() {
+                                widget.settings.fullBalanced =
+                                    !widget.settings.fullBalanced;
                               });
                               widget.callback();
                             },

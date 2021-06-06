@@ -23,15 +23,6 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-
-    if (!ruLocale()) {
-      suitsToLang = suitsToEn;
-      nominalsToLang = nominalsToEn;
-    } else {
-      suitsToLang = suitsToRu;
-      nominalsToLang = nominalsToRu;
-    }
-
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Medici Calculator',
@@ -92,8 +83,12 @@ Future<void> isolateFunc(List<Object> message) async {
   while (work) {
     //work = false;
     counter++;
-    deck.shuffle();
-    if (deck.check(maxTransits: task.maxTransits, reverse: task.reverse)) {
+    if (task.maxTransits == 1) {
+      deck.shuffle36();
+    } else {
+      deck.shuffle();
+    }
+    if (deck.check(maxTransits: task.maxTransits, reverse: task.reverse, fullBalanced: task.fullBalanced)) {
       port.send(deck);
     }
     if (circleWatch.elapsedMilliseconds >= 1000) {
@@ -186,7 +181,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         }
       });
       initializers.add(isolateInitializer);
-      var deckTask = DeckTask(chain, needHex, calcSettings.maxTransits, index, calcSettings.reverse);
+      var deckTask = DeckTask(chain, needHex, calcSettings.maxTransits, index,
+          calcSettings.reverse, calcSettings.fullBalanced);
       isolateInitializer.isolate = await Isolate.spawn(
           isolateFunc, [index, isolateInitializer.port.sendPort, deckTask]);
     }
@@ -254,7 +250,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       replace.forEach((key, value) {
         name = name.replaceAll(key, value);
       });
-      final width = MediaQuery.of(context).size.width / (MediaQuery.of(context).orientation == Orientation.portrait ? 7 : 13);
+      final width = MediaQuery.of(context).size.width /
+          (MediaQuery.of(context).orientation == Orientation.portrait ? 7 : 13);
       final height = width * 1.3;
       var efl = element.minMaxEfl;
       var currentEfl = selectedItem > -1 ? element.efl : 0;
@@ -471,7 +468,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
             e: item.cards.where((element) => element.suit == e).fold<int>(
                 0, (previousValue, element) => previousValue + element.efl)
           });
-      print(transitElfMap);
+      //print(transitElfMap);
 
       var details = <Widget>[];
       for (var i = 0; i < suitsList.length; i++) {
@@ -489,7 +486,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
             .values
             .first;
         var double = efl.toDouble();
-        print(double);
+        //print(double);
         var widget = Row(children: [
           Text(
             icon,
@@ -499,9 +496,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
             child: AbsorbPointer(
               child: SliderTheme(
                 data: SliderTheme.of(context).copyWith(
-                  trackHeight: 10.0,
-                  thumbShape: RoundSliderThumbShape(enabledThumbRadius: 0.0)
-                ),
+                    trackHeight: 10.0,
+                    thumbShape: RoundSliderThumbShape(enabledThumbRadius: 0.0)),
                 child: Slider(
                   label: "2",
                   value: double,

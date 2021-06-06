@@ -2,7 +2,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:mobile_medici/Helpers.dart';
+import '../Helpers.dart';
 
 var hexTable = ("#11 (111000) Расцвет\n" +
         "#46 (011000) Подъем\n" +
@@ -74,47 +74,6 @@ enum CardSuit { hearts, diamonds, clubs, spades }
 
 enum Nominal { six, seven, eight, nine, ten, jack, queen, king, ace }
 
-var nominalsToLang = {};
-var suitsToLang = {};
-
-var nominalsToRu = {
-  Nominal.six: "6",
-  Nominal.seven: "7",
-  Nominal.eight: "8",
-  Nominal.nine: "9",
-  Nominal.ten: "X",
-  Nominal.jack: "В",
-  Nominal.queen: "Д",
-  Nominal.king: "К",
-  Nominal.ace: "Т"
-};
-
-var suitsToRu = {
-  CardSuit.clubs: "К",
-  CardSuit.diamonds: "Б",
-  CardSuit.hearts: "Ч",
-  CardSuit.spades: "П",
-};
-
-var nominalsToEn = {
-  Nominal.six: "6",
-  Nominal.seven: "7",
-  Nominal.eight: "8",
-  Nominal.nine: "9",
-  Nominal.ten: "X",
-  Nominal.jack: "J",
-  Nominal.queen: "Q",
-  Nominal.king: "K",
-  Nominal.ace: "A"
-};
-
-var suitsToEn = {
-  CardSuit.clubs: "C",
-  CardSuit.diamonds: "D",
-  CardSuit.hearts: "H",
-  CardSuit.spades: "S",
-};
-
 final cardsToHexLines = {
   0: [Nominal.nine, Nominal.seven],
   1: [Nominal.six, Nominal.eight],
@@ -137,9 +96,10 @@ class DeckTask {
   int maxTransits;
   int threadIdx;
   bool reverse = false;
+  bool fullBalanced = false;
 
   DeckTask(
-      this.mask, this.needHex, this.maxTransits, this.threadIdx, this.reverse);
+      this.mask, this.needHex, this.maxTransits, this.threadIdx, this.reverse, this.fullBalanced);
 }
 
 class CardItem {
@@ -157,18 +117,18 @@ class CardItem {
 
   @override
   String toString() {
-    return "${nominalsToLang[nominal]}${suitsToLang[suit]!.toLowerCase()}";
+    return "${nominalsToLang()[nominal]}${suitsToLang()[suit]!.toLowerCase()}";
   }
 
   CardItem.fromString(this.cardString) : super() {
     var lowerCased = cardString!.toLowerCase();
-    suitsToLang.map((key, value) {
+    suitsToLang().map((key, value) {
       if (value.toLowerCase() == lowerCased.substring(1, 2)) {
         suit = key;
       }
       return MapEntry(key, value);
     });
-    nominalsToLang.map((key, value) {
+    nominalsToLang().map((key, value) {
       if (value.toLowerCase() == lowerCased.substring(0, 1)) {
         nominal = key;
       }
@@ -204,8 +164,9 @@ class Deck {
   CardItem? rightTransit;
   List<CardItem> maskCards = [];
   List<CardItem> fixedTransits = [];
-  final okSymbols = nominalsToLang.values.map((e) => e.toLowerCase()).toList() +
-      suitsToLang.values.map((e) => e.toLowerCase()).toList();
+  final okSymbols =
+      nominalsToLang().values.map((e) => e.toLowerCase()).toList() +
+          suitsToLang().values.map((e) => e.toLowerCase()).toList();
   Deck? reverseDeck;
 
   Map<String, int> hexToNumberMap = {};
@@ -255,6 +216,88 @@ class Deck {
             : "\nReverse:\n" + reverseDeck!.asString(efl, withoutEfl));
   }
 
+  void shuffle36() {
+    cards.clear();
+    var noms = <Nominal>[]..addAll(Nominal.values);
+    final twoNoms = [
+      noms.removeAt(Random().nextInt(noms.length)),
+      noms.removeAt(Random().nextInt(noms.length))
+    ];
+    final microDeck = Deck();
+    final microCards = <CardItem>[];
+    twoNoms.forEach((nom) {
+      CardSuit.values.forEach((suit) {
+        microCards.add(CardItem(suit, nom));
+      });
+    });
+    microDeck.cards.clear();
+    microDeck.cards.addAll(microCards);
+    final maxTrialCount = 10000;
+    var trialIdx = 0;
+    while (trialIdx < maxTrialCount) {
+      microDeck.shuffle();
+      if (microDeck.cards.last.suit ==
+          microDeck.cards[microDeck.cards.length - 3].suit) {
+        if (microDeck.check(maxTransits: 1)) {
+          break;
+        }
+      }
+      trialIdx++;
+    }
+    cards.addAll(microDeck.cards);
+    var secondGroup = Deck().cards;
+    secondGroup.shuffle();
+    secondGroup.removeWhere((element) => microDeck.cards.contains(element));
+    //масти которых такие же как и в двух последних карт нашей микро ЦС.
+    var firstGroup = secondGroup
+        .where((element) =>
+            element.suit == microDeck.cards.last.suit ||
+            element.suit == microDeck.cards[microDeck.cards.length - 2].suit)
+        .toList();
+    secondGroup.removeWhere((element) => firstGroup.contains(element));
+    var suitsSecondGroup =
+        secondGroup.fold<List<CardSuit>>([], (previousValue, element) {
+      if (!previousValue.contains(element.suit)) {
+        previousValue.add(element.suit!);
+      }
+      return previousValue;
+    });
+    var lastSuit = suitsSecondGroup[Random().nextInt(1)];
+    for (var i = 0; i < 28; i++) {
+      //Теперь собственно наращивание: берем карту, которая одинакова по масти с предпоследней картой и ставим в конец.
+      for (var value in firstGroup) {
+        //Смотрите, чтобы не было двух подряд идущих карт одинаковых номиналов.
+        if (value.suit == cards[cards.length - 2].suit &&
+            value.nominal != cards.last.nominal) {
+          cards.add(value);
+          firstGroup.remove(value);
+          break;
+        }
+      }
+      //print(cards);
+      var newSuit =
+          suitsSecondGroup.where((element) => element != lastSuit).first;
+      lastSuit = newSuit;
+      //Далее берем карту с второй группы. Она должна быть одинаковой по номиналу с последней картой.
+      //Кладем ее так, чтобы она создавала свертку с последней картой, то есть ставим ее третьей с конца.
+      for (var value in secondGroup) {
+        if (value.suit != newSuit && value.nominal == cards.last.nominal) {
+          cards.insert(cards.length - 2, value);
+          secondGroup.remove(value);
+          break;
+        }
+      }
+      //print(cards);
+    }
+    if (cards.length < 36) {
+      cards.clear();
+    }
+    cards.asMap().forEach((key, value) {
+      value.indexInDeck = key;
+      value.efl = 0;
+    });
+  }
+
   void shuffle() {
     cards.shuffle();
     cards.removeWhere((element) => maskCards.contains(element));
@@ -285,8 +328,6 @@ class Deck {
         }
       }
     }
-    ;
-    cards = cards;
     cards.asMap().forEach((key, value) {
       value.indexInDeck = key;
       if (value.indexInDeck == 35) {
@@ -431,7 +472,8 @@ class Deck {
     return list;
   }
 
-  bool check({int maxTransits = 0, bool reverse = false}) {
+  bool check(
+      {int maxTransits = 0, bool reverse = false, bool fullBalanced = false}) {
     mobiles.clear();
     stationars.clear();
     hex.clear();
@@ -486,15 +528,20 @@ class Deck {
       });
 
       //поиск с полным балансом
-      /*for (var i = 0; i < cardsToHexLines.length; i++) {
-        var sum = 0;
-        CardSuit.values.forEach((element) {
-          sum += int.parse(this.hex[element]!.characters.characterAt(i).string);
-        });
-        if (sum != 2) {
-          bool = false;
+      if (fullBalanced) {
+        for (var i = 0; i < cardsToHexLines.length; i++) {
+          var sum = 0;
+          CardSuit.values.forEach((element) {
+            sum += int.parse(this.hex[element]!
+                .characters
+                .characterAt(i)
+                .string);
+          });
+          if (sum != 2) {
+            bool = false;
+          }
         }
-      }*/
+      }
 
       if (bool) {
         needHex.keys.forEach((suit) {
