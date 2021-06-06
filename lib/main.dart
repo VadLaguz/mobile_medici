@@ -88,7 +88,10 @@ Future<void> isolateFunc(List<Object> message) async {
     } else {
       deck.shuffle();
     }
-    if (deck.check(maxTransits: task.maxTransits, reverse: task.reverse, fullBalanced: task.fullBalanced)) {
+    if (deck.check(
+        maxTransits: task.maxTransits,
+        reverse: task.reverse,
+        fullBalanced: task.fullBalanced)) {
       port.send(deck);
     }
     if (circleWatch.elapsedMilliseconds >= 1000) {
@@ -348,12 +351,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         width: Platform.isWindows || Platform.isMacOS || Platform.isLinux
             ? MediaQuery.of(context).size.width / 2
             : null,
-        maxValue: chainModel.length,
+        maxValue: chainModel.length - 2,
         acceptButtonText: 'OK',
         cancelButtonText: 'Cancel',
         headerText: 'Set Min And Max EFL',
         selectedRangeValues:
-            item.minMaxEfl ?? RangeValues(0, chainModel.length.toDouble()),
+            item.minMaxEfl ?? RangeValues(0, chainModel.length.toDouble() - 2),
         onApplyButtonClick: (value) {
       onSet();
       if (value != null && value.start == 0) {
@@ -693,14 +696,15 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                   [
                                     TextButton(
                                         onPressed: () async {
-                                          final result =
-                                              await showTextInputDialog(
-                                                  context: context,
-                                                  textFields: [
+                                          final result = await showTextInputDialog(
+                                              title:
+                                                  "Chain input (pm3421, Ingvas and this app formats allowed)",
+                                              context: context,
+                                              textFields: [
                                                 DialogTextField(
                                                     maxLines: 3,
                                                     hintText:
-                                                        "Enter your chain here")
+                                                        "Examples: <[Вк][Вб]><[6п][8п]....,[Вч 9к Тк Вп 7ч 10ч Тп Дп 7б Дк],...Вч 6ч Тк Вп Тп!2...etc")
                                               ]);
                                           if (result != null) {
                                             final deck = Deck();
@@ -717,7 +721,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                               showAlertDialog(
                                                   context: context,
                                                   title: "Error",
-                                                  message: "Invalid chain",
+                                                  message:
+                                                      "Maybe the chain is too short (less than 36 cards) or the format is not supported.",
                                                   actions: [
                                                     AlertDialogAction(
                                                         key: 1, label: "OK 🤨")

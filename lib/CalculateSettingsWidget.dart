@@ -31,12 +31,12 @@ class CalculateSettingsState extends State<CalculateSettingsWidget> {
                     children: (showThreads()
                             ? <Widget>[
                                 Text(
-                                  "Threads count: ${widget.settings.threads.toString()}",
+                                  "Threads count: ${widget.settings.threads.toString()}\n(change only if you know what it is)",
                                   style: TextStyle(fontSize: 24),
                                 ),
                                 Slider(
                                   label: widget.settings.threads.toString(),
-                                  min: 0,
+                                  min: 1,
                                   max: Platform.isMacOS ? 12 : 8,
                                   value: widget.settings.threads.toDouble(),
                                   onChanged: (value) {

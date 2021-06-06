@@ -98,8 +98,8 @@ class DeckTask {
   bool reverse = false;
   bool fullBalanced = false;
 
-  DeckTask(
-      this.mask, this.needHex, this.maxTransits, this.threadIdx, this.reverse, this.fullBalanced);
+  DeckTask(this.mask, this.needHex, this.maxTransits, this.threadIdx,
+      this.reverse, this.fullBalanced);
 }
 
 class CardItem {
@@ -292,6 +292,34 @@ class Deck {
     if (cards.length < 36) {
       cards.clear();
     }
+    print(cards);
+    if (maskCards.length > 0 && cards.length == 36) {
+      maskCards.sort((a, b) {
+        return a.indexInDeck.compareTo(b.indexInDeck);
+      });
+      CardItem wantedTransit =
+          CardItem(maskCards.last.suit, maskCards.last.nominal);
+      CardItem swapCard = new CardItem(cards.last.suit, cards.last.nominal);
+      if (swapCard != wantedTransit) {
+        //ищем ее в картах и меняем
+        //поменять все масти
+        //и все номиналы
+        var newCards = <CardItem>[];
+        cards.forEach((element) {
+          if (element.suit == swapCard.suit) {
+            element.suit = wantedTransit.suit;
+          } else if (element.suit == wantedTransit.suit) {
+            element.suit = swapCard.suit;
+          }
+          if (element.nominal == swapCard.nominal) {
+            element.nominal = wantedTransit.nominal;
+          } else if (element.nominal == wantedTransit.nominal) {
+            element.nominal = swapCard.nominal;
+          }
+        });
+      }
+    }
+    print(cards);
     cards.asMap().forEach((key, value) {
       value.indexInDeck = key;
       value.efl = 0;
@@ -532,10 +560,8 @@ class Deck {
         for (var i = 0; i < cardsToHexLines.length; i++) {
           var sum = 0;
           CardSuit.values.forEach((element) {
-            sum += int.parse(this.hex[element]!
-                .characters
-                .characterAt(i)
-                .string);
+            sum +=
+                int.parse(this.hex[element]!.characters.characterAt(i).string);
           });
           if (sum != 2) {
             bool = false;
