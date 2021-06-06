@@ -824,7 +824,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                     child: Container(
                       height: MediaQuery.of(context).orientation ==
                               Orientation.landscape
-                          ? 400
+                          ? 600
                           : 400,
                       child: Row(
                         children: [

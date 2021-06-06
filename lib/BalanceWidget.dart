@@ -37,13 +37,15 @@ class BalanceWidgetState extends State<BalanceWidget> {
                   final suitColor = [
                     Colors.pink,
                     Colors.orange,
+                    Colors.brown,
                     Colors.blueAccent,
-                    Colors.black45,
                   ][suit.index]
                       .withAlpha(150);
-                  var lineWidth = 100.0;
+                  final strongColor = suitColor;
+                  final weakColor = Colors.black.withAlpha(30);
+                  var lineWidth = 150.0;
                   var lineSpacing = 10.0;
-                  var lineHeight = 10.0;
+                  var lineHeight = 15.0;
                   return Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
@@ -76,33 +78,35 @@ class BalanceWidgetState extends State<BalanceWidget> {
                               var cardsToHexLine = cardsToHexLines[
                                   cardsToHexLines.length - index - 1];
                               widgets = cardsToHexLine!.map<Widget>((e) {
-                                var color = line.first
-                                    ? Colors.yellow
-                                    : Colors.cyanAccent;
+                                var color =
+                                    line.first ? strongColor : weakColor;
                                 if (line.length > 1) {
                                   if (cardsToHexLine.first == e) {
-                                    color = line.first
-                                        ? Colors.yellow
-                                        : Colors.cyanAccent;
+                                    color =
+                                        line.first ? strongColor : weakColor;
                                   } else {
-                                    color = line.last
-                                        ? Colors.yellow
-                                        : Colors.cyanAccent;
+                                    color = line.last ? strongColor : weakColor;
                                   }
                                 }
-                                return Container(
-                                  decoration: boxDecoration.copyWith(
-                                      color: color,
-                                      borderRadius:
-                                          BorderRadius.all(Radius.circular(2))),
-                                  width: cardsToHexLine.length == 1
-                                      ? lineWidth / 5
-                                      : lineWidth / 10,
-                                  height: lineHeight,
-                                  child: Center(
-                                    child: Text(
-                                      nominalsToLang()[e],
-                                      style: TextStyle(fontSize: 8),
+                                return Padding(
+                                  padding: const EdgeInsets.only(right: 2),
+                                  child: Container(
+                                    decoration: boxDecoration.copyWith(
+                                        color: color,
+                                        borderRadius:
+                                            BorderRadius.all(Radius.circular(5))),
+                                    width: cardsToHexLine.length == 1
+                                        ? lineWidth / 5
+                                        : lineWidth / 10,
+                                    height: lineHeight,
+                                    child: Center(
+                                      child: Text(
+                                        nominalsToLang()[e],
+                                        style: TextStyle(
+                                            color: Colors.black87,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold),
+                                      ),
                                     ),
                                   ),
                                 );
