@@ -155,11 +155,38 @@ class CardItem {
   int get hashCode => suit.hashCode ^ nominal.hashCode;
 }
 
+class Hex {
+  var data = Map<int, List<bool>>();
+  var value = "";
+  var fullValue = "";
+
+  void makeStrings() {
+    value = "";
+    data.keys.forEach((element) {
+      value += (data[element] as List<bool>)[0] ? "1" : "0";
+    });
+    fullValue = "";
+    data.keys.forEach((element) {
+      var list = (data[element] as List<bool>);
+      fullValue += list[0] ? "1" : "0";
+      if (list.length > 1) {
+        fullValue += list[1] ? "I" : "O";
+      }
+    });
+  }
+
+  void clear() {
+    data.clear();
+    value = "";
+    fullValue = "";
+  }
+}
+
 class Deck {
   List<CardItem> stationars = [];
   List<CardItem> mobiles = [];
   List<CardItem> cards = [];
-  Map<CardSuit, String> hex = {};
+  Map<CardSuit, Hex> hex = {};
   Map<CardSuit, List<int>> needHex = {};
   CardItem? rightTransit;
   List<CardItem> maskCards = [];
@@ -206,7 +233,7 @@ class Deck {
       var hexString = "";
       hex.forEach((key, value) {
         hexString += hexToEmoji[key]! +
-            "${hexTable.firstWhere((element) => element.contains(value))}\n";
+            "${hexTable.firstWhere((element) => element.contains(value.value))}\n";
       });
       retVal += "\n" + hexString;
     }
@@ -292,7 +319,7 @@ class Deck {
     if (cards.length < 36) {
       cards.clear();
     }
-    print(cards);
+    //print(cards);
     if (maskCards.length > 0 && cards.length == 36) {
       maskCards.sort((a, b) {
         return a.indexInDeck.compareTo(b.indexInDeck);
@@ -318,8 +345,9 @@ class Deck {
           }
         });
       }
+      cards.last.fixed = true;
     }
-    print(cards);
+    //print(cards);
     cards.asMap().forEach((key, value) {
       value.indexInDeck = key;
       value.efl = 0;
@@ -543,15 +571,23 @@ class Deck {
     }
     if (bool) {
       CardSuit.values.forEach((suit) {
-        var hex = "";
+        var hex = Hex();
         List.generate(6, (index) {
           final cardsInLine = cardsToHexLines[index];
           if (mobiles.contains(CardItem(suit, cardsInLine!.first))) {
-            hex += "1";
+            hex.data[index] = [true];
           } else {
-            hex += "0";
+            hex.data[index] = [false];
+          }
+          if (cardsInLine.length > 1) {
+            if (mobiles.contains(CardItem(suit, cardsInLine[1]))) {
+              hex.data[index]!.add(true);
+            } else {
+              hex.data[index]!.add(false);
+            }
           }
         });
+        hex.makeStrings();
         this.hex[suit] = hex;
       });
 
@@ -559,9 +595,8 @@ class Deck {
       if (fullBalanced) {
         for (var i = 0; i < cardsToHexLines.length; i++) {
           var sum = 0;
-          CardSuit.values.forEach((element) {
-            sum +=
-                int.parse(this.hex[element]!.characters.characterAt(i).string);
+          CardSuit.values.forEach((suit) {
+            sum += this.hex[suit]!.data[i]!.first ? 1 : 0;
           });
           if (sum != 2) {
             bool = false;
@@ -579,14 +614,14 @@ class Deck {
               //G.-гексы
             } else {
               //точно
-              if (!val.contains(hexToNumberMap[this.hex[suit]])) {
+              if (!val.contains(hexToNumberMap[this.hex[suit]!.value])) {
                 bool = false;
               }
             }
           } else if (val.length > 1) {
             //любая точно
             //точно
-            if (!val.contains(hexToNumberMap[this.hex[suit]])) {
+            if (!val.contains(hexToNumberMap[this.hex[suit]!.value])) {
               bool = false;
             }
           }

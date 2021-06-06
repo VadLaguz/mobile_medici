@@ -11,8 +11,6 @@ bool ruLocale() {
   //return Platform.localeName.contains("ru");
 }
 
-
-
 Map nominalsToLang() {
   if (!ruLocale() && false) {
     return nominalsToEn;
@@ -66,3 +64,11 @@ var suitsToEn = {
   CardSuit.hearts: "H",
   CardSuit.spades: "S",
 };
+
+var suitsList = [
+  CardSuit.hearts,
+  CardSuit.diamonds,
+  CardSuit.clubs,
+  CardSuit.spades,
+];
+var suitIcons = ["♥️", "♦️️", "♣️️", "♠️️️"];

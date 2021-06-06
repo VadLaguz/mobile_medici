@@ -6,6 +6,7 @@ import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mobile_medici/BalanceWidget.dart';
 import 'package:mobile_medici/CalculateSettingsWidget.dart';
 import 'package:mobile_medici/Helpers.dart';
 import 'package:mobile_medici/model/Settings.dart';
@@ -125,14 +126,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   var threadsLaunching = false;
   var threadsLaunchingCount = 0;
   var calcSettings = CalcSettings();
-
-  var suitsList = [
-    CardSuit.hearts,
-    CardSuit.diamonds,
-    CardSuit.spades,
-    CardSuit.clubs
-  ];
-  var suitIcons = ["♥️", "♦️️", "♠️️️", "♣️️"];
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -530,7 +523,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                         child: Text("Copy to clipboard"),
                       )),
                 ] +
-                details),
+                details +
+                [BalanceWidget(item)]),
       );
     }
 
