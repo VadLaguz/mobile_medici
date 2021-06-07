@@ -19,7 +19,7 @@ class CalculateSettingsState extends State<CalculateSettingsWidget> {
   @override
   Widget build(BuildContext context) {
     return FractionallySizedBox(
-      widthFactor: 0.6,
+      widthFactor: Platform.isMacOS || Platform.isWindows ? 0.6 : 0.9,
       child: Material(
           child: Container(
               color: Colors.white,
@@ -73,6 +73,19 @@ class CalculateSettingsState extends State<CalculateSettingsWidget> {
                               setState(() {
                                 widget.settings.reverse =
                                     !widget.settings.reverse;
+                              });
+                              widget.callback();
+                            },
+                          ),
+                          CheckboxListTile(
+                            controlAffinity: ListTileControlAffinity.leading,
+                            title: Text(
+                                "Mirror by nominal or suit (first <-> last cards etc.)"),
+                            value: widget.settings.mirrror,
+                            onChanged: (value) {
+                              setState(() {
+                                widget.settings.mirrror =
+                                    !widget.settings.mirrror;
                               });
                               widget.callback();
                             },
