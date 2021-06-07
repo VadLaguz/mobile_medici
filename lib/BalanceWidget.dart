@@ -93,8 +93,8 @@ class BalanceWidgetState extends State<BalanceWidget> {
                                   child: Container(
                                     decoration: boxDecoration.copyWith(
                                         color: color,
-                                        borderRadius:
-                                            BorderRadius.all(Radius.circular(5))),
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(5))),
                                     width: cardsToHexLine.length == 1
                                         ? lineWidth / 5
                                         : lineWidth / 10,
