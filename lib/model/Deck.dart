@@ -96,10 +96,11 @@ class DeckTask {
   int maxTransits;
   int threadIdx;
   bool reverse = false;
+  bool mirror = false;
   bool fullBalanced = false;
 
   DeckTask(this.mask, this.needHex, this.maxTransits, this.threadIdx,
-      this.reverse, this.fullBalanced);
+      this.reverse, this.fullBalanced, this.mirror);
 }
 
 class CardItem {
@@ -216,7 +217,7 @@ class Deck {
             : "\nReverse:\n" + reverseDeck!.asString(efl, withoutEfl));
   }
 
-  void shuffle36() {
+  void shuffle34() {
     cards.clear();
     var noms = <Nominal>[]..addAll(Nominal.values);
     final twoNoms = [
@@ -292,7 +293,7 @@ class Deck {
     if (cards.length < 36) {
       cards.clear();
     }
-    print(cards);
+    //print(cards);
     if (maskCards.length > 0 && cards.length == 36) {
       maskCards.sort((a, b) {
         return a.indexInDeck.compareTo(b.indexInDeck);
@@ -318,8 +319,30 @@ class Deck {
           }
         });
       }
+      cards.last.fixed = true;
     }
     print(cards);
+    cards.asMap().forEach((key, value) {
+      value.indexInDeck = key;
+      value.efl = 0;
+    });
+  }
+
+  void shuffleMirror() {
+    cards.shuffle();
+    for (var i = 0; i < cards.length / 2; i++) {
+      var card = cards[i];
+      //ищем первую подоходящую
+      for (var j = i + 1; j < cards.length; j++) {
+        var nextCard = cards[j];
+        if (nextCard.suit == card.suit || nextCard.nominal == card.nominal) {
+          var swap = cards[cards.length - 1 - i];
+          cards[cards.length - 1 - i] = nextCard;
+          cards[j] = swap;
+          break;
+        }
+      }
+    }
     cards.asMap().forEach((key, value) {
       value.indexInDeck = key;
       value.efl = 0;
@@ -536,11 +559,14 @@ class Deck {
         index++;
         return cardItem;
       }));
-      bool = deck.check(maxTransits: maxTransits);
       if (bool) {
-        reverseDeck = deck;
+        bool = deck.check(maxTransits: maxTransits);
+        if (bool) {
+          reverseDeck = deck;
+        }
       }
     }
+
     if (bool) {
       CardSuit.values.forEach((suit) {
         var hex = "";

@@ -83,8 +83,10 @@ Future<void> isolateFunc(List<Object> message) async {
   while (work) {
     //work = false;
     counter++;
-    if (task.maxTransits == 1) {
-      deck.shuffle36();
+    if (task.mirror) {
+      deck.shuffleMirror();
+    } else if (task.maxTransits == 1) {
+      deck.shuffle34();
     } else {
       deck.shuffle();
     }
@@ -184,8 +186,14 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         }
       });
       initializers.add(isolateInitializer);
-      var deckTask = DeckTask(chain, needHex, calcSettings.maxTransits, index,
-          calcSettings.reverse, calcSettings.fullBalanced);
+      var deckTask = DeckTask(
+          chain,
+          needHex,
+          calcSettings.maxTransits,
+          index,
+          calcSettings.reverse,
+          calcSettings.fullBalanced,
+          calcSettings.mirrror);
       isolateInitializer.isolate = await Isolate.spawn(
           isolateFunc, [index, isolateInitializer.port.sendPort, deckTask]);
     }
