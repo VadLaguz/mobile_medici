@@ -18,9 +18,135 @@ class BalanceWidget extends StatefulWidget {
 }
 
 class BalanceWidgetState extends State<BalanceWidget> {
-  /*Widget generateHexWidget(Hex hex) {
+  Widget generateHexWidget(Hex hex, CardSuit suit) {
+    final suitColor = suitColors[suit.index];
+    final strongColor = suitColor;
+    final weakColor = Colors.black.withAlpha(30);
+    var suitIndex = suitsList.indexOf(suit);
 
-  }*/
+    var lineHeight = 15.0;
+
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+                Icon(
+                  suitIconsData[suitIndex],
+                  color: suitColor,
+                  size: 30,
+                ),
+                Container(
+                  width: 0,
+                  height: 8,
+                ),
+              ] +
+              List.generate(hex.data.length, (index) {
+                var line = hex.data[hex.data.length - index - 1]!;
+                var widgets = <Widget>[];
+                var boxDecoration = BoxDecoration(
+                    color: suitColor,
+                    borderRadius: BorderRadius.all(Radius.circular(5)));
+
+                var cardsToHexLine =
+                    cardsToHexLines[cardsToHexLines.length - index - 1];
+                widgets = List<Widget>.generate(2, (index) {
+                  var color = line.first ? strongColor : weakColor;
+                  var e = index < cardsToHexLine!.length
+                      ? cardsToHexLine[index]
+                      : null;
+
+                  if (line.length > 1) {
+                    if (cardsToHexLine.first == e) {
+                      color = line.first ? strongColor : weakColor;
+                    } else {
+                      color = line.last ? strongColor : weakColor;
+                    }
+                  }
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 2),
+                    child: Container(
+                      decoration: boxDecoration.copyWith(
+                          color: e == null ? Colors.transparent : color,
+                          borderRadius: BorderRadius.all(Radius.circular(5))),
+                      height: lineHeight,
+                      child: Center(
+                        child: Text(
+                          e == null ? "0" : nominalsToLang()[e],
+                          style: TextStyle(
+                              color: e == null
+                                  ? Colors.transparent
+                                  : Colors.black87,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList();
+
+                if (line.first) {
+                  widgets += [
+                    Expanded(
+                      child: Padding(
+                          padding: const EdgeInsets.only(bottom: 3),
+                          child: Container(
+                            decoration: boxDecoration,
+                            height: lineHeight,
+                          )),
+                    )
+                  ];
+                } else {
+                  widgets += [
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 3),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            Expanded(
+                              flex: 8,
+                              child: Container(
+                                height: lineHeight,
+                                decoration: boxDecoration,
+                              ),
+                            ),
+                            Expanded(
+                              flex: 2,
+                              child: Container(),
+                            ),
+                            Expanded(
+                              flex: 8,
+                              child: Container(
+                                height: lineHeight,
+                                decoration: boxDecoration,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  ];
+                }
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: widgets,
+                  mainAxisSize: MainAxisSize.max,
+                );
+              }) +
+              [
+                Padding(
+                  padding: const EdgeInsets.only(left: 10),
+                  child: Text(
+                    hex.localizedName(MediaQuery.of(context).orientation == Orientation.landscape),
+                    maxLines: 2,
+                    textAlign: TextAlign.center,
+                  ),
+                )
+              ]),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,144 +154,13 @@ class BalanceWidgetState extends State<BalanceWidget> {
     return LayoutBuilder(
       builder: (context, constraints) {
         return Row(
-          children: [
-            Expanded(
-              child: Wrap(
-                alignment: WrapAlignment.center,
-                children: suitsList.map<Widget>((suit) {
-                  final hex = deck.hex[suit];
-                  final suitColor = [
-                    Colors.pink,
-                    Colors.orange,
-                    Colors.brown,
-                    Colors.blueAccent,
-                  ][suit.index]
-                      .withAlpha(150);
-                  final strongColor = suitColor;
-                  final weakColor = Colors.black.withAlpha(30);
-                  var lineWidth = 150.0;
-                  var lineSpacing = 10.0;
-                  var lineHeight = 15.0;
-                  return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                              Text(
-                                "${suitIcons[suitsList.indexOf(suit)]}",
-                                style: TextStyle(fontSize: 24),
-                              ),
-                              Container(
-                                width: 0,
-                                height: 8,
-                              ),
-                            ] +
-                            List.generate(hex!.data.length, (index) {
-                              var line = hex.data[hex.data.length - index - 1]!;
-                              var widgets = <Widget>[];
-                              var boxDecoration = BoxDecoration(
-                                  color: suitColor,
-                                  boxShadow: [
-                                    /*BoxShadow(
-                                      color: Colors.grey.withOpacity(0.5),
-                                      spreadRadius: 1,
-                                      blurRadius: 4,
-                                      offset: Offset(0, 1),
-                                    ),*/
-                                  ],
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(5)));
-                              var cardsToHexLine = cardsToHexLines[
-                                  cardsToHexLines.length - index - 1];
-                              widgets = cardsToHexLine!.map<Widget>((e) {
-                                var color =
-                                    line.first ? strongColor : weakColor;
-                                if (line.length > 1) {
-                                  if (cardsToHexLine.first == e) {
-                                    color =
-                                        line.first ? strongColor : weakColor;
-                                  } else {
-                                    color = line.last ? strongColor : weakColor;
-                                  }
-                                }
-                                return Padding(
-                                  padding: const EdgeInsets.only(right: 2),
-                                  child: Container(
-                                    decoration: boxDecoration.copyWith(
-                                        color: color,
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(5))),
-                                    width: cardsToHexLine.length == 1
-                                        ? lineWidth / 5
-                                        : lineWidth / 10,
-                                    height: lineHeight,
-                                    child: Center(
-                                      child: Text(
-                                        nominalsToLang()[e],
-                                        style: TextStyle(
-                                            color: Colors.black87,
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              }).toList();
-                              if (line.first) {
-                                widgets += [
-                                  Padding(
-                                    padding: const EdgeInsets.only(bottom: 3),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Container(
-                                          decoration: boxDecoration,
-                                          width: lineWidth,
-                                          height: lineHeight,
-                                        )
-                                      ],
-                                    ),
-                                  )
-                                ];
-                              } else {
-                                widgets += [
-                                  Padding(
-                                    padding: const EdgeInsets.only(bottom: 3),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Container(
-                                          width:
-                                              lineWidth / 2 - (lineSpacing / 2),
-                                          height: lineHeight,
-                                          decoration: boxDecoration,
-                                        ),
-                                        Container(
-                                          width: lineSpacing,
-                                        ),
-                                        Container(
-                                          width:
-                                              lineWidth / 2 - (lineSpacing / 2),
-                                          height: lineHeight,
-                                          decoration: boxDecoration,
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                ];
-                              }
-                              return Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: widgets,
-                                mainAxisSize: MainAxisSize.min,
-                              );
-                            })),
-                  );
-                }).toList(),
-              ),
-            ),
-          ],
+          children: suitsList.map<Widget>((suit) {
+            final hex = deck.hex[suit];
+            return Expanded(
+              child: generateHexWidget(hex!, suit),
+              flex: 1,
+            );
+          }).toList(),
         );
       },
     );

@@ -181,6 +181,13 @@ class Hex {
     value = "";
     fullValue = "";
   }
+
+  String localizedName(bool full) {
+    var s = hexTable.firstWhere((element) => element.contains(value));
+    var indexOf = s.indexOf(' ');
+    return s.substring(1, indexOf) +
+        (full ? ("\n" + s.substring(s.indexOf(")") + 1)) : "");
+  }
 }
 
 class Deck {

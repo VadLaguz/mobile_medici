@@ -1,5 +1,8 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+import 'package:fluttericon/rpg_awesome_icons.dart';
+
 import 'model/Deck.dart';
 
 bool showThreads() {
@@ -65,10 +68,22 @@ var suitsToEn = {
   CardSuit.spades: "S",
 };
 
+final suitColors = [
+  Colors.pink.withAlpha(150),
+  Colors.orange.withAlpha(150),
+  Colors.brown.withAlpha(150),
+  Colors.blueAccent.withAlpha(150),
+];
+
 var suitsList = [
   CardSuit.hearts,
   CardSuit.diamonds,
   CardSuit.clubs,
-  CardSuit.spades,
+  CardSuit.spades
 ];
-var suitIcons = ["♥️", "♦️️", "♣️️", "♠️️️"];
+var suitIconsData = [
+  RpgAwesome.hearts,
+  RpgAwesome.diamonds,
+  RpgAwesome.clovers,
+  RpgAwesome.spades,
+];

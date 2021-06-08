@@ -4,9 +4,15 @@ import 'dart:isolate';
 
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_medici/BalanceWidget.dart';
+import 'package:fluttericon/elusive_icons.dart';
+import 'package:fluttericon/entypo_icons.dart';
+import 'package:fluttericon/font_awesome_icons.dart';
+import 'package:fluttericon/linearicons_free_icons.dart';
+import 'package:fluttericon/rpg_awesome_icons.dart';
 import 'package:mobile_medici/CalculateSettingsWidget.dart';
 import 'package:mobile_medici/Helpers.dart';
 import 'package:mobile_medici/model/Settings.dart';
@@ -420,14 +426,13 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       var suit = suitsList[index];
       return Stack(
         children: [
-          TextButton(
+          IconButton(
+              iconSize: 36,
+              color: suitColors[index],
               onPressed: () async {
                 setIChing(context, suit);
               },
-              child: Text(
-                suitIcons[index],
-                style: TextStyle(fontSize: 48),
-              )),
+              icon: Icon(suitIconsData[index])),
           IgnorePointer(
             child: Container(
               width: 10,
@@ -440,7 +445,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
             ),
           )
         ],
-        alignment: Alignment.center,
+        alignment: Alignment.topRight,
       );
     });
   }
@@ -476,7 +481,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
       var details = <Widget>[];
       for (var i = 0; i < suitsList.length; i++) {
-        var icon = suitIcons[i];
         var suit = suitsList[i];
         var efl = transitElfMap
             .where((element) => element.keys.first == suit)
@@ -492,9 +496,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         var double = efl.toDouble();
         //print(double);
         var widget = Row(children: [
-          Text(
-            icon,
-            style: TextStyle(fontSize: 38),
+          Icon(
+            suitIconsData[i],
+            color: suitColors[i],
           ),
           Expanded(
             child: AbsorbPointer(
@@ -696,50 +700,99 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                             Wrap(
                               children: iChingButtons(context) +
                                   [
-                                    TextButton(
-                                        onPressed: () async {
-                                          final result = await showTextInputDialog(
-                                              title:
-                                                  "Chain input (pm3421, Ingvas and this app formats allowed)",
-                                              context: context,
-                                              textFields: [
-                                                DialogTextField(
-                                                    maxLines: 3,
-                                                    hintText:
-                                                        "Examples: <[Вк][Вб]><[6п][8п]....,[Вч 9к Тк Вп 7ч 10ч Тп Дп 7б Дк],...Вч 6ч Тк Вп Тп!2...etc")
-                                              ]);
-                                          if (result != null) {
-                                            final deck = Deck();
-                                            if (deck.parse(result.first)) {
-                                              chainModel.clear();
-                                              chainModel.addAll(deck.cards);
-                                              setState(() {
-                                                if (deck.check()) {
-                                                  foundItems.insert(0, deck);
-                                                  selectedItem = 0;
-                                                }
-                                              });
-                                            } else {
-                                              showAlertDialog(
-                                                  context: context,
-                                                  title: "Error",
-                                                  message:
-                                                      "Maybe the chain is too short (less than 36 cards) or the format is not supported.",
-                                                  actions: [
-                                                    AlertDialogAction(
-                                                        key: 1, label: "OK 🤨")
-                                                  ]);
-                                            }
+                                    Container(
+                                      width: 8,
+                                    ),
+                                    IconButton(
+                                      onPressed: () async {
+                                        final result = await showTextInputDialog(
+                                            title:
+                                                "Chain input (pm3421, Ingvas and this app formats allowed)",
+                                            context: context,
+                                            textFields: [
+                                              DialogTextField(
+                                                  maxLines: 3,
+                                                  hintText:
+                                                      "Examples: <[Вк][Вб]><[6п][8п]....,[Вч 9к Тк Вп 7ч 10ч Тп Дп 7б Дк],...Вч 6ч Тк Вп Тп!2...etc")
+                                            ]);
+                                        if (result != null) {
+                                          final deck = Deck();
+                                          if (deck.parse(result.first)) {
+                                            chainModel.clear();
+                                            chainModel.addAll(deck.cards);
+                                            setState(() {
+                                              if (deck.check()) {
+                                                foundItems.insert(0, deck);
+                                                selectedItem = 0;
+                                              }
+                                            });
+                                          } else {
+                                            showAlertDialog(
+                                                context: context,
+                                                title: "Error",
+                                                message:
+                                                    "Maybe the chain is too short (less than 36 cards) or the format is not supported.",
+                                                actions: [
+                                                  AlertDialogAction(
+                                                      key: 1, label: "OK 🤨")
+                                                ]);
                                           }
-                                        },
-                                        child: Text(
-                                          "✍️",
-                                          style: TextStyle(fontSize: 48),
-                                        )),
+                                        }
+                                        /*showDialog<bool>(
+                                          context: context,
+                                          builder: (context) {
+                                            return CupertinoAlertDialog(
+                                              title: Text(
+                                                  'Chain input (pm3421, Ingvas and this app formats allowed'),
+                                              content: Card(
+                                                color: Colors.transparent,
+                                                elevation: 0.0,
+                                                child: Column(
+                                                  children: <Widget>[
+                                                    TextField(
+                                                      decoration: InputDecoration(
+                                                          hintText:
+                                                              "<[Вк][Вб]><[6п][8п]....,[Вч 9к Тк Вп 7ч 10ч Тп Дп 7б Дк],...Вч 6ч Тк Вп Тп!2...etc",
+                                                          filled: true,
+                                                          fillColor: Colors
+                                                              .grey.shade50),
+                                                    ),
+                                                    Row(
+                                                      children: [
+                                                        Expanded(
+                                                          child: TextButton(
+                                                              onPressed: () {},
+                                                              child: Text(
+                                                                  "Close")),
+                                                          flex: 2,
+                                                        ),
+                                                        Expanded(
+                                                          child: TextButton(
+                                                              onPressed: () {},
+                                                              child:
+                                                                  Text("OK")),
+                                                          flex: 2,
+                                                        ),
+                                                      ],
+                                                    )
+                                                  ],
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        );*/
+                                      },
+                                      icon: Icon(Entypo.pencil),
+                                      iconSize: 36,
+                                      color: Colors.cyan,
+                                    ),
+                                    Container(
+                                      width: 8,
+                                    ),
                                     Stack(
                                       alignment: Alignment.topRight,
                                       children: [
-                                        TextButton(
+                                        IconButton(
                                             onPressed: () async {
                                               showDialog(
                                                 context: context,
@@ -753,9 +806,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                 },
                                               );
                                             },
-                                            child: Text(
-                                              "⚙️",
-                                              style: TextStyle(fontSize: 48),
+                                            icon: Icon(
+                                              FontAwesome.cog,
+                                              size: 36,
+                                              color: Colors.orange,
                                             )),
                                         IgnorePointer(
                                           child: Container(
@@ -770,11 +824,18 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                         )
                                       ],
                                     ),
-                                    TextButton(
+                                    Container(
+                                      width: 8,
+                                    ),
+                                    IconButton(
+                                        color: calculating
+                                            ? Colors.red
+                                            : Colors.lightBlue,
+                                        iconSize: 36,
                                         onPressed: () {
                                           calculate();
                                         },
-                                        child: threadsLaunching
+                                        icon: threadsLaunching
                                             ? Stack(
                                                 alignment: Alignment.center,
                                                 children: [
@@ -787,40 +848,44 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                   CircularProgressIndicator(),
                                                 ],
                                               )
-                                            : Text(
-                                                calculating ? "🛑" : "🚀",
-                                                style: TextStyle(fontSize: 48),
+                                            : Icon(
+                                                calculating
+                                                    ? Elusive.error_alt
+                                                    : LineariconsFree.rocket,
                                               )),
-                                    TextButton(
-                                        onPressed: () async {
-                                          var result = await showAlertDialog(
-                                              actions: [
-                                                AlertDialogAction(
-                                                    key: 1,
-                                                    label: "Clear results"),
-                                                AlertDialogAction(
-                                                    key: 2,
-                                                    label:
-                                                        "Clear Task & Results"),
-                                                AlertDialogAction(
-                                                    key: 3, label: "Cancel")
-                                              ],
-                                              context: context,
-                                              title: "Clear? Really?");
-                                          if (result == 1) {
-                                            setState(() {
-                                              clearResults();
-                                            });
-                                          } else if (result == 2) {
-                                            setState(() {
-                                              resetChain();
-                                            });
-                                          }
-                                        },
-                                        child: Text(
-                                          "🗑",
-                                          style: TextStyle(fontSize: 48),
-                                        )),
+                                    Container(
+                                      width: 8,
+                                    ),
+                                    IconButton(
+                                      onPressed: () async {
+                                        var result = await showAlertDialog(
+                                            actions: [
+                                              AlertDialogAction(
+                                                  key: 1,
+                                                  label: "Clear results"),
+                                              AlertDialogAction(
+                                                  key: 2,
+                                                  label:
+                                                      "Clear Task & Results"),
+                                              AlertDialogAction(
+                                                  key: 3, label: "Cancel")
+                                            ],
+                                            context: context,
+                                            title: "Clear? Really?");
+                                        if (result == 1) {
+                                          setState(() {
+                                            clearResults();
+                                          });
+                                        } else if (result == 2) {
+                                          setState(() {
+                                            resetChain();
+                                          });
+                                        }
+                                      },
+                                      icon: Icon(LineariconsFree.trash),
+                                      iconSize: 36,
+                                      color: Colors.red,
+                                    ),
                                   ],
                             ),
                           ],
@@ -832,8 +897,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                     child: Container(
                       height: MediaQuery.of(context).orientation ==
                               Orientation.landscape
-                          ? 600
-                          : 400,
+                          ? 800
+                          : 800,
                       child: Row(
                         children: [
                           Expanded(
