@@ -4,6 +4,7 @@ import 'dart:isolate';
 
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttericon/elusive_icons.dart';
@@ -132,20 +133,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   var threadsLaunching = false;
   var threadsLaunchingCount = 0;
   var calcSettings = CalcSettings();
-
-  var suitsList = [
-    CardSuit.hearts,
-    CardSuit.diamonds,
-    CardSuit.spades,
-    CardSuit.clubs
-  ];
-  var suitIcons = ["♥️", "♦️️", "♠️️️", "♣️️"];
-  var suitIconsData = [
-    RpgAwesome.hearts,
-    RpgAwesome.diamonds,
-    RpgAwesome.spades,
-    RpgAwesome.clovers
-  ];
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -440,7 +427,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         children: [
           IconButton(
               iconSize: 36,
-              color: Colors.green,
+              color: suitColor[index].withAlpha(150),
               onPressed: () async {
                 setIChing(context, suit);
               },
@@ -457,7 +444,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
             ),
           )
         ],
-        alignment: Alignment.center,
+        alignment: Alignment.topRight,
       );
     });
   }
@@ -493,7 +480,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
       var details = <Widget>[];
       for (var i = 0; i < suitsList.length; i++) {
-        var icon = suitIcons[i];
         var suit = suitsList[i];
         var efl = transitElfMap
             .where((element) => element.keys.first == suit)
@@ -746,6 +732,49 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                 ]);
                                           }
                                         }
+                                        /*showDialog<bool>(
+                                          context: context,
+                                          builder: (context) {
+                                            return CupertinoAlertDialog(
+                                              title: Text(
+                                                  'Chain input (pm3421, Ingvas and this app formats allowed'),
+                                              content: Card(
+                                                color: Colors.transparent,
+                                                elevation: 0.0,
+                                                child: Column(
+                                                  children: <Widget>[
+                                                    TextField(
+                                                      decoration: InputDecoration(
+                                                          hintText:
+                                                              "<[Вк][Вб]><[6п][8п]....,[Вч 9к Тк Вп 7ч 10ч Тп Дп 7б Дк],...Вч 6ч Тк Вп Тп!2...etc",
+                                                          filled: true,
+                                                          fillColor: Colors
+                                                              .grey.shade50),
+                                                    ),
+                                                    Row(
+                                                      children: [
+                                                        Expanded(
+                                                          child: TextButton(
+                                                              onPressed: () {},
+                                                              child: Text(
+                                                                  "Close")),
+                                                          flex: 2,
+                                                        ),
+                                                        Expanded(
+                                                          child: TextButton(
+                                                              onPressed: () {},
+                                                              child:
+                                                                  Text("OK")),
+                                                          flex: 2,
+                                                        ),
+                                                      ],
+                                                    )
+                                                  ],
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        );*/
                                       },
                                       icon: Icon(Entypo.pencil),
                                       iconSize: 36,

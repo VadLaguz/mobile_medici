@@ -1,5 +1,8 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+import 'package:fluttericon/rpg_awesome_icons.dart';
+
 import 'model/Deck.dart';
 
 bool showThreads() {
@@ -10,8 +13,6 @@ bool ruLocale() {
   return true;
   //return Platform.localeName.contains("ru");
 }
-
-
 
 Map nominalsToLang() {
   if (!ruLocale() && false) {
@@ -66,3 +67,23 @@ var suitsToEn = {
   CardSuit.hearts: "H",
   CardSuit.spades: "S",
 };
+
+final suitColor = [
+  Colors.pink,
+  Colors.orange,
+  Colors.brown,
+  Colors.blueAccent,
+];
+
+var suitsList = [
+  CardSuit.hearts,
+  CardSuit.diamonds,
+  CardSuit.clubs,
+  CardSuit.spades
+];
+var suitIconsData = [
+  RpgAwesome.hearts,
+  RpgAwesome.diamonds,
+  RpgAwesome.clovers,
+  RpgAwesome.spades,
+];

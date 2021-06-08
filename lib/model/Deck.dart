@@ -321,7 +321,7 @@ class Deck {
       }
       cards.last.fixed = true;
     }
-    print(cards);
+    //print(cards);
     cards.asMap().forEach((key, value) {
       value.indexInDeck = key;
       value.efl = 0;
