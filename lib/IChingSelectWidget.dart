@@ -81,41 +81,50 @@ class IChingSelectState extends State<IChingSelectWidget> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    TextButton(
-                        onPressed: () {
-                          setState(() {
-                            widget.selectedHexes.clear();
-                            widget.selectedHexes.addAll(widget.positivehex);
-                            widget.onUpdate();
-                          });
-                        },
-                        child: Text(
-                          "🙂️",
-                          style: TextStyle(fontSize: 48),
-                        )),
-                    TextButton(
-                        onPressed: () {
-                          setState(() {
-                            widget.selectedHexes.clear();
-                            widget.selectedHexes.addAll(widget.gHex);
-                            widget.onUpdate();
-                          });
-                        },
-                        child: Text(
-                          "🙃️",
-                          style: TextStyle(fontSize: 48),
-                        )),
-                    TextButton(
-                        onPressed: () {
-                          setState(() {
-                            widget.selectedHexes.clear();
-                            widget.onUpdate();
-                          });
-                        },
-                        child: Text(
-                          "🗑️️",
-                          style: TextStyle(fontSize: 48),
-                        )),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: TextButton(
+                          onPressed: () {
+                            setState(() {
+                              widget.selectedHexes.clear();
+                              widget.selectedHexes.addAll(widget.positivehex);
+                              widget.onUpdate();
+                            });
+                          },
+                          child: Text(
+                            "+",
+                            style: TextStyle(fontSize: 48),
+                          )),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: TextButton(
+                          onPressed: () {
+                            setState(() {
+                              widget.selectedHexes.clear();
+                              widget.selectedHexes.addAll(widget.gHex);
+                              widget.onUpdate();
+                            });
+                          },
+                          child: Text(
+                            "-",
+                            style: TextStyle(fontSize: 48),
+                          )),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: TextButton(
+                          onPressed: () {
+                            setState(() {
+                              widget.selectedHexes.clear();
+                              widget.onUpdate();
+                            });
+                          },
+                          child: Text(
+                            "clear",
+                            style: TextStyle(fontSize: 48),
+                          )),
+                    ),
                   ],
                 ),
                 Expanded(
