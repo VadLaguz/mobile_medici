@@ -1,5 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="app.tich.mobile_medici">
+    <uses-permission android:name="android.permission.INTERNET" />
    <application
         android:label="mobile_medici"
         android:icon="@mipmap/ic_launcher">

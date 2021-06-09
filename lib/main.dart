@@ -13,6 +13,7 @@ import 'package:fluttericon/entypo_icons.dart';
 import 'package:fluttericon/font_awesome_icons.dart';
 import 'package:fluttericon/linearicons_free_icons.dart';
 import 'package:fluttericon/rpg_awesome_icons.dart';
+import 'package:mobile_medici/BotWidget.dart';
 import 'package:mobile_medici/CalculateSettingsWidget.dart';
 import 'package:mobile_medici/Helpers.dart';
 import 'package:mobile_medici/model/Settings.dart';
@@ -539,9 +540,13 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                           )),
                       TextButton(
                           onPressed: () {
-                            Clipboard.setData(ClipboardData(
-                                text: foundItems[selectedItem]
-                                    .asString(true, true)));
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return Center(
+                                    child: BotWidget(item));
+                              },
+                            );
                           },
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
