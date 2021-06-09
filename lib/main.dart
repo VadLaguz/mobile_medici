@@ -505,6 +505,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
               child: SliderTheme(
                 data: SliderTheme.of(context).copyWith(
                     trackHeight: 10.0,
+                    activeTrackColor: suitColors[i],
                     thumbShape: RoundSliderThumbShape(enabledThumbRadius: 0.0)),
                 child: Slider(
                   label: "2",
@@ -524,16 +525,30 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         padding: const EdgeInsets.all(8.0),
         child: Column(
             children: <Widget>[
-                  TextButton(
-                      onPressed: () {
-                        Clipboard.setData(ClipboardData(
-                            text:
-                                foundItems[selectedItem].asString(true, true)));
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text("Copy to clipboard"),
-                      )),
+                  Wrap(
+                    children: [
+                      TextButton(
+                          onPressed: () {
+                            Clipboard.setData(ClipboardData(
+                                text: foundItems[selectedItem]
+                                    .asString(true, true)));
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text("Copy to clipboard"),
+                          )),
+                      TextButton(
+                          onPressed: () {
+                            Clipboard.setData(ClipboardData(
+                                text: foundItems[selectedItem]
+                                    .asString(true, true)));
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text("Send to bot"),
+                          )),
+                    ],
+                  ),
                 ] +
                 details +
                 [BalanceWidget(item)]),
