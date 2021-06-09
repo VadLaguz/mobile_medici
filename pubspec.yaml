@@ -41,6 +41,7 @@ dependencies:
   group_button: ^2.2.2
   http: ^0.13.3
   url_launcher: ^6.0.6
+  keyboard_actions: ^3.4.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

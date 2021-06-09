@@ -1,9 +1,11 @@
+import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:date_time_picker/date_time_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:group_button/group_button.dart';
 import 'package:http/http.dart';
 import 'package:intl/intl.dart';
+import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobile_medici/model/Deck.dart';
 import 'package:mobile_medici/shared_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -20,6 +22,74 @@ class BotWidget extends StatefulWidget {
 }
 
 class BotWidgetState extends State<BotWidget> {
+  final FocusNode _nodeText1 = FocusNode();
+  final FocusNode _nodeText2 = FocusNode();
+  final FocusNode _nodeText3 = FocusNode();
+
+  KeyboardActionsConfig _buildConfig(BuildContext context) {
+    return KeyboardActionsConfig(
+      keyboardActionsPlatform: KeyboardActionsPlatform.ALL,
+      keyboardBarColor: Colors.grey[200],
+      nextFocus: true,
+      actions: [
+        KeyboardActionsItem(
+          focusNode: _nodeText1,
+          toolbarButtons: [
+            //button 1
+            (node) {
+              return GestureDetector(
+                onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+                child: Container(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text(
+                    "DONE",
+                    style: TextStyle(color: Colors.black87),
+                  ),
+                ),
+              );
+            },
+          ],
+        ),
+        KeyboardActionsItem(
+          focusNode: _nodeText2,
+          toolbarButtons: [
+            //button 1
+            (node) {
+              return GestureDetector(
+                onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+                child: Container(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text(
+                    "DONE",
+                    style: TextStyle(color: Colors.black87),
+                  ),
+                ),
+              );
+            },
+          ],
+        ),
+        KeyboardActionsItem(
+          focusNode: _nodeText3,
+          toolbarButtons: [
+            //button 1
+            (node) {
+              return GestureDetector(
+                onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+                child: Container(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text(
+                    "DONE",
+                    style: TextStyle(color: Colors.black87),
+                  ),
+                ),
+              );
+            },
+          ],
+        ),
+      ],
+    );
+  }
+
   var date = DateTime.now();
   var dateFormat = 'yyyy MM dd';
   var hourFormat = 'HH mm';
@@ -34,7 +104,7 @@ class BotWidgetState extends State<BotWidget> {
   var timingType = 1;
   var isLoading = false;
 
-  Future<void> doRequest() async {
+  Future<void> doRequest(BuildContext context) async {
     Map<String, String> body = {
       'ce': widget.item.asShortString(),
       'p1': formatNetwork.format(date),
@@ -54,8 +124,15 @@ class BotWidgetState extends State<BotWidget> {
       print(r.body);
       if (await canLaunch(r.body)) {
         await launch(r.body);
+        FocusManager.instance.primaryFocus?.unfocus();
+        Navigator.pop(context);
       } else {
-        print("cant launch url");
+        //print("cant launch url");
+        showAlertDialog(
+            context: context,
+            title: "Error",
+            message: "Unhandled error, try again",
+            actions: [AlertDialogAction(key: 1, label: "OK 🤨")]);
       }
     } catch (e) {
       print(e);
@@ -69,128 +146,137 @@ class BotWidgetState extends State<BotWidget> {
   @override
   Widget build(BuildContext context) {
     var titleStyle = TextStyle(fontSize: 18);
-    return Material(
-      child: FractionallySizedBox(
-        widthFactor: isLandscape(context) ? 0.5 : 0.8,
-        child: Container(
-          color: Colors.white,
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Chain start date and time",
-                    style: titleStyle,
-                  ),
-                  DateTimePicker(
-                    controller: controller,
-                    type: DateTimePickerType.dateTimeSeparate,
-                    timeLabelText: "Time",
-                    //dateMask: dateFormat,
-                    firstDate: date,
-                    lastDate: DateTime(2100),
-                    dateLabelText: 'Date',
-                    validator: (val) {
-                      return null;
-                    },
-                    onChanged: (value) {
-                      date = format.parse(value);
-                    },
-                    onSaved: (val) {
-                      print(val);
-                    },
-                  ),
-                  SizedBox(
-                    height: 8,
-                  ),
-                  Text(
-                    "TimeZone",
-                    style: titleStyle,
-                  ),
-                  TextField(
-                    keyboardType: TextInputType.number,
-                    controller: timeZoneController,
-                  ),
-                  SizedBox(
-                    height: 8,
-                  ),
-                  Text(
-                    "Day cards count",
-                    style: titleStyle,
-                  ),
-                  TextField(
-                    keyboardType: TextInputType.number,
-                    controller: dayCardsCountController,
-                  ),
-                  SizedBox(
-                    height: 8,
-                  ),
-                  Text(
-                    "Timing in minutes",
-                    style: titleStyle,
-                  ),
-                  TextField(
-                    keyboardType: TextInputType.number,
-                    controller: timingController,
-                  ),
-                  SizedBox(
-                    height: 8,
-                  ),
-                  Text(
-                    "Timing type",
-                    style: titleStyle,
-                  ),
-                  SizedBox(
-                    height: 8,
-                  ),
-                  GroupButton(
-                    isRadio: true,
-                    spacing: 10,
-                    selectedButton: 0,
-                    onSelected: (index, isSelected) =>
-                        timingType = timingType + 1,
-                    buttons: ["Default", "Tuning-fork", "Manual"],
-                  ),
-                  SizedBox(
-                    height: 8,
-                  ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Expanded(
+    return KeyboardActions(
+      config: _buildConfig(context),
+      child: Material(
+        child: GestureDetector(
+          onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+          child: Container(
+            color: Colors.white,
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Chain start date and time",
+                      style: titleStyle,
+                    ),
+                    DateTimePicker(
+                      controller: controller,
+                      type: DateTimePickerType.dateTimeSeparate,
+                      timeLabelText: "Time",
+                      //dateMask: dateFormat,
+                      firstDate: date,
+                      lastDate: DateTime(2100),
+                      dateLabelText: 'Date',
+                      validator: (val) {
+                        return null;
+                      },
+                      onChanged: (value) {
+                        date = format.parse(value);
+                      },
+                      onSaved: (val) {
+                        print(val);
+                      },
+                    ),
+                    SizedBox(
+                      height: 8,
+                    ),
+                    Text(
+                      "TimeZone",
+                      style: titleStyle,
+                    ),
+                    TextField(
+                      focusNode: _nodeText1,
+                      keyboardType: TextInputType.number,
+                      controller: timeZoneController,
+                    ),
+                    SizedBox(
+                      height: 8,
+                    ),
+                    Text(
+                      "Day cards count",
+                      style: titleStyle,
+                    ),
+                    TextField(
+                      focusNode: _nodeText2,
+                      keyboardType: TextInputType.number,
+                      controller: dayCardsCountController,
+                    ),
+                    SizedBox(
+                      height: 8,
+                    ),
+                    Text(
+                      "Timing in minutes",
+                      style: titleStyle,
+                    ),
+                    TextField(
+                      focusNode: _nodeText3,
+                      keyboardType: TextInputType.number,
+                      controller: timingController,
+                    ),
+                    SizedBox(
+                      height: 8,
+                    ),
+                    Text(
+                      "Timing type",
+                      style: titleStyle,
+                    ),
+                    SizedBox(
+                      height: 8,
+                    ),
+                    GroupButton(
+                      isRadio: true,
+                      spacing: 10,
+                      selectedButton: 0,
+                      onSelected: (index, isSelected) =>
+                          timingType = timingType + 1,
+                      buttons: ["Default", "Tuning-fork", "Manual"],
+                    ),
+                    SizedBox(
+                      height: 8,
+                    ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                            flex: 1,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: TextButton(
+                                  onPressed: () {
+                                    FocusManager.instance.primaryFocus
+                                        ?.unfocus();
+                                    Navigator.pop(context);
+                                  },
+                                  child: Text(
+                                    "Cancel",
+                                    style: TextStyle(fontSize: 20),
+                                  )),
+                            )),
+                        Expanded(
                           flex: 1,
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: TextButton(
                                 onPressed: () {
-                                  Navigator.pop(context);
+                                  doRequest(context);
                                 },
-                                child: Text(
-                                  "Cancel",
-                                  style: TextStyle(fontSize: 20),
-                                )),
-                          )),
-                      Expanded(
-                        flex: 1,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: TextButton(
-                              onPressed: () {
-                                doRequest();
-                              },
-                              child: isLoading
-                                  ? CircularProgressIndicator()
-                                  : Text(
-                                      "Open Telegram",
-                                      style: TextStyle(fontSize: 20),
-                                    )),
+                                child: isLoading
+                                    ? CircularProgressIndicator()
+                                    : Text(
+                                        "Open Telegram",
+                                        style: TextStyle(fontSize: 20),
+                                      )),
+                          ),
                         ),
-                      ),
-                    ],
-                  )
-                ],
+                      ],
+                    )
+                  ],
+                ),
               ),
             ),
           ),

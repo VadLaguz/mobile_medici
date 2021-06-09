@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobile_medici/model/Deck.dart';
 
 import 'Helpers.dart';
@@ -36,7 +37,7 @@ Widget generateHexWidget(Hex hex, CardSuit suit, BuildContext context) {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: List<Widget>.generate(
-                        2,
+                        1,
                         (index) => Padding(
                               padding: const EdgeInsets.only(right: 2),
                               child: Container(
@@ -50,6 +51,10 @@ Widget generateHexWidget(Hex hex, CardSuit suit, BuildContext context) {
                         size: 30,
                       ),
                     ],
+              ),
+              Container(
+                width: 0,
+                height: 8,
               ),
               Container(
                 width: 0,
@@ -146,17 +151,7 @@ Widget generateHexWidget(Hex hex, CardSuit suit, BuildContext context) {
                 mainAxisSize: MainAxisSize.max,
               );
             }) +
-            [
-              Padding(
-                padding: const EdgeInsets.only(left: 10),
-                child: Text(
-                  hex.localizedName(MediaQuery.of(context).orientation ==
-                      Orientation.landscape),
-                  maxLines: 2,
-                  textAlign: TextAlign.center,
-                ),
-              )
-            ]),
+            []),
   );
 }
 
@@ -166,17 +161,36 @@ class BalanceWidgetState extends State<BalanceWidget> {
     final deck = widget.deck;
     return LayoutBuilder(
       builder: (context, constraints) {
-        return Row(
-          children: suitsList.map<Widget>((suit) {
-            final hex = deck.hex[suit];
-            return Expanded(
-              child: InkWell(
-                child: generateHexWidget(hex!, suit, context),
-                onTap: () {},
-              ),
-              flex: 1,
-            );
-          }).toList(),
+        return Column(
+          children: [
+            Row(
+              children: suitsList.map<Widget>((suit) {
+                final hex = deck.hex[suit];
+                return Expanded(
+                  child: InkWell(
+                    child: generateHexWidget(hex!, suit, context),
+                    /*onTap: () {},*/
+                  ),
+                  flex: 1,
+                );
+              }).toList(),
+            ),
+           /* Row(
+              children: suitsList.map<Widget>((suit) {
+                final hex = deck.hex[suit];
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    hex!.localizedName(MediaQuery.of(context).orientation ==
+                        Orientation.landscape),
+                    overflow: TextOverflow.fade,
+                    maxLines: 1,
+                    softWrap: false,
+                  ),
+                );
+              }).toList(),
+            ),*/
+          ],
         );
       },
     );

@@ -18,6 +18,7 @@ import 'package:mobile_medici/CalculateSettingsWidget.dart';
 import 'package:mobile_medici/Helpers.dart';
 import 'package:mobile_medici/model/Settings.dart';
 import 'package:mobile_medici/reorderables/src/widgets/reorderable_wrap.dart';
+import 'package:mobile_medici/shared_ui.dart';
 import 'package:range_slider_dialog/range_slider_dialog.dart';
 
 import 'IChingSelectWidget.dart';
@@ -541,10 +542,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                       TextButton(
                           onPressed: () {
                             showDialog(
+                              barrierDismissible: false,
                               context: context,
                               builder: (context) {
-                                return Center(
-                                    child: BotWidget(item));
+                                return Center(child: BotWidget(item));
                               },
                             );
                           },
@@ -556,7 +557,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                   ),
                 ] +
                 details +
-                [BalanceWidget(item)]),
+                (isLandscape(context) ? [BalanceWidget(item)] : [])),
       );
     }
 
