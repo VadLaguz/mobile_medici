@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:date_time_picker/date_time_picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -122,7 +124,7 @@ class BotWidgetState extends State<BotWidget> {
         body: body,
       );
       print(r.body);
-      if (await canLaunch(r.body)) {
+      if (Platform.isAndroid || await canLaunch(r.body)) {
         await launch(r.body);
         FocusManager.instance.primaryFocus?.unfocus();
         //Navigator.pop(context);

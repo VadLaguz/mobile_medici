@@ -2,7 +2,7 @@
     package="app.tich.mobile_medici">
     <uses-permission android:name="android.permission.INTERNET" />
    <application
-        android:label="mobile_medici"
+        android:label="Medici"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

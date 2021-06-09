@@ -10,12 +10,12 @@ bool showThreads() {
 }
 
 bool ruLocale() {
-  return true;
-  //return Platform.localeName.contains("ru");
+  // return true;
+  return Platform.localeName.contains("ru");
 }
 
 Map nominalsToLang() {
-  if (!ruLocale() && false) {
+  if (!ruLocale() ) {
     return nominalsToEn;
   } else {
     return nominalsToRu;
@@ -23,7 +23,7 @@ Map nominalsToLang() {
 }
 
 Map suitsToLang() {
-  if (!ruLocale() && false) {
+  if (!ruLocale()) {
     return suitsToEn;
   } else {
     return suitsToRu;
