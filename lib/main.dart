@@ -542,7 +542,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                       TextButton(
                           onPressed: () {
                             showDialog(
-                              barrierDismissible: false,
+                              barrierDismissible: !isMobile(),
                               context: context,
                               builder: (context) {
                                 return Center(child: BotWidget(item));

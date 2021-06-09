@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -26,4 +28,8 @@ class InputDoneView extends StatelessWidget {
       ),
     );
   }
+}
+
+bool isMobile() {
+  return Platform.isAndroid || Platform.isIOS;
 }

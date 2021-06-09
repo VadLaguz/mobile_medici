@@ -148,142 +148,147 @@ class BotWidgetState extends State<BotWidget> {
   @override
   Widget build(BuildContext context) {
     var titleStyle = TextStyle(fontSize: 18);
-    return KeyboardActions(
-      config: _buildConfig(context),
-      child: Material(
-        child: GestureDetector(
-          onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-          child: Container(
-            color: Colors.white,
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Chain start date and time",
-                      style: titleStyle,
-                    ),
-                    DateTimePicker(
-                      controller: controller,
-                      type: DateTimePickerType.dateTimeSeparate,
-                      timeLabelText: "Time",
-                      //dateMask: dateFormat,
-                      firstDate: date,
-                      lastDate: DateTime(2100),
-                      dateLabelText: 'Date',
-                      validator: (val) {
-                        return null;
-                      },
-                      onChanged: (value) {
-                        date = format.parse(value);
-                      },
-                      onSaved: (val) {
-                        print(val);
-                      },
-                    ),
-                    SizedBox(
-                      height: 8,
-                    ),
-                    Text(
-                      "TimeZone",
-                      style: titleStyle,
-                    ),
-                    TextField(
-                      focusNode: _nodeText1,
-                      keyboardType: TextInputType.number,
-                      controller: timeZoneController,
-                    ),
-                    SizedBox(
-                      height: 8,
-                    ),
-                    Text(
-                      "Day cards count",
-                      style: titleStyle,
-                    ),
-                    TextField(
-                      focusNode: _nodeText2,
-                      keyboardType: TextInputType.number,
-                      controller: dayCardsCountController,
-                    ),
-                    SizedBox(
-                      height: 8,
-                    ),
-                    Text(
-                      "Timing in minutes",
-                      style: titleStyle,
-                    ),
-                    TextField(
-                      focusNode: _nodeText3,
-                      keyboardType: TextInputType.number,
-                      controller: timingController,
-                    ),
-                    SizedBox(
-                      height: 8,
-                    ),
-                    Text(
-                      "Timing type",
-                      style: titleStyle,
-                    ),
-                    SizedBox(
-                      height: 8,
-                    ),
-                    GroupButton(
-                      isRadio: true,
-                      spacing: 10,
-                      selectedButton: 0,
-                      onSelected: (index, isSelected) =>
-                          timingType = index + 1,
-                      buttons: ["Default", "Tuning-fork", "Manual"],
-                    ),
-                    SizedBox(
-                      height: 8,
-                    ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(
-                            flex: 1,
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: TextButton(
-                                  onPressed: () {
-                                    FocusManager.instance.primaryFocus
-                                        ?.unfocus();
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text(
-                                    "Cancel",
-                                    style: TextStyle(fontSize: 20),
-                                  )),
-                            )),
-                        Expanded(
+
+    var content = Material(
+      child: GestureDetector(
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        child: Container(
+          color: Colors.white,
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Chain start date and time",
+                    style: titleStyle,
+                  ),
+                  DateTimePicker(
+                    controller: controller,
+                    type: DateTimePickerType.dateTimeSeparate,
+                    timeLabelText: "Time",
+                    //dateMask: dateFormat,
+                    firstDate: date,
+                    lastDate: DateTime(2100),
+                    dateLabelText: 'Date',
+                    validator: (val) {
+                      return null;
+                    },
+                    onChanged: (value) {
+                      date = format.parse(value);
+                    },
+                    onSaved: (val) {
+                      print(val);
+                    },
+                  ),
+                  SizedBox(
+                    height: 8,
+                  ),
+                  Text(
+                    "TimeZone",
+                    style: titleStyle,
+                  ),
+                  TextField(
+                    focusNode: _nodeText1,
+                    keyboardType: TextInputType.number,
+                    controller: timeZoneController,
+                  ),
+                  SizedBox(
+                    height: 8,
+                  ),
+                  Text(
+                    "Day cards count",
+                    style: titleStyle,
+                  ),
+                  TextField(
+                    focusNode: _nodeText2,
+                    keyboardType: TextInputType.number,
+                    controller: dayCardsCountController,
+                  ),
+                  SizedBox(
+                    height: 8,
+                  ),
+                  Text(
+                    "Timing in minutes",
+                    style: titleStyle,
+                  ),
+                  TextField(
+                    focusNode: _nodeText3,
+                    keyboardType: TextInputType.number,
+                    controller: timingController,
+                  ),
+                  SizedBox(
+                    height: 8,
+                  ),
+                  Text(
+                    "Timing type",
+                    style: titleStyle,
+                  ),
+                  SizedBox(
+                    height: 8,
+                  ),
+                  GroupButton(
+                    isRadio: true,
+                    spacing: 10,
+                    selectedButton: 0,
+                    onSelected: (index, isSelected) => timingType = index + 1,
+                    buttons: ["Default", "Tuning-fork", "Manual"],
+                  ),
+                  SizedBox(
+                    height: 8,
+                  ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(
                           flex: 1,
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: TextButton(
                                 onPressed: () {
-                                  doRequest(context);
+                                  FocusManager.instance.primaryFocus?.unfocus();
+                                  Navigator.pop(context);
                                 },
-                                child: isLoading
-                                    ? CircularProgressIndicator()
-                                    : Text(
-                                        "Open Telegram",
-                                        style: TextStyle(fontSize: 20),
-                                      )),
-                          ),
+                                child: Text(
+                                  "Cancel",
+                                  style: TextStyle(fontSize: 20),
+                                )),
+                          )),
+                      Expanded(
+                        flex: 1,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: TextButton(
+                              onPressed: () {
+                                doRequest(context);
+                              },
+                              child: isLoading
+                                  ? CircularProgressIndicator()
+                                  : Text(
+                                      "Open Telegram",
+                                      style: TextStyle(fontSize: 20),
+                                    )),
                         ),
-                      ],
-                    )
-                  ],
-                ),
+                      ),
+                    ],
+                  )
+                ],
               ),
             ),
           ),
         ),
       ),
+    );
+
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: 400, maxHeight: 450),
+      child: isMobile()
+          ? KeyboardActions(config: _buildConfig(context), child: content)
+          : Container(
+              child: content,
+            ),
     );
   }
 }
