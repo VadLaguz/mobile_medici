@@ -171,7 +171,7 @@ class Hex {
       var list = (data[element] as List<bool>);
       fullValue += list[0] ? "1" : "0";
       if (list.length > 1) {
-        fullValue += list[1] ? "I" : "O";
+        fullValue += list[1] ? "+" : "-";
       }
     });
   }
@@ -638,15 +638,35 @@ class Deck {
         this.hex[suit] = hex;
       });
 
-      //поиск с полным балансом
-      if (fullBalanced) {
-        for (var i = 0; i < cardsToHexLines.length; i++) {
-          var sum = 0;
-          CardSuit.values.forEach((suit) {
-            sum += this.hex[suit]!.data[i]!.first ? 1 : 0;
-          });
-          if (sum != 2) {
-            bool = false;
+      //тест точного поиска по гексам 
+      //очень долго =(
+      /*if (bool) {
+        final spades = "1-1-01-00";
+        final hearts = "0-1+01+00";
+        final diamonds="1+1+10-11";
+        final clubs =  "1+0-11+11";
+        if (this.hex[CardSuit.spades]!.fullValue != spades) {
+          bool = false;
+        } else if (this.hex[CardSuit.clubs]!.fullValue != clubs) {
+          bool = false;
+        } else if (this.hex[CardSuit.hearts]!.fullValue != hearts) {
+          bool = false;
+        } else if (this.hex[CardSuit.diamonds]!.fullValue != diamonds) {
+          bool = false;
+        }
+      }*/
+
+      if (bool) {
+        //поиск с полным балансом
+        if (fullBalanced) {
+          for (var i = 0; i < cardsToHexLines.length; i++) {
+            var sum = 0;
+            CardSuit.values.forEach((suit) {
+              sum += this.hex[suit]!.data[i]!.first ? 1 : 0;
+            });
+            if (sum != 2) {
+              bool = false;
+            }
           }
         }
       }
