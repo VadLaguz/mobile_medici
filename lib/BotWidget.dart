@@ -125,7 +125,7 @@ class BotWidgetState extends State<BotWidget> {
       if (await canLaunch(r.body)) {
         await launch(r.body);
         FocusManager.instance.primaryFocus?.unfocus();
-        Navigator.pop(context);
+        //Navigator.pop(context);
       } else {
         //print("cant launch url");
         showAlertDialog(
@@ -233,7 +233,7 @@ class BotWidgetState extends State<BotWidget> {
                       spacing: 10,
                       selectedButton: 0,
                       onSelected: (index, isSelected) =>
-                          timingType = timingType + 1,
+                          timingType = index + 1,
                       buttons: ["Default", "Tuning-fork", "Manual"],
                     ),
                     SizedBox(
