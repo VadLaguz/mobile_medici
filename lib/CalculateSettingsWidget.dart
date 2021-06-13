@@ -102,6 +102,18 @@ class CalculateSettingsState extends State<CalculateSettingsWidget> {
                               widget.callback();
                             },
                           ),
+                          CheckboxListTile(
+                            controlAffinity: ListTileControlAffinity.leading,
+                            title: Text("Only different hexes by suits"),
+                            value: widget.settings.onlyDifferentHexes,
+                            onChanged: (value) {
+                              setState(() {
+                                widget.settings.onlyDifferentHexes =
+                                    !widget.settings.onlyDifferentHexes;
+                              });
+                              widget.callback();
+                            },
+                          ),
                           Row(
                             children: [
                               Expanded(
@@ -114,7 +126,7 @@ class CalculateSettingsState extends State<CalculateSettingsWidget> {
                                       },
                                       child: Padding(
                                         padding: const EdgeInsets.all(8.0),
-                                        child: Text("🗑"),
+                                        child: Text("Defaults"),
                                       ))),
                               Expanded(
                                   child: TextButton(

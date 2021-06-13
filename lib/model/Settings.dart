@@ -4,13 +4,14 @@ class CalcSettings {
   var reverse = false;
   var fullBalanced = false;
   var mirror = false;
+  var onlyDifferentHexes = false;
 
   bool isDefault() {
     return maxTransits == 0 &&
         threads == 5 &&
         reverse == false &&
         fullBalanced == false &&
-        mirror == false;
+        mirror == false && onlyDifferentHexes == false;
   }
 
   void setDefault() {
@@ -19,5 +20,6 @@ class CalcSettings {
     reverse = false;
     fullBalanced = false;
     mirror = false;
+    onlyDifferentHexes = false;
   }
 }

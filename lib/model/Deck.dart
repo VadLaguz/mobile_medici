@@ -98,9 +98,10 @@ class DeckTask {
   bool reverse = false;
   bool mirror = false;
   bool fullBalanced = false;
+  bool onlyDifferentHexes = false;
 
   DeckTask(this.mask, this.needHex, this.maxTransits, this.threadIdx,
-      this.reverse, this.fullBalanced, this.mirror);
+      this.reverse, this.fullBalanced, this.mirror, this.onlyDifferentHexes);
 }
 
 class CardItem {
@@ -188,6 +189,14 @@ class Hex {
     return s.substring(1, indexOf) +
         (full ? (" " + s.substring(s.indexOf(")") + 1)) : "");
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Hex && runtimeType == other.runtimeType && value == other.value;
+
+  @override
+  int get hashCode => value.hashCode;
 }
 
 class Deck {
@@ -635,7 +644,7 @@ class Deck {
   }
 
   bool check(
-      {int maxTransits = 0, bool reverse = false, bool fullBalanced = false}) {
+      {int maxTransits = 0, bool reverse = false, bool fullBalanced = false, bool onlyDifferentHexes = false}) {
     mobiles.clear();
     stationars.clear();
     hex.clear();
@@ -697,6 +706,11 @@ class Deck {
           }
         });
         hex.makeStrings();
+        if (onlyDifferentHexes) {
+          if (this.hex.values.contains(hex)) {
+            bool = false;
+          }
+        }
         this.hex[suit] = hex;
       });
 

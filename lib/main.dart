@@ -104,7 +104,7 @@ Future<void> isolateFunc(List<Object> message) async {
     if (deck.check(
         maxTransits: task.maxTransits,
         reverse: task.reverse,
-        fullBalanced: task.fullBalanced)) {
+        fullBalanced: task.fullBalanced, onlyDifferentHexes: task.onlyDifferentHexes)) {
       port.send(deck);
     }
     if (circleWatch.elapsedMilliseconds >= 1000) {
@@ -190,7 +190,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       });
       initializers.add(isolateInitializer);
       var deckTask = DeckTask(chain, needHex, calcSettings.maxTransits, index,
-          calcSettings.reverse, calcSettings.fullBalanced, calcSettings.mirror);
+          calcSettings.reverse, calcSettings.fullBalanced, calcSettings.mirror, calcSettings.onlyDifferentHexes);
       isolateInitializer.isolate = await Isolate.spawn(
           isolateFunc, [index, isolateInitializer.port.sendPort, deckTask]);
     }

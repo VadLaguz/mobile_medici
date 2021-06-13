@@ -1,3 +1,4 @@
+import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_medici/model/Deck.dart';
 import 'package:sliding_panel_pro/sliding_panel_pro.dart';
@@ -77,9 +78,11 @@ class IChingSelectState extends State<IChingSelectWidget> {
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.start,
+                  //mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -122,6 +125,42 @@ class IChingSelectState extends State<IChingSelectWidget> {
                           },
                           child: Text(
                             "clear",
+                            style: TextStyle(fontSize: 48),
+                          )),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: TextButton(
+                          onPressed: () async {
+                            final result = await showTextInputDialog(
+                                title:
+                                    "Hexagrams list separated by space or comma",
+                                context: context,
+                                textFields: [
+                                  DialogTextField(
+                                      maxLines: 3,
+                                      hintText:
+                                          "Example: 45  12  15  52  39  53  62  56  31  33")
+                                ]);
+                            if (result != null && result.first.length > 0) {
+                              var split =
+                                  result.first.replaceAll(",", "").split(" ");
+                              setState(() {
+                                widget.selectedHexes.clear();
+                                split.forEach((element) {
+                                  try {
+                                    var hex = int.parse(element);
+                                    if (hex > 0 && hex <= 64) {
+                                      widget.selectedHexes.add(hex);
+                                    }
+                                  } catch (e) {}
+                                });
+                                widget.onUpdate();
+                              });
+                            }
+                          },
+                          child: Text(
+                            "insert",
                             style: TextStyle(fontSize: 48),
                           )),
                     ),
