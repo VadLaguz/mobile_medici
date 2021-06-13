@@ -3,14 +3,14 @@ class CalcSettings {
   var threads = 5;
   var reverse = false;
   var fullBalanced = false;
-  var mirrror = false;
+  var mirror = false;
 
   bool isDefault() {
     return maxTransits == 0 &&
         threads == 5 &&
         reverse == false &&
         fullBalanced == false &&
-        mirrror == false;
+        mirror == false;
   }
 
   void setDefault() {
@@ -18,6 +18,6 @@ class CalcSettings {
     threads = 5;
     reverse = false;
     fullBalanced = false;
-    mirrror = false;
+    mirror = false;
   }
 }

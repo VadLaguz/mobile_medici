@@ -93,7 +93,9 @@ Future<void> isolateFunc(List<Object> message) async {
     //work = false;
     counter++;
     if (task.mirror) {
-      deck.shuffleMirror();
+      if (!deck.shuffleMirror()) {
+        continue;
+      }
     } else if (task.maxTransits == 1) {
       deck.shuffle34();
     } else {
@@ -194,7 +196,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
           index,
           calcSettings.reverse,
           calcSettings.fullBalanced,
-          calcSettings.mirrror);
+          calcSettings.mirror);
       isolateInitializer.isolate = await Isolate.spawn(
           isolateFunc, [index, isolateInitializer.port.sendPort, deckTask]);
     }

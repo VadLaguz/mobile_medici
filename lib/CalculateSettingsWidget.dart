@@ -81,11 +81,11 @@ class CalculateSettingsState extends State<CalculateSettingsWidget> {
                             controlAffinity: ListTileControlAffinity.leading,
                             title: Text(
                                 "Mirror by nominal or suit (first <-> last cards etc.)"),
-                            value: widget.settings.mirrror,
+                            value: widget.settings.mirror,
                             onChanged: (value) {
                               setState(() {
-                                widget.settings.mirrror =
-                                    !widget.settings.mirrror;
+                                widget.settings.mirror =
+                                    !widget.settings.mirror;
                               });
                               widget.callback();
                             },

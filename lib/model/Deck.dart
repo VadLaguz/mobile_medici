@@ -5,69 +5,69 @@ import 'package:flutter/material.dart';
 import '../Helpers.dart';
 
 var hexTable = ("#11 (111000) Расцвет\n" +
-    "#46 (011000) Подъем\n" +
-    "#36 (101000) Поражение света\n" +
-    "#15 (001000) Смирение\n" +
-    "#19 (110000) Посещение\n" +
-    "#7 (010000) Войско\n" +
-    "#24 (100000) Возврат\n" +
-    "#2 (000000) Исполнение\n" +
-    "#34 (111100) Мощь великого\n" +
-    "#32 (011100) Устойчивость\n" +
-    "#55 (101100) Изобилие\n" +
-    "#62 (001100) Переразвитие малого\n" +
-    "#54 (110100) Невеста\n" +
-    "#40 (010100) Разрешение\n" +
-    "#51 (100100) Молния\n" +
-    "#16 (000100) Вольность\n" +
-    "#5 (111010) Необходимость ждать\n" +
-    "#48 (011010) Колодец\n" +
-    "#63 (101010) Уже конец\n" +
-    "#39 (001010) Препятствие\n" +
-    "#60 (110010) Ограничение\n" +
-    "#29 (010010) Двойная опасность\n" +
-    "#3 (100010) Начальная трудность\n" +
-    "#8 (000010) Близость\n" +
-    "#43 (111110) Выход\n" +
-    "#28 (011110) Переразвитие великого\n" +
-    "#49 (101110) Смена\n" +
-    "#31 (001110) Взаимодействие\n" +
-    "#58 (110110) Радость\n" +
-    "#47 (010110) Истощение\n" +
-    "#17 (100110) Последование\n" +
-    "#45 (000110) Воссоединение\n" +
-    "#26 (111001) Воспитание великим\n" +
-    "#18 (011001) Исправление [порчи]\n" +
-    "#22 (101001) Убранство\n" +
-    "#52 (001001) Сосредоточенность\n" +
-    "#41 (110001) Убыль\n" +
-    "#4 (010001) Недоразвитость\n" +
-    "#27 (100001) (Вос)Питание\n" +
-    "#23 (000001) Разрушение\n" +
-    "#14 (111101) Обладание великим\n" +
-    "#50 (011101) Жертвенник\n" +
-    "#30 (101101) Сияние\n" +
-    "#56 (001101) Странствие\n" +
-    "#38 (110101) Разлад\n" +
-    "#64 (010101) Еще не конец\n" +
-    "#21 (100101) Стиснутые зубы\n" +
-    "#35 (000101) Восход\n" +
-    "#9 (111011) Воспитание малым\n" +
-    "#57 (011011) Проникновение\n" +
-    "#37 (101011) Семья (Домашние)\n" +
-    "#53 (001011) Течение\n" +
-    "#61 (110011) Внутренняя правда\n" +
-    "#59 (010011) Раздробление\n" +
-    "#42 (100011) Прибыль\n" +
-    "#20 (000011) Созерцание\n" +
-    "#1 (111111) Творчество\n" +
-    "#44 (011111) Перечение\n" +
-    "#13 (101111) Родня (Единомышленники)\n" +
-    "#33 (001111) Бегство\n" +
-    "#10 (110111) Наступление\n" +
-    "#6 (010111) Суд\n" +
-    "#25 (100111) Безпорочность\n" +
-    "#12 (000111) Упадок")
+        "#46 (011000) Подъем\n" +
+        "#36 (101000) Поражение света\n" +
+        "#15 (001000) Смирение\n" +
+        "#19 (110000) Посещение\n" +
+        "#7 (010000) Войско\n" +
+        "#24 (100000) Возврат\n" +
+        "#2 (000000) Исполнение\n" +
+        "#34 (111100) Мощь великого\n" +
+        "#32 (011100) Устойчивость\n" +
+        "#55 (101100) Изобилие\n" +
+        "#62 (001100) Переразвитие малого\n" +
+        "#54 (110100) Невеста\n" +
+        "#40 (010100) Разрешение\n" +
+        "#51 (100100) Молния\n" +
+        "#16 (000100) Вольность\n" +
+        "#5 (111010) Необходимость ждать\n" +
+        "#48 (011010) Колодец\n" +
+        "#63 (101010) Уже конец\n" +
+        "#39 (001010) Препятствие\n" +
+        "#60 (110010) Ограничение\n" +
+        "#29 (010010) Двойная опасность\n" +
+        "#3 (100010) Начальная трудность\n" +
+        "#8 (000010) Близость\n" +
+        "#43 (111110) Выход\n" +
+        "#28 (011110) Переразвитие великого\n" +
+        "#49 (101110) Смена\n" +
+        "#31 (001110) Взаимодействие\n" +
+        "#58 (110110) Радость\n" +
+        "#47 (010110) Истощение\n" +
+        "#17 (100110) Последование\n" +
+        "#45 (000110) Воссоединение\n" +
+        "#26 (111001) Воспитание великим\n" +
+        "#18 (011001) Исправление [порчи]\n" +
+        "#22 (101001) Убранство\n" +
+        "#52 (001001) Сосредоточенность\n" +
+        "#41 (110001) Убыль\n" +
+        "#4 (010001) Недоразвитость\n" +
+        "#27 (100001) (Вос)Питание\n" +
+        "#23 (000001) Разрушение\n" +
+        "#14 (111101) Обладание великим\n" +
+        "#50 (011101) Жертвенник\n" +
+        "#30 (101101) Сияние\n" +
+        "#56 (001101) Странствие\n" +
+        "#38 (110101) Разлад\n" +
+        "#64 (010101) Еще не конец\n" +
+        "#21 (100101) Стиснутые зубы\n" +
+        "#35 (000101) Восход\n" +
+        "#9 (111011) Воспитание малым\n" +
+        "#57 (011011) Проникновение\n" +
+        "#37 (101011) Семья (Домашние)\n" +
+        "#53 (001011) Течение\n" +
+        "#61 (110011) Внутренняя правда\n" +
+        "#59 (010011) Раздробление\n" +
+        "#42 (100011) Прибыль\n" +
+        "#20 (000011) Созерцание\n" +
+        "#1 (111111) Творчество\n" +
+        "#44 (011111) Перечение\n" +
+        "#13 (101111) Родня (Единомышленники)\n" +
+        "#33 (001111) Бегство\n" +
+        "#10 (110111) Наступление\n" +
+        "#6 (010111) Суд\n" +
+        "#25 (100111) Безпорочность\n" +
+        "#12 (000111) Упадок")
     .split('\n');
 
 enum CardSuit { hearts, diamonds, clubs, spades }
@@ -147,10 +147,10 @@ class CardItem {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          other is CardItem &&
-              runtimeType == other.runtimeType &&
-              suit == other.suit &&
-              nominal == other.nominal;
+      other is CardItem &&
+          runtimeType == other.runtimeType &&
+          suit == other.suit &&
+          nominal == other.nominal;
 
   @override
   int get hashCode => suit.hashCode ^ nominal.hashCode;
@@ -211,7 +211,7 @@ class Deck {
       var val = element.substring(element.indexOf('(') + 1);
       val = val.substring(0, val.indexOf(')'));
       final inNum =
-      int.parse(element.substring(0, element.indexOf(' ')).substring(1));
+          int.parse(element.substring(0, element.indexOf(' ')).substring(1));
       hexToNumberMap[val] = inNum;
     });
     cards.clear();
@@ -250,8 +250,7 @@ class Deck {
       var hexString = "";
       hex.forEach((key, value) {
         hexString += hexToEmoji[key]! +
-            "${hexTable.firstWhere((element) =>
-                element.contains(value.value))}\n";
+            "${hexTable.firstWhere((element) => element.contains(value.value))}\n";
       });
       retVal += "\n" + hexString;
     }
@@ -296,12 +295,12 @@ class Deck {
     //масти которых такие же как и в двух последних карт нашей микро ЦС.
     var firstGroup = secondGroup
         .where((element) =>
-    element.suit == microDeck.cards.last.suit ||
-        element.suit == microDeck.cards[microDeck.cards.length - 2].suit)
+            element.suit == microDeck.cards.last.suit ||
+            element.suit == microDeck.cards[microDeck.cards.length - 2].suit)
         .toList();
     secondGroup.removeWhere((element) => firstGroup.contains(element));
     var suitsSecondGroup =
-    secondGroup.fold<List<CardSuit>>([], (previousValue, element) {
+        secondGroup.fold<List<CardSuit>>([], (previousValue, element) {
       if (!previousValue.contains(element.suit)) {
         previousValue.add(element.suit!);
       }
@@ -321,9 +320,7 @@ class Deck {
       }
       //print(cards);
       var newSuit =
-          suitsSecondGroup
-              .where((element) => element != lastSuit)
-              .first;
+          suitsSecondGroup.where((element) => element != lastSuit).first;
       lastSuit = newSuit;
       //Далее берем карту с второй группы. Она должна быть одинаковой по номиналу с последней картой.
       //Кладем ее так, чтобы она создавала свертку с последней картой, то есть ставим ее третьей с конца.
@@ -345,7 +342,7 @@ class Deck {
         return a.indexInDeck.compareTo(b.indexInDeck);
       });
       CardItem wantedTransit =
-      CardItem(maskCards.last.suit, maskCards.last.nominal);
+          CardItem(maskCards.last.suit, maskCards.last.nominal);
       CardItem swapCard = new CardItem(cards.last.suit, cards.last.nominal);
       if (swapCard != wantedTransit) {
         //ищем ее в картах и меняем
@@ -374,25 +371,91 @@ class Deck {
     });
   }
 
-  void shuffleMirror() {
+  CardItem? nextMirrorCard(CardItem fromCard) {
+    //ищем первую подходящую
+    for (var j = 0; j < cards.length; j++) {
+      var nextCard = cards[j];
+      if (nextCard.indexInDeck != -1 || fromCard == nextCard) {
+        continue;
+      }
+      if (nextCard.suit == fromCard.suit ||
+          nextCard.nominal == fromCard.nominal) {
+        return nextCard;
+      }
+    }
+    return null;
+  }
+
+  bool shuffleMirror() {
     cards.shuffle();
-    for (var i = 0; i < cards.length / 2; i++) {
+    cards.removeWhere((element) => maskCards.contains(element));
+    maskCards.forEach((element) {
+      cards.insert(element.indexInDeck, element);
+    });
+    cards.forEach((element) {
+      if (!maskCards.contains(element)) {
+        element.indexInDeck = -1;
+      }
+    });
+    //print(cards.map((e) => e.indexInDeck));
+    for (var i = 0; i < cards.length; i++) {
       var card = cards[i];
-      //ищем первую подоходящую
+      if (!card.fixed) {
+        continue;
+      }
+      var mirrorIndex =
+          cards.length - card.indexInDeck - 1; //куда вставить зеркальную
+      var existCard = cards[mirrorIndex];
+      if (existCard.suit == card.suit || existCard.nominal == card.nominal) {
+        continue;
+      }
+
+
+      var nextCard = nextMirrorCard(card);
+      if (nextCard == null) {
+        return false;
+      }
+      var nextCardIdx = cards.indexOf(nextCard);
+      var swap = cards[mirrorIndex];//что тут было
+      cards[mirrorIndex] = nextCard;
+      cards[nextCardIdx] = swap; //меняем местами
+      nextCard.indexInDeck = mirrorIndex;
+    }
+
+    for (var i = 0; i < cards.length; i++) {
+      var card = cards[i];
+      if (card.indexInDeck != -1) {
+        continue;
+      }
+      card.indexInDeck = i;
+      var found = false;
+      //ищем первую подходящую
       for (var j = i + 1; j < cards.length; j++) {
         var nextCard = cards[j];
+        if (nextCard.indexInDeck != -1) {
+          continue;
+        }
         if (nextCard.suit == card.suit || nextCard.nominal == card.nominal) {
-          var swap = cards[cards.length - 1 - i];
-          cards[cards.length - 1 - i] = nextCard;
+          var newIndex = cards.length - 1 - i;
+          var swap = cards[newIndex];
+          cards[newIndex] = nextCard;
+          nextCard.indexInDeck = newIndex;
           cards[j] = swap;
+          found = true;
           break;
         }
       }
+      if (!found) {
+        return false;
+      }
     }
     cards.asMap().forEach((key, value) {
-      value.indexInDeck = key;
+      if (value.indexInDeck == -1) {
+        value.indexInDeck = key;
+      }
       value.efl = 0;
     });
+    return true;
   }
 
   void shuffle() {
@@ -474,8 +537,7 @@ class Deck {
                 (suit == item.suit || nom == item.nominal)) {
               //карта по номиналу или масти подходит для транзита, но не та же + не закрепленная
               var firstWhere = cards.firstWhere(
-                      (element) =>
-                  element.suit == suit && element.nominal == nom);
+                  (element) => element.suit == suit && element.nominal == nom);
               if (!firstWhere.fixed) {
                 item.linked.add(firstWhere);
               }
@@ -508,7 +570,7 @@ class Deck {
             .trim()
             .replaceAll("10", "X")
             .toLowerCase()
-        /*.split(" ")
+            /*.split(" ")
           .map((e) => e.substring(0, 2))
           .fold<String>("", (previousValue, element) => previousValue + element)*/
             .runes
@@ -525,7 +587,7 @@ class Deck {
             .split(" ")
             .map((e) => e.substring(0, 2))
             .fold<String>(
-            "", (previousValue, element) => previousValue + element)
+                "", (previousValue, element) => previousValue + element)
             .runes
             .toList()
             .fold("", (previousValue, element) {
@@ -591,9 +653,7 @@ class Deck {
       }
     });
     if (maxTransits > 0) {
-      if (cards
-          .where((element) => element.efl > 0)
-          .length > maxTransits) {
+      if (cards.where((element) => element.efl > 0).length > maxTransits) {
         bool = false;
       }
     }
@@ -638,7 +698,7 @@ class Deck {
         this.hex[suit] = hex;
       });
 
-      //тест точного поиска по гексам 
+      //тест точного поиска по гексам
       //очень долго =(
       /*if (bool) {
         final spades = "1-1-01-00";
