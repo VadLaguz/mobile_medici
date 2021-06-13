@@ -386,6 +386,8 @@ class Deck {
     return null;
   }
 
+  //тут похоже можно ускорить если для очередной генерить рандомную подходящую в зеркальной позиции
+  //с учетом количества использований номинала/масти в половине. а то они в 3/4 случаев собираются в кучку
   bool shuffleMirror() {
     cards.shuffle();
     cards.removeWhere((element) => maskCards.contains(element));

@@ -91,7 +91,6 @@ Future<void> isolateFunc(List<Object> message) async {
   var circleWatch = Stopwatch()..start();
   while (work) {
     //work = false;
-    counter++;
     if (task.mirror) {
       if (!deck.shuffleMirror()) {
         continue;
@@ -101,6 +100,7 @@ Future<void> isolateFunc(List<Object> message) async {
     } else {
       deck.shuffle();
     }
+    counter++;
     if (deck.check(
         maxTransits: task.maxTransits,
         reverse: task.reverse,
@@ -189,14 +189,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         }
       });
       initializers.add(isolateInitializer);
-      var deckTask = DeckTask(
-          chain,
-          needHex,
-          calcSettings.maxTransits,
-          index,
-          calcSettings.reverse,
-          calcSettings.fullBalanced,
-          calcSettings.mirror);
+      var deckTask = DeckTask(chain, needHex, calcSettings.maxTransits, index,
+          calcSettings.reverse, calcSettings.fullBalanced, calcSettings.mirror);
       isolateInitializer.isolate = await Isolate.spawn(
           isolateFunc, [index, isolateInitializer.port.sendPort, deckTask]);
     }
