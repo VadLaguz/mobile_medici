@@ -7,18 +7,18 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:mobile_medici/BalanceWidget.dart';
 import 'package:fluttericon/elusive_icons.dart';
 import 'package:fluttericon/entypo_icons.dart';
 import 'package:fluttericon/font_awesome_icons.dart';
 import 'package:fluttericon/linearicons_free_icons.dart';
-import 'package:fluttericon/rpg_awesome_icons.dart';
+import 'package:mobile_medici/BalanceWidget.dart';
 import 'package:mobile_medici/BotWidget.dart';
 import 'package:mobile_medici/CalculateSettingsWidget.dart';
 import 'package:mobile_medici/Helpers.dart';
 import 'package:mobile_medici/model/Settings.dart';
 import 'package:mobile_medici/reorderables/src/widgets/reorderable_wrap.dart';
 import 'package:mobile_medici/shared_ui.dart';
+import 'package:oktoast/oktoast.dart';
 import 'package:range_slider_dialog/range_slider_dialog.dart';
 
 import 'IChingSelectWidget.dart';
@@ -32,13 +32,15 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Medici Calculator',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+    return OKToast(
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Medici Calculator',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        home: MyHomePage(title: 'Medici Calculator'),
       ),
-      home: MyHomePage(title: 'Medici Calculator'),
     );
   }
 }
@@ -104,7 +106,8 @@ Future<void> isolateFunc(List<Object> message) async {
     if (deck.check(
         maxTransits: task.maxTransits,
         reverse: task.reverse,
-        fullBalanced: task.fullBalanced, onlyDifferentHexes: task.onlyDifferentHexes)) {
+        fullBalanced: task.fullBalanced,
+        onlyDifferentHexes: task.onlyDifferentHexes)) {
       port.send(deck);
     }
     if (circleWatch.elapsedMilliseconds >= 1000) {
@@ -132,12 +135,15 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   Timer? timer;
   var calculating = false;
   var foundItems = <Deck>[];
+  var repeatsCount = 0;
+  final MAX_REPEATS = 30;
   var selectedItem = -1;
   var checkedCount = 0;
   var speed = 0;
   var threadsLaunching = false;
   var threadsLaunchingCount = 0;
   var calcSettings = CalcSettings();
+  CardItem? swapCard;
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -152,6 +158,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   }
 
   void stop() {
+    calculating = false;
     if (initializers.isNotEmpty) {
       timer!.cancel();
       print("Stopping ${initializers.length} threads");
@@ -165,6 +172,16 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     initializers.clear();
   }
 
+  void forceStop() {
+    if (threadsLaunching) {
+      calculating = false;
+    } else {
+      setState(() {
+        stop();
+      });
+    }
+  }
+
   Future<void> doSpawn(List<CardItem> chain) async {
     if (initializers.isNotEmpty) {
       stop();
@@ -174,9 +191,19 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       var isolateInitializer = IsolateInitializer(index, (param) {
         if (param is Deck) {
           setState(() {
-            foundItems.insert(0, param);
-            if (selectedItem > -1) {
-              selectedItem++;
+            if (foundItems.length > 1000) {
+              forceStop();
+            }
+            if (foundItems.contains(param)) {
+              repeatsCount++;
+              if (repeatsCount > MAX_REPEATS) {
+                forceStop();
+              }
+            } else {
+              foundItems.insert(0, param);
+              if (selectedItem > -1) {
+                selectedItem++;
+              }
             }
           });
         } else if (param is String) {
@@ -184,13 +211,23 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
           if (threadsLaunchingCount <= 0) {
             setState(() {
               threadsLaunching = false;
+              if (calculating == false) {
+                stop();
+              }
             });
           }
         }
       });
       initializers.add(isolateInitializer);
-      var deckTask = DeckTask(chain, needHex, calcSettings.maxTransits, index,
-          calcSettings.reverse, calcSettings.fullBalanced, calcSettings.mirror, calcSettings.onlyDifferentHexes);
+      var deckTask = DeckTask(
+          chain,
+          needHex,
+          calcSettings.maxTransits,
+          index,
+          calcSettings.reverse,
+          calcSettings.fullBalanced,
+          calcSettings.mirror,
+          calcSettings.onlyDifferentHexes);
       isolateInitializer.isolate = await Isolate.spawn(
           isolateFunc, [index, isolateInitializer.port.sendPort, deckTask]);
     }
@@ -222,6 +259,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
   void resetChain() {
     needHex = {};
+    swapCard = null;
     checkedCount = 0;
     selectedItem = -1;
     speed = 0;
@@ -235,6 +273,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   }
 
   void clearResults() {
+    swapCard = null;
     selectedItem = -1;
     foundItems.clear();
   }
@@ -252,26 +291,83 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       "nine": "9",
       "ten": "10",
     };
-    chainModel.forEach((element) {
+    chainModel.forEach((widgetCard) {
       var name =
-          "${element.nominal.toString().toLowerCase().replaceAll("nominal.", "")}_of_${element.suit.toString().toLowerCase().replaceAll("cardsuit.", "")}.png";
+          "${widgetCard.nominal.toString().toLowerCase().replaceAll("nominal.", "")}_of_${widgetCard.suit.toString().toLowerCase().replaceAll("cardsuit.", "")}.png";
       replace.forEach((key, value) {
         name = name.replaceAll(key, value);
       });
       final width = MediaQuery.of(context).size.width /
           (MediaQuery.of(context).orientation == Orientation.portrait ? 7 : 13);
       final height = width * 1.3;
-      var efl = element.minMaxEfl;
-      var currentEfl = selectedItem > -1 ? element.efl : 0;
+      var efl = widgetCard.minMaxEfl;
+      var currentEfl = selectedItem > -1 ? widgetCard.efl : 0;
       var card = GestureDetector(
+          onLongPress: () async {
+            if (selectedItem != -1) {
+              final result = await showModalActionSheet(
+                  context: context,
+                  title: "Actions",
+                  actions: [
+                    SheetAction(
+                      label: "Swap with...",
+                      key: 'helloKey',
+                    )
+                  ]);
+              if (result == 'helloKey') {
+                showToast("Choose card to swap with");
+                swapCard = widgetCard;
+              }
+            }
+          },
           onTap: () {
             setState(() {
-              element.fixed = !element.fixed;
-              selectedItem = -1;
+              if (swapCard != null && selectedItem != -1) {
+                var cards = <CardItem>[];
+                var deck = foundItems[selectedItem];
+                var i = 0;
+                deck.cards.forEach((element) {
+                  var cardItem = CardItem(element.suit, element.nominal);
+                  cardItem.fixed = element.fixed;
+                  if (cardItem.fixed) {
+                    deck.maskCards.add(cardItem);
+                  }
+                  cardItem.indexInDeck = i;
+                  //swapCard - исходная для замены
+                  //element - очередная
+                  //widgetCard - выбранная второй
+                  //если нашли масть исходной для замены меняем нав выбранную второй
+                  if (element.suit == swapCard!.suit) {
+                    cardItem.suit = widgetCard.suit;
+                  } else if (element.suit == widgetCard.suit) {
+                    //а если нашли выбранную второй меняем на выбранну первой
+                    cardItem.suit = swapCard!.suit;
+                  }
+                  //если нашли номинал выбранной первой карты
+                  if (element.nominal == swapCard!.nominal) {
+                    cardItem.nominal = widgetCard.nominal;
+                  } else if (element.nominal == widgetCard.nominal) {
+                    cardItem.nominal = swapCard!.nominal;
+                  }
+                  cards.add(cardItem);
+                  i++;
+                });
+                var value = Deck();
+                value.cards = cards;
+                value.check();
+                foundItems.insert(0, value);
+                swapCard = null;
+                selectedItem = 0;
+                showSelectedDeck();
+              } else {
+                widgetCard.fixed = !widgetCard.fixed;
+                selectedItem = -1;
+                swapCard = null;
+              }
             });
           },
           child: Container(
-            color: element.fixed ? Colors.blue : Colors.transparent,
+            color: widgetCard.fixed ? Colors.blue : Colors.transparent,
             width: width,
             height: height,
             child: Card(
@@ -305,7 +401,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                       : Colors.white,
                                   child: InkWell(
                                     onTap: () {
-                                      eflDialog(context, element, () {
+                                      eflDialog(context, widgetCard, () {
                                         setState(() {});
                                       });
                                     },
@@ -374,6 +470,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   }
 
   Future<void> calculate() async {
+    swapCard = null;
     if (threadsLaunching) {
       print("Spawning starting");
       return;
@@ -384,6 +481,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       setState(() {});
     } else {
       selectedItem = -1;
+      repeatsCount = 0;
       setState(() {
         calculating = true;
       });
@@ -449,6 +547,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   }
 
   void showSelectedDeck() {
+    swapCard = null;
     if (selectedItem > -1) {
       setState(() {
         var item = foundItems[selectedItem];
@@ -715,8 +814,26 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                   "$checkedCount ($speed / sec.), ${foundItems.length} found"),
                             ),
                             Wrap(
+                              crossAxisAlignment: WrapCrossAlignment.center,
                               children: iChingButtons(context) +
                                   [
+                                    /*Container(
+                                      width: 8,
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: TextButton(
+                                        child: Text("HEX"),
+                                        onPressed: () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    AdvancedHexSelectWidget(),
+                                              ));
+                                        },
+                                      ),
+                                    ),*/
                                     Container(
                                       width: 8,
                                     ),
@@ -724,7 +841,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                       onPressed: () async {
                                         final result = await showTextInputDialog(
                                             title:
-                                                "Chain input (pm3421, Ingvas and this app formats allowed)",
+                                                "Chain input (pm3421, pmcalc.ru and this app formats allowed)",
                                             context: context,
                                             textFields: [
                                               DialogTextField(
@@ -755,49 +872,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                 ]);
                                           }
                                         }
-                                        /*showDialog<bool>(
-                                          context: context,
-                                          builder: (context) {
-                                            return CupertinoAlertDialog(
-                                              title: Text(
-                                                  'Chain input (pm3421, Ingvas and this app formats allowed'),
-                                              content: Card(
-                                                color: Colors.transparent,
-                                                elevation: 0.0,
-                                                child: Column(
-                                                  children: <Widget>[
-                                                    TextField(
-                                                      decoration: InputDecoration(
-                                                          hintText:
-                                                              "<[Вк][Вб]><[6п][8п]....,[Вч 9к Тк Вп 7ч 10ч Тп Дп 7б Дк],...Вч 6ч Тк Вп Тп!2...etc",
-                                                          filled: true,
-                                                          fillColor: Colors
-                                                              .grey.shade50),
-                                                    ),
-                                                    Row(
-                                                      children: [
-                                                        Expanded(
-                                                          child: TextButton(
-                                                              onPressed: () {},
-                                                              child: Text(
-                                                                  "Close")),
-                                                          flex: 2,
-                                                        ),
-                                                        Expanded(
-                                                          child: TextButton(
-                                                              onPressed: () {},
-                                                              child:
-                                                                  Text("OK")),
-                                                          flex: 2,
-                                                        ),
-                                                      ],
-                                                    )
-                                                  ],
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                        );*/
                                       },
                                       icon: Icon(Entypo.pencil),
                                       iconSize: 36,

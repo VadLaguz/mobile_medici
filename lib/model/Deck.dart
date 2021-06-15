@@ -114,7 +114,6 @@ class CardItem {
   var fixed = false;
   RangeValues? minMaxEfl;
   var linked = <CardItem>[];
-
   CardItem(this.suit, this.nominal);
 
   @override
@@ -212,6 +211,9 @@ class Deck {
       nominalsToLang().values.map((e) => e.toLowerCase()).toList() +
           suitsToLang().values.map((e) => e.toLowerCase()).toList();
   Deck? reverseDeck;
+  String printed = "";
+
+
 
   Map<String, int> hexToNumberMap = {};
 
@@ -771,10 +773,23 @@ class Deck {
         });
       }
     }
+    if (bool) {
+      printed = asShortString();
+    }
     return bool;
   }
+
 
   void printStats() {
     //print(asString(true));
   }
+
+  @override
+  bool operator ==(Object other) {
+    return other is Deck && other.printed == printed;
+  }
+
+  @override
+  int get hashCode => printed.hashCode;
+
 }

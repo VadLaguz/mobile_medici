@@ -282,13 +282,13 @@ class BotWidgetState extends State<BotWidget> {
       ),
     );
 
-    return ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: 400, maxHeight: 450),
-      child: isMobile()
-          ? KeyboardActions(config: _buildConfig(context), child: content)
-          : Container(
+    return isMobile()
+        ? KeyboardActions(config: _buildConfig(context), child: content)
+        : ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: 400, maxHeight: 450),
+            child: Container(
               child: content,
             ),
-    );
+          );
   }
 }
