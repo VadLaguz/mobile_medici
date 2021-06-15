@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:isolate';
+import 'dart:math';
 
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -15,6 +16,7 @@ import 'package:mobile_medici/BalanceWidget.dart';
 import 'package:mobile_medici/BotWidget.dart';
 import 'package:mobile_medici/CalculateSettingsWidget.dart';
 import 'package:mobile_medici/Helpers.dart';
+import 'package:mobile_medici/graphview/GraphView.dart';
 import 'package:mobile_medici/model/Settings.dart';
 import 'package:mobile_medici/reorderables/src/widgets/reorderable_wrap.dart';
 import 'package:mobile_medici/shared_ui.dart';
@@ -561,6 +563,81 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     }
   }
 
+  Random r = Random();
+
+  Widget rectangleWidget(int a) {
+    if (selectedItem >= 0) {
+      var item = foundItems[selectedItem];
+      var cardItem =
+          item.cards.firstWhere((element) => element.indexInDeck == a);
+      return Container(
+          padding: EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(4),
+            boxShadow: [
+              BoxShadow(color: Colors.blue[100]!, spreadRadius: 1),
+            ],
+          ),
+          child: Text(
+            '${cardItem.toString()}',
+            style: TextStyle(fontSize: 15),
+          ));
+    }
+    return Container();
+  }
+
+  Widget getTreeView() {
+    if (selectedItem >= 0) {
+      var deck = foundItems[selectedItem];
+      final Graph graph = Graph(); //..isTree = true;
+      //FruchtermanReingoldAlgorithm builder = BuchheimWalkerConfiguration();
+      SugiyamaConfiguration builder = SugiyamaConfiguration();
+      var i = 0;
+      //var found = [];
+      var nodes = {};
+      for (var node in deck.cards) {
+        var item = Node.Id(node.indexInDeck);
+        nodes[node.toString()] = item;
+      }
+      for (var card in deck.cards) {
+        for (var element in card.prevTransit) {
+          if (element.toString() == "6ч") {
+            print(element.indexInDeck);
+          }
+          graph.addEdge(
+              Node.Id(card.indexInDeck), Node.Id(element.indexInDeck));
+        }
+      }
+      builder
+        ..nodeSeparation = (20)
+        ..levelSeparation = (30)
+        ..orientation = SugiyamaConfiguration.ORIENTATION_TOP_BOTTOM;
+      return Container(
+        height: 550,
+        child: InteractiveViewer(
+          constrained: false,
+          boundaryMargin: EdgeInsets.all(30),
+          scaleEnabled: false,
+          minScale: 0.0001,
+          maxScale: 5.6,
+          child: GraphView(
+            graph: graph,
+            algorithm: SugiyamaAlgorithm(builder),
+            paint: Paint()
+              ..color = Colors.green
+              ..strokeWidth = 1
+              ..style = PaintingStyle.stroke,
+            builder: (Node node) {
+              var a = node.key!.value as int;
+              return rectangleWidget(a);
+            },
+          ),
+        ),
+      );
+    }
+    return Container();
+  }
+
   Widget buildDetailsPane(BuildContext context) {
     //buildDetailsPane(context)
     if (selectedItem >= 0) {
@@ -620,8 +697,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         details.add(widget);
       }
       return Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
             children: <Widget>[
                   Wrap(
                     children: [
@@ -653,8 +730,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                   ),
                 ] +
                 details +
-                (isLandscape(context) ? [BalanceWidget(item)] : [])),
-      );
+                (isLandscape(context) ? [BalanceWidget(item)] : []) +
+                [getTreeView()],
+          ));
     }
 
     return Container();
@@ -989,7 +1067,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                     child: Container(
                       height: MediaQuery.of(context).orientation ==
                               Orientation.landscape
-                          ? 800
+                          ? 1200
                           : 800,
                       child: Row(
                         children: [

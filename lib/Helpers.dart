@@ -15,7 +15,7 @@ bool ruLocale() {
 }
 
 Map nominalsToLang() {
-  if (!ruLocale() && Platform.isIOS) {
+  if (!ruLocale() && Platform.isIOS && false) {
     return nominalsToEn;
   } else {
     return nominalsToRu;
@@ -23,7 +23,7 @@ Map nominalsToLang() {
 }
 
 Map suitsToLang() {
-  if (!ruLocale() && Platform.isIOS) {
+  if (!ruLocale() && Platform.isIOS && false) {
     return suitsToEn;
   } else {
     return suitsToRu;

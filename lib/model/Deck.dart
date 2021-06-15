@@ -114,6 +114,9 @@ class CardItem {
   var fixed = false;
   RangeValues? minMaxEfl;
   var linked = <CardItem>[];
+  CardItem? nextTransit;
+  var prevTransit = <CardItem>[];
+
   CardItem(this.suit, this.nominal);
 
   @override
@@ -212,8 +215,6 @@ class Deck {
           suitsToLang().values.map((e) => e.toLowerCase()).toList();
   Deck? reverseDeck;
   String printed = "";
-
-
 
   Map<String, int> hexToNumberMap = {};
 
@@ -423,13 +424,12 @@ class Deck {
         continue;
       }
 
-
       var nextCard = nextMirrorCard(card);
       if (nextCard == null) {
         return false;
       }
       var nextCardIdx = cards.indexOf(nextCard);
-      var swap = cards[mirrorIndex];//что тут было
+      var swap = cards[mirrorIndex]; //что тут было
       cards[mirrorIndex] = nextCard;
       cards[nextCardIdx] = swap; //меняем местами
       nextCard.indexInDeck = mirrorIndex;
@@ -592,12 +592,34 @@ class Deck {
           var s = String.fromCharCode(element);
           return (previousValue).toString() + (okSymbols.contains(s) ? s : "");
         });
-      } else {
+      } else if (fixedChain.contains(" ")) {
         fixedChain = s
             .trim()
             .replaceAll("10", "X")
             .toLowerCase()
             .split(" ")
+            .map((e) => e.substring(0, 2))
+            .fold<String>(
+                "", (previousValue, element) => previousValue + element)
+            .runes
+            .toList()
+            .fold("", (previousValue, element) {
+          var s = String.fromCharCode(element);
+          return (previousValue).toString() + (okSymbols.contains(s) ? s : "");
+        });
+      } else {
+        var lowerCased = s.trim().replaceAll("10", "X").toLowerCase();
+
+        var charList = [];
+        lowerCased.runes.forEach((int rune) {
+          var character = new String.fromCharCode(rune);
+          charList.add(character);
+        });
+        var list = [];
+        for (var i = 0; i < charList.length; i += 2) {
+          list.add("${charList[i]}${charList[i + 1]}");
+        }
+        list
             .map((e) => e.substring(0, 2))
             .fold<String>(
                 "", (previousValue, element) => previousValue + element)
@@ -629,6 +651,9 @@ class Deck {
       var middle = list[i + 1];
       var right = list[i + 2];
       if (left.suit == right.suit || left.nominal == right.nominal) {
+        left.nextTransit = right;
+        right.prevTransit.add(left);
+
         if (rightTransit == null) {
           rightTransit = right;
         } else if (right.indexInDeck > rightTransit!.indexInDeck) {
@@ -646,11 +671,18 @@ class Deck {
   }
 
   bool check(
-      {int maxTransits = 0, bool reverse = false, bool fullBalanced = false, bool onlyDifferentHexes = false}) {
+      {int maxTransits = 0,
+      bool reverse = false,
+      bool fullBalanced = false,
+      bool onlyDifferentHexes = false}) {
     mobiles.clear();
     stationars.clear();
     hex.clear();
     rightTransit = null;
+    cards.forEach((element) {
+      element.prevTransit.clear();
+      element.nextTransit = null;
+    });
     final result = process(cards.toList());
     if (cards.isNotEmpty) {
       mobiles.add(cards.last);
@@ -779,7 +811,6 @@ class Deck {
     return bool;
   }
 
-
   void printStats() {
     //print(asString(true));
   }
@@ -791,5 +822,4 @@ class Deck {
 
   @override
   int get hashCode => printed.hashCode;
-
 }
