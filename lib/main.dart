@@ -599,26 +599,29 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         var item = Node.Id(node.indexInDeck);
         nodes[node.toString()] = item;
       }
+      var cards = <CardItem>[];
+      cards.addAll(deck.cards);
+      cards.sort((a, b) {
+        return a.efl.compareTo(b.efl);
+      });
       for (var card in deck.cards) {
         for (var element in card.prevTransit) {
-          if (element.toString() == "6ч") {
-            print(element.indexInDeck);
-          }
-          graph.addEdge(
-              Node.Id(card.indexInDeck), Node.Id(element.indexInDeck));
+          /*graph.addEdge(
+              Node.Id(card.indexInDeck), Node.Id(element.indexInDeck));*/
+          graph.addEdge(nodes[card.toString()], nodes[element.toString()]);
         }
       }
       builder
-        ..nodeSeparation = (20)
-        ..levelSeparation = (30)
+        ..nodeSeparation = (70)
+        ..levelSeparation = (20)
         ..orientation = SugiyamaConfiguration.ORIENTATION_TOP_BOTTOM;
       return Container(
         height: 550,
         child: InteractiveViewer(
           constrained: false,
-          boundaryMargin: EdgeInsets.all(30),
+          boundaryMargin: EdgeInsets.all(0),
           scaleEnabled: false,
-          minScale: 0.0001,
+          minScale: 0.000001,
           maxScale: 5.6,
           child: GraphView(
             graph: graph,
@@ -699,40 +702,38 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       return Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
-            children: <Widget>[
-                  Wrap(
-                    children: [
-                      TextButton(
-                          onPressed: () {
-                            Clipboard.setData(ClipboardData(
-                                text: foundItems[selectedItem]
-                                    .asString(true, true)));
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text("Copy to clipboard"),
-                          )),
-                      TextButton(
-                          onPressed: () {
-                            showDialog(
-                              barrierDismissible: !isMobile(),
-                              context: context,
-                              builder: (context) {
-                                return Center(child: BotWidget(item));
-                              },
-                            );
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text("Send to bot"),
-                          )),
-                    ],
-                  ),
-                ] +
-                details +
-                (isLandscape(context) ? [BalanceWidget(item)] : []) +
-                [getTreeView()],
-          ));
+              children: <Widget>[
+                    Wrap(
+                      children: [
+                        TextButton(
+                            onPressed: () {
+                              Clipboard.setData(ClipboardData(
+                                  text: foundItems[selectedItem]
+                                      .asString(true, true)));
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text("Copy to clipboard"),
+                            )),
+                        TextButton(
+                            onPressed: () {
+                              showDialog(
+                                barrierDismissible: !isMobile(),
+                                context: context,
+                                builder: (context) {
+                                  return Center(child: BotWidget(item));
+                                },
+                              );
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text("Send to bot"),
+                            )),
+                      ],
+                    ),
+                  ] +
+                  details +
+                  (isLandscape(context) ? [BalanceWidget(item)] : [])));
     }
 
     return Container();
@@ -1067,7 +1068,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                     child: Container(
                       height: MediaQuery.of(context).orientation ==
                               Orientation.landscape
-                          ? 1200
+                          ? 600
                           : 800,
                       child: Row(
                         children: [
@@ -1114,7 +1115,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                         ],
                       ),
                     ),
-                  )
+                  ),
+                  getTreeView()
                 ],
               ),
             ),
