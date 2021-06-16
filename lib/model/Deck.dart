@@ -682,6 +682,7 @@ class Deck {
     hex.clear();
     rightTransit = null;
     cards.forEach((element) {
+      element.efl = 0;
       element.prevTransit.clear();
       element.nextTransit = null;
     });
