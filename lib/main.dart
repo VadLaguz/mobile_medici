@@ -358,7 +358,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                 });
                 var value = Deck();
                 value.cards = cards;
-                value.check();
+                if (!value.check(reverse: true)) {
+                  value.check();
+                }
                 foundItems.insert(0, value);
                 swapCard = null;
                 selectedItem = 0;
