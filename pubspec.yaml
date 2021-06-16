@@ -46,6 +46,7 @@ dependencies:
   #graphview: ^1.0.0-nullsafety.1
   graphite:
     path: ./graphite
+  fixnum: ^1.0.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:mobile_medici/MersenneTwister.dart';
 import '../Helpers.dart';
 
 var hexTable = ("#11 (111000) Расцвет\n" +
@@ -472,6 +473,7 @@ class Deck {
   }
 
   void shuffle() {
+    // cards.shuffle(MersenneTwister(DateTime.now().microsecond));
     cards.shuffle();
     cards.removeWhere((element) => maskCards.contains(element));
     maskCards.forEach((element) {

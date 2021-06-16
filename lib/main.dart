@@ -956,7 +956,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                             chainModel.clear();
                                             chainModel.addAll(deck.cards);
                                             setState(() {
-                                              if (deck.check()) {
+                                              if (deck.check(reverse: true) || deck.check()) {
                                                 foundItems.insert(0, deck);
                                                 selectedItem = 0;
                                               }
