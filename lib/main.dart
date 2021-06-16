@@ -12,11 +12,12 @@ import 'package:fluttericon/elusive_icons.dart';
 import 'package:fluttericon/entypo_icons.dart';
 import 'package:fluttericon/font_awesome_icons.dart';
 import 'package:fluttericon/linearicons_free_icons.dart';
+import 'package:graphite/core/matrix.dart';
+import 'package:graphite/graphite.dart';
 import 'package:mobile_medici/BalanceWidget.dart';
 import 'package:mobile_medici/BotWidget.dart';
 import 'package:mobile_medici/CalculateSettingsWidget.dart';
 import 'package:mobile_medici/Helpers.dart';
-import 'package:mobile_medici/graphview/GraphView.dart';
 import 'package:mobile_medici/model/Settings.dart';
 import 'package:mobile_medici/reorderables/src/widgets/reorderable_wrap.dart';
 import 'package:mobile_medici/shared_ui.dart';
@@ -586,54 +587,71 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     return Container();
   }
 
+  Path customEdgePathBuilder(List<List<double>> points) {
+    var path = Path();
+    path.moveTo(points[0][0], points[0][1]);
+    points.sublist(1).forEach((p) {
+      path.lineTo(p[0], p[1]);
+    });
+    return path;
+  }
+
   Widget getTreeView() {
     if (selectedItem >= 0) {
       var deck = foundItems[selectedItem];
-      final Graph graph = Graph(); //..isTree = true;
-      //FruchtermanReingoldAlgorithm builder = BuchheimWalkerConfiguration();
-      SugiyamaConfiguration builder = SugiyamaConfiguration();
-      var i = 0;
-      //var found = [];
-      var nodes = {};
-      for (var node in deck.cards) {
-        var item = Node.Id(node.indexInDeck);
-        nodes[node.toString()] = item;
-      }
-      var cards = <CardItem>[];
-      cards.addAll(deck.cards);
-      cards.sort((a, b) {
-        return a.efl.compareTo(b.efl);
-      });
+
+      var nodeInputs = <NodeInput>[];
       for (var card in deck.cards) {
-        for (var element in card.prevTransit) {
-          /*graph.addEdge(
-              Node.Id(card.indexInDeck), Node.Id(element.indexInDeck));*/
-          graph.addEdge(nodes[card.toString()], nodes[element.toString()]);
+        if (card.prevTransit.length > 0) {
+          nodeInputs.add(NodeInput(
+              id: card.toString(),
+              next: card.prevTransit.map((e) => e.toString()).toList()));
+        } else {
+          nodeInputs.add(NodeInput(id: card.toString(), next: []));
         }
       }
-      builder
-        ..nodeSeparation = (70)
-        ..levelSeparation = (20)
-        ..orientation = SugiyamaConfiguration.ORIENTATION_TOP_BOTTOM;
-      return Container(
-        height: 550,
-        child: InteractiveViewer(
-          constrained: false,
-          boundaryMargin: EdgeInsets.all(0),
-          scaleEnabled: false,
-          minScale: 0.000001,
-          maxScale: 5.6,
-          child: GraphView(
-            graph: graph,
-            algorithm: SugiyamaAlgorithm(builder),
-            paint: Paint()
-              ..color = Colors.green
-              ..strokeWidth = 1
-              ..style = PaintingStyle.stroke,
-            builder: (Node node) {
-              var a = node.key!.value as int;
-              return rectangleWidget(a);
-            },
+
+      return SingleChildScrollView(
+        child: IgnorePointer(
+          child: SizedBox(
+            width: 1000,
+            height: 500,
+            child: DirectGraph(
+              list: nodeInputs,
+              cellWidth: 40.0,
+              cellPadding: 4.0,
+              contactEdgesDistance: 5.0,
+              orientation: MatrixOrientation.Vertical,
+              pathBuilder: customEdgePathBuilder,
+              builder: (ctx, node) {
+                return Container(
+                    padding: EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(4),
+                      boxShadow: [
+                        BoxShadow(color: Colors.blue[100]!, spreadRadius: 1),
+                      ],
+                    ),
+                    child: Center(
+                      child: Text(
+                        '${node.id}',
+                        style: TextStyle(fontSize: 10),
+                      ),
+                    ));
+              },
+              paintBuilder: (edge) {
+                var p = Paint()
+                  ..color = Colors.blueGrey
+                  ..style = PaintingStyle.stroke
+                  ..strokeCap = StrokeCap.round
+                  ..strokeJoin = StrokeJoin.round
+                  ..strokeWidth = 2;
+                return p;
+              },
+              onNodeTapDown: (_, node) {
+                //_onItemSelected(node.id);
+              },
+            ),
           ),
         ),
       );
@@ -733,7 +751,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                     ),
                   ] +
                   details +
-                  (isLandscape(context) ? [BalanceWidget(item)] : [])));
+                  (isLandscape(context) ? [BalanceWidget(item)] : []) +
+                  [
+                    getTreeView(),
+                  ]));
     }
 
     return Container();
@@ -1068,7 +1089,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                     child: Container(
                       height: MediaQuery.of(context).orientation ==
                               Orientation.landscape
-                          ? 600
+                          ? 1000
                           : 800,
                       child: Row(
                         children: [
@@ -1116,7 +1137,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                       ),
                     ),
                   ),
-                  getTreeView()
                 ],
               ),
             ),
