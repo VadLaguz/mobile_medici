@@ -612,46 +612,46 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       }
 
       return SingleChildScrollView(
-        child: IgnorePointer(
-          child: SizedBox(
-            width: 1000,
-            height: 500,
-            child: DirectGraph(
-              list: nodeInputs,
-              cellWidth: 40.0,
-              cellPadding: 4.0,
-              contactEdgesDistance: 5.0,
-              orientation: MatrixOrientation.Vertical,
-              pathBuilder: customEdgePathBuilder,
-              builder: (ctx, node) {
-                return Container(
-                    padding: EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(4),
-                      boxShadow: [
-                        BoxShadow(color: Colors.blue[100]!, spreadRadius: 1),
-                      ],
+        child: SizedBox(
+          width: 1000,
+          height: 570,
+          child: DirectGraph(
+            maxScale: 0.001,
+            minScale: 0.00001,
+            list: nodeInputs,
+            cellWidth: 40.0,
+            cellPadding: 4.0,
+            contactEdgesDistance: 5.0,
+            orientation: MatrixOrientation.Vertical,
+            pathBuilder: customEdgePathBuilder,
+            builder: (ctx, node) {
+              return Container(
+                  padding: EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4),
+                    boxShadow: [
+                      BoxShadow(color: Colors.blue[100]!, spreadRadius: 1),
+                    ],
+                  ),
+                  child: Center(
+                    child: Text(
+                      '${node.id}',
+                      style: TextStyle(fontSize: 10),
                     ),
-                    child: Center(
-                      child: Text(
-                        '${node.id}',
-                        style: TextStyle(fontSize: 10),
-                      ),
-                    ));
-              },
-              paintBuilder: (edge) {
-                var p = Paint()
-                  ..color = Colors.blueGrey
-                  ..style = PaintingStyle.stroke
-                  ..strokeCap = StrokeCap.round
-                  ..strokeJoin = StrokeJoin.round
-                  ..strokeWidth = 2;
-                return p;
-              },
-              onNodeTapDown: (_, node) {
-                //_onItemSelected(node.id);
-              },
-            ),
+                  ));
+            },
+            paintBuilder: (edge) {
+              var p = Paint()
+                ..color = Colors.blueGrey
+                ..style = PaintingStyle.stroke
+                ..strokeCap = StrokeCap.round
+                ..strokeJoin = StrokeJoin.round
+                ..strokeWidth = 2;
+              return p;
+            },
+            onNodeTapDown: (_, node) {
+              //_onItemSelected(node.id);
+            },
           ),
         ),
       );
