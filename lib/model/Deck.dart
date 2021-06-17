@@ -811,6 +811,18 @@ class Deck {
     if (bool) {
       printed = asShortString();
     }
+    if (bool && false) {
+      var first = fixedTransits.first;
+      for (var i = first.indexInDeck - 1; i >= 0; i--) {
+        if (cards[i].efl > 0) {
+          var distance = first.indexInDeck - cards[i].indexInDeck;
+          if (distance < 15) {
+            bool = false;
+          }
+          break;
+        }
+      }
+    }
     return bool;
   }
 

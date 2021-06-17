@@ -18,6 +18,7 @@ import 'package:mobile_medici/BalanceWidget.dart';
 import 'package:mobile_medici/BotWidget.dart';
 import 'package:mobile_medici/CalculateSettingsWidget.dart';
 import 'package:mobile_medici/Helpers.dart';
+import 'package:mobile_medici/arrow_path.dart';
 import 'package:mobile_medici/model/Settings.dart';
 import 'package:mobile_medici/reorderables/src/widgets/reorderable_wrap.dart';
 import 'package:mobile_medici/shared_ui.dart';
@@ -590,11 +591,13 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   }
 
   Path customEdgePathBuilder(List<List<double>> points) {
-    var path = Path();
+    Path path;
+    path = Path();
     path.moveTo(points[0][0], points[0][1]);
     points.sublist(1).forEach((p) {
       path.lineTo(p[0], p[1]);
     });
+    path = ArrowPath.make(path: path, tipLength: 5);
     return path;
   }
 
@@ -627,20 +630,23 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
             orientation: MatrixOrientation.Vertical,
             pathBuilder: customEdgePathBuilder,
             builder: (ctx, node) {
-              return Container(
-                  padding: EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(4),
-                    boxShadow: [
-                      BoxShadow(color: Colors.blue[100]!, spreadRadius: 1),
-                    ],
-                  ),
-                  child: Center(
-                    child: Text(
-                      '${node.id}',
-                      style: TextStyle(fontSize: 10),
+              return Padding(
+                padding: const EdgeInsets.all(2.0),
+                child: Container(
+                    padding: EdgeInsets.all(0),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(4),
+                      boxShadow: [
+                        BoxShadow(color: Colors.blue[100]!, spreadRadius: 1),
+                      ],
                     ),
-                  ));
+                    child: Center(
+                      child: Text(
+                        '${node.id}',
+                        style: TextStyle(fontSize: 10),
+                      ),
+                    )),
+              );
             },
             paintBuilder: (edge) {
               var p = Paint()
