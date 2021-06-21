@@ -567,9 +567,14 @@ class Deck {
   bool parse(String s) {
     cards.clear();
     try {
-      var fixedChain = s.trim().replaceAll("Х", "X").replaceAll("] ", "]");
+      var fixedChain = s.trim().replaceAll("Х", "X").replaceAll("] ", "]").replaceAll("\n", "").toLowerCase()
+          .replaceAll("b", "В")
+          .replaceAll("b", "В")
+          .replaceAll("t", "Т")
+          .replaceAll("k", "К");
+
       if (fixedChain.contains("<")) {
-        fixedChain = s
+        fixedChain = fixedChain
             .trim()
             .replaceAll("10", "X")
             .toLowerCase()
@@ -581,7 +586,7 @@ class Deck {
         });
       } else if (fixedChain.contains("]")) {
         //гера формат
-        fixedChain = s
+        fixedChain = fixedChain
             .trim()
             .replaceAll("10", "X")
             .toLowerCase()
@@ -595,16 +600,18 @@ class Deck {
           return (previousValue).toString() + (okSymbols.contains(s) ? s : "");
         });
       } else if (fixedChain.contains(" ")) {
-        fixedChain = s
+        var list = fixedChain
             .trim()
             .replaceAll("10", "X")
+            //.replaceAll(" ", "")
             .toLowerCase()
             .split(" ")
             .map((e) => e.substring(0, 2))
             .fold<String>(
                 "", (previousValue, element) => previousValue + element)
             .runes
-            .toList()
+            .toList();
+        fixedChain = list
             .fold("", (previousValue, element) {
           var s = String.fromCharCode(element);
           return (previousValue).toString() + (okSymbols.contains(s) ? s : "");
@@ -816,7 +823,7 @@ class Deck {
       for (var i = first.indexInDeck - 1; i >= 0; i--) {
         if (cards[i].efl > 0) {
           var distance = first.indexInDeck - cards[i].indexInDeck;
-          if (distance < 15) {
+          if (distance < 13) {
             bool = false;
           }
           break;
