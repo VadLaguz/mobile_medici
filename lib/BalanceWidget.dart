@@ -175,7 +175,19 @@ class BalanceWidgetState extends State<BalanceWidget> {
                 );
               }).toList(),
             ),
-           /* Row(
+            Row(
+                children: suitsList.map<Widget>((e) {
+              final hex = deck.hex[e];
+              return Expanded(
+                child: Container(
+                  child: Text(
+                    hex!.localizedName(true),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              );
+            }).toList())
+            /* Row(
               children: suitsList.map<Widget>((suit) {
                 final hex = deck.hex[suit];
                 return Padding(

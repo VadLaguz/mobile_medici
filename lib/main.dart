@@ -760,107 +760,16 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                     ),
                   ] +
                   details +
-                  (isLandscape(context) ? [BalanceWidget(item)] : []) +
+                  (isLandscape(context) || true ? [BalanceWidget(item)] : []) +
                   [
+                    Container(
+                      height: 8,
+                    ),
                     getTreeView(),
                   ]));
     }
 
     return Container();
-  }
-
-  LineChartData getLineCharData() {
-    return LineChartData(
-      lineTouchData: LineTouchData(
-        touchTooltipData: LineTouchTooltipData(
-          tooltipBgColor: Colors.blueGrey.withOpacity(0.8),
-        ),
-        touchCallback: (LineTouchResponse touchResponse) {},
-        handleBuiltInTouches: true,
-      ),
-      gridData: FlGridData(
-        show: false,
-      ),
-      titlesData: FlTitlesData(
-        bottomTitles: SideTitles(
-          showTitles: true,
-          reservedSize: 22,
-          getTextStyles: (value) => const TextStyle(
-            color: Color(0xff72719b),
-            fontWeight: FontWeight.w200,
-            fontSize: 10,
-          ),
-          margin: 10,
-          getTitles: (value) {
-            return '${value.toInt()}';
-          },
-        ),
-        leftTitles: SideTitles(
-          showTitles: true,
-          getTextStyles: (value) => const TextStyle(
-            color: Colors.blue,
-            fontWeight: FontWeight.w200,
-            fontSize: 10,
-          ),
-          getTitles: (value) {
-            return '${value.toInt()}';
-          },
-          margin: 8,
-          reservedSize: 30,
-        ),
-      ),
-      borderData: FlBorderData(
-        show: true,
-        border: const Border(
-          bottom: BorderSide(
-            color: Color(0xff4e4965),
-            width: 4,
-          ),
-          left: BorderSide(
-            color: Colors.transparent,
-          ),
-          right: BorderSide(
-            color: Colors.transparent,
-          ),
-          top: BorderSide(
-            color: Colors.transparent,
-          ),
-        ),
-      ),
-      minX: 1,
-      maxX: 35,
-      maxY: 36,
-      minY: 0,
-      lineBarsData: linesBarData1(),
-    );
-  }
-
-  List<LineChartBarData> linesBarData1() {
-    return CardSuit.values.map((e) {
-      var deck = foundItems[selectedItem];
-      var data = <FlSpot>[];
-      deck.cards.forEach((element) {
-        if (element.suit == e) {
-          data.add(
-              FlSpot(element.indexInDeck.toDouble(), element.efl.toDouble()));
-        }
-      });
-      return LineChartBarData(
-        spots: data,
-        isCurved: false,
-        colors: [
-          const Color(0xff4af699),
-        ],
-        barWidth: 2,
-        isStrokeCapRound: true,
-        dotData: FlDotData(
-          show: false,
-        ),
-        belowBarData: BarAreaData(
-          show: false,
-        ),
-      );
-    }).toList();
   }
 
   @override
@@ -965,7 +874,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                             chainModel.clear();
                                             chainModel.addAll(deck.cards);
                                             setState(() {
-                                              if (deck.check(reverse: true) || deck.check()) {
+                                              if (deck.check(reverse: true) ||
+                                                  deck.check()) {
                                                 foundItems.insert(0, deck);
                                                 selectedItem = 0;
                                               }
@@ -1098,8 +1008,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                     child: Container(
                       height: MediaQuery.of(context).orientation ==
                               Orientation.landscape
-                          ? 1000
-                          : 1000,
+                          ? 1050
+                          : 1100,
                       child: Row(
                         children: [
                           Expanded(
@@ -1136,7 +1046,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                           Expanded(
                               flex: 2,
                               child: Padding(
-                                padding: const EdgeInsets.only(left: 8),
+                                padding: const EdgeInsets.only(left: 0),
                                 child: Card(
                                   elevation: 2,
                                   child: buildDetailsPane(context),
