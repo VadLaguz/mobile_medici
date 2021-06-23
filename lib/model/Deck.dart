@@ -114,6 +114,7 @@ class CardItem {
   String? cardString;
   var fixed = false;
   RangeValues? minMaxEfl;
+  var minNonTransitCardsBefore = 0;
   var linked = <CardItem>[];
   CardItem? nextTransit;
   var prevTransit = <CardItem>[];
@@ -567,16 +568,45 @@ class Deck {
   bool parse(String s) {
     cards.clear();
     try {
-      var fixedChain = s.trim().replaceAll("Х", "X").replaceAll("] ", "]").replaceAll("\n", "").toLowerCase()
+      var fixedChain = s.trim().replaceAll("Х", "X").replaceAll("] ", "]").replaceAll("\n", "")
+          .replaceAll("т", "к")
+          .toLowerCase()
           .replaceAll("b", "В")
           .replaceAll("b", "В")
           .replaceAll("t", "Т")
-          .replaceAll("k", "К");
+          .replaceAll("k", "К")
+          .replaceAll("10", "X")
+          .toLowerCase();
 
-      if (fixedChain.contains("<")) {
+      //свой формат
+      if (fixedChain.contains("!") && fixedChain.contains(" ")) {
+        var list = fixedChain
+            .trim()
+            .toLowerCase()
+            .split(" ")
+            .map((e) => e.substring(0, 2))
+            .fold<String>(
+            "", (previousValue, element) => previousValue + element)
+            .runes
+            .toList();
+        fixedChain = list
+            .fold("", (previousValue, element) {
+          var s = String.fromCharCode(element);
+          return (previousValue).toString() + (okSymbols.contains(s) ? s : "");
+        });
+      } else {
+        fixedChain = fixedChain.replaceAll("10", "x");
+        var runes = fixedChain.runes;
+        runes.forEach((element) {
+          var character = new String.fromCharCode(element);
+          if (!okSymbols.contains(character)) {
+            fixedChain = fixedChain.replaceAll(character, "");
+          }
+        });
+      }
+      /*if (fixedChain.contains("<")) {
         fixedChain = fixedChain
             .trim()
-            .replaceAll("10", "X")
             .toLowerCase()
             .runes
             .toList()
@@ -588,11 +618,7 @@ class Deck {
         //гера формат
         fixedChain = fixedChain
             .trim()
-            .replaceAll("10", "X")
             .toLowerCase()
-            /*.split(" ")
-          .map((e) => e.substring(0, 2))
-          .fold<String>("", (previousValue, element) => previousValue + element)*/
             .runes
             .toList()
             .fold("", (previousValue, element) {
@@ -638,7 +664,7 @@ class Deck {
           var s = String.fromCharCode(element);
           return (previousValue).toString() + (okSymbols.contains(s) ? s : "");
         });
-      }
+      }*/
 
       for (var i = 0; i < fixedChain.length; i += 2) {
         final card = CardItem.fromString(fixedChain.substring(i, i + 2));
