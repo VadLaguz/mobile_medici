@@ -43,7 +43,7 @@ var hexTable = ("#11 (111000) Расцвет\n" +
         "#52 (001001) Сосредоточенность\n" +
         "#41 (110001) Убыль\n" +
         "#4 (010001) Недоразвитость\n" +
-        "#27 (100001) (Вос)Питание\n" +
+        "#27 (100001) Питание\n" +
         "#23 (000001) Разрушение\n" +
         "#14 (111101) Обладание великим\n" +
         "#50 (011101) Жертвенник\n" +
@@ -667,7 +667,8 @@ class Deck {
       }*/
 
       for (var i = 0; i < fixedChain.length; i += 2) {
-        final card = CardItem.fromString(fixedChain.substring(i, i + 2));
+        var substring = fixedChain.substring(i, i + 2);
+        final card = CardItem.fromString(substring);
         card.indexInDeck = cards.length;
         cards.add(card);
       }

@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobile_medici/model/Deck.dart';
 import 'package:mobile_medici/shared_ui.dart';
+import 'package:universal_platform/universal_platform.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class BotWidget extends StatefulWidget {
@@ -124,7 +125,7 @@ class BotWidgetState extends State<BotWidget> {
         body: body,
       );
       print(r.body);
-      if (Platform.isAndroid || await canLaunch(r.body)) {
+      if (UniversalPlatform.isAndroid || await canLaunch(r.body)) {
         await launch(r.body);
         FocusManager.instance.primaryFocus?.unfocus();
         //Navigator.pop(context);

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 bool isLandscape(BuildContext context) {
   return MediaQuery.of(context).orientation == Orientation.landscape;
@@ -31,5 +32,5 @@ class InputDoneView extends StatelessWidget {
 }
 
 bool isMobile() {
-  return Platform.isAndroid || Platform.isIOS;
+  return UniversalPlatform.isAndroid || UniversalPlatform.isIOS;
 }

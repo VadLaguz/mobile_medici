@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobile_medici/Helpers.dart';
 import 'package:mobile_medici/model/Settings.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class CalculateSettingsWidget extends StatefulWidget {
   CalcSettings settings;
@@ -19,7 +20,7 @@ class CalculateSettingsState extends State<CalculateSettingsWidget> {
   @override
   Widget build(BuildContext context) {
     return FractionallySizedBox(
-      widthFactor: Platform.isMacOS || Platform.isWindows ? 0.6 : 0.9,
+      widthFactor: UniversalPlatform.isMacOS || UniversalPlatform.isWindows ? 0.6 : 0.9,
       child: Material(
           child: Container(
               color: Colors.white,
@@ -37,7 +38,7 @@ class CalculateSettingsState extends State<CalculateSettingsWidget> {
                                 Slider(
                                   label: widget.settings.threads.toString(),
                                   min: 1,
-                                  max: Platform.isMacOS ? 12 : 8,
+                                  max: UniversalPlatform.isMacOS ? 12 : 8,
                                   value: widget.settings.threads.toDouble(),
                                   onChanged: (value) {
                                     setState(() {

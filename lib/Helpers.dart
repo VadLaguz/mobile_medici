@@ -2,11 +2,12 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:fluttericon/rpg_awesome_icons.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import 'model/Deck.dart';
 
 bool showThreads() {
-  return !Platform.isIOS;
+  return !UniversalPlatform.isIOS;
 }
 
 bool ruLocale() {
@@ -15,7 +16,7 @@ bool ruLocale() {
 }
 
 Map nominalsToLang() {
-  if (!ruLocale() && Platform.isIOS && false) {
+  if (!ruLocale() && UniversalPlatform.isIOS && false) {
     return nominalsToEn;
   } else {
     return nominalsToRu;
@@ -23,7 +24,7 @@ Map nominalsToLang() {
 }
 
 Map suitsToLang() {
-  if (!ruLocale() && Platform.isIOS && false) {
+  if (!ruLocale() && UniversalPlatform.isIOS && false) {
     return suitsToEn;
   } else {
     return suitsToRu;

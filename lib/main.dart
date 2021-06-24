@@ -25,6 +25,7 @@ import 'package:mobile_medici/reorderables/src/widgets/reorderable_wrap.dart';
 import 'package:mobile_medici/shared_ui.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:range_slider_dialog/range_slider_dialog.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import 'IChingSelectWidget.dart';
 import 'model/Deck.dart';
@@ -457,7 +458,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     });
     await RangeSliderDialog.display<int>(context,
         minValue: 0,
-        width: Platform.isWindows || Platform.isMacOS || Platform.isLinux
+        width: UniversalPlatform.isWindows || UniversalPlatform.isMacOS || UniversalPlatform.isLinux
             ? MediaQuery.of(context).size.width / 2
             : null,
         maxValue: chainModel.length - 2,
@@ -811,7 +812,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
           padding: EdgeInsets.only(
               top:
                   MediaQuery.of(context).orientation == Orientation.landscape &&
-                          Platform.isAndroid
+                      UniversalPlatform.isAndroid
                       ? 20
                       : 0),
           child: SingleChildScrollView(
