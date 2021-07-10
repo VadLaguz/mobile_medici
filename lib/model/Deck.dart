@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:mobile_medici/MersenneTwister.dart';
+import 'package:syncfusion_flutter_sliders/sliders.dart';
 import '../Helpers.dart';
 
 var hexTable = ("#11 (111000) Расцвет\n" +
@@ -113,8 +114,8 @@ class CardItem {
   var maskCard = false;
   String? cardString;
   var fixed = false;
-  RangeValues? minMaxEfl;
-  var minNonTransitCardsBefore = 0;
+  SfRangeValues? minMaxEfl;
+  var minDistanceToPrevTransit = 0;
   var linked = <CardItem>[];
   CardItem? nextTransit;
   var prevTransit = <CardItem>[];
@@ -145,7 +146,7 @@ class CardItem {
     }
     if (lowerCased.length > 2) {
       this.minMaxEfl =
-          RangeValues(int.parse(lowerCased.substring(2)).toDouble(), 36);
+          SfRangeValues(int.parse(lowerCased.substring(2)).toDouble(), 36);
     }
   }
 
@@ -246,11 +247,22 @@ class Deck {
     return retVal;
   }
 
-  String asString(bool efl, bool withoutEfl) {
+  String asString(bool efl, bool withoutEfl, {bool stndmob = false}) {
     var retVal = "";
     cards.forEach((card) {
-      var s = card.toString();
-      retVal += s + (card.efl > 0 && efl ? "!${card.efl}" : "") + " ";
+      if (true || card.suit == CardSuit.hearts) {
+        var s = card.toString();
+        var other = (card.efl > 0 && efl ? "!${card.efl}" : "");
+        var cardS = s + other;
+        if (stndmob) {
+          if (mobiles.contains(card)) {
+            cardS = "(${cardS})";
+          } else {
+            cardS = "[${cardS}]";
+          }
+        }
+        retVal += cardS + " ";
+      }
     });
     if (withoutEfl) {
       retVal += "\n";
@@ -568,7 +580,11 @@ class Deck {
   bool parse(String s) {
     cards.clear();
     try {
-      var fixedChain = s.trim().replaceAll("Х", "X").replaceAll("] ", "]").replaceAll("\n", "")
+      var fixedChain = s
+          .trim()
+          .replaceAll("Х", "X")
+          .replaceAll("] ", "]")
+          .replaceAll("\n", "")
           .replaceAll("т", "к")
           .toLowerCase()
           .replaceAll("b", "В")
@@ -586,11 +602,10 @@ class Deck {
             .split(" ")
             .map((e) => e.substring(0, 2))
             .fold<String>(
-            "", (previousValue, element) => previousValue + element)
+                "", (previousValue, element) => previousValue + element)
             .runes
             .toList();
-        fixedChain = list
-            .fold("", (previousValue, element) {
+        fixedChain = list.fold("", (previousValue, element) {
           var s = String.fromCharCode(element);
           return (previousValue).toString() + (okSymbols.contains(s) ? s : "");
         });
@@ -725,6 +740,7 @@ class Deck {
       mobiles.add(cards.last);
     }
     var bool = result.length == 2;
+    var containsDistance = false;
     cards.forEach((element) {
       if (element.minMaxEfl != null) {
         final okCard = element.efl <= element.minMaxEfl!.end &&
@@ -732,6 +748,9 @@ class Deck {
         if (!okCard) {
           bool = false;
         }
+      }
+      if (element.minDistanceToPrevTransit > 0) {
+        containsDistance = true;
       }
     });
     if (maxTransits > 0) {
@@ -845,17 +864,27 @@ class Deck {
     if (bool) {
       printed = asShortString();
     }
-    if (bool && false) {
-      var first = fixedTransits.first;
-      for (var i = first.indexInDeck - 1; i >= 0; i--) {
-        if (cards[i].efl > 0) {
-          var distance = first.indexInDeck - cards[i].indexInDeck;
-          if (distance < 13) {
-            bool = false;
+    if (bool && containsDistance) {
+      var lastTransit = -1;
+      for (var card in cards) {
+        if (card.efl > 0) {
+          if (card.minDistanceToPrevTransit == 0) {
+            lastTransit = card.indexInDeck;
           }
-          break;
+        }
+        if (card.minDistanceToPrevTransit > 0) {
+          var distance = card.indexInDeck - lastTransit - 1;
+          if (card.minDistanceToPrevTransit > distance) {
+            bool = false;
+            //print("fail with distance: $distance");
+            break;
+          }
+        }
+        if (card.efl > 0) {
+          lastTransit = card.indexInDeck;
         }
       }
+
     }
     return bool;
   }

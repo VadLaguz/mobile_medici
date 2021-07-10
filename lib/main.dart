@@ -4,6 +4,7 @@ import 'dart:isolate';
 import 'dart:math';
 
 import 'package:adaptive_dialog/adaptive_dialog.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +19,7 @@ import 'package:graphite/graphite.dart';
 import 'package:mobile_medici/BalanceWidget.dart';
 import 'package:mobile_medici/BotWidget.dart';
 import 'package:mobile_medici/CalculateSettingsWidget.dart';
+import 'package:mobile_medici/CardSettingsWidget.dart';
 import 'package:mobile_medici/Helpers.dart';
 import 'package:mobile_medici/arrow_path.dart';
 import 'package:mobile_medici/model/Settings.dart';
@@ -308,6 +310,16 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       final height = width * 1.3;
       var efl = widgetCard.minMaxEfl;
       var currentEfl = selectedItem > -1 ? widgetCard.efl : 0;
+      var itemSettings = "️⚙️";
+      var minDistanceDescr = "${widgetCard.minDistanceToPrevTransit}";
+      if (efl != null) {
+        itemSettings = "$itemSettings ${efl.start.toInt()}-${efl.end.toInt()}";
+        if (widgetCard.minDistanceToPrevTransit > 0) {
+          itemSettings += " D:$minDistanceDescr";
+        }
+      } else if (widgetCard.minDistanceToPrevTransit > 0) {
+        itemSettings = "$itemSettings ️D:$minDistanceDescr";
+      }
       var card = GestureDetector(
           onLongPress: () async {
             if (selectedItem != -1) {
@@ -414,23 +426,21 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                         setState(() {});
                                       });
                                     },
-                                    child: Center(
-                                      child: FittedBox(
-                                        fit: BoxFit.fitHeight,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(2.0),
+                                      child: Center(
                                         child: currentEfl > 0
                                             ? Text(
-                                                "⚡️️ ${currentEfl}",
+                                                "⚡️️ $currentEfl",
                                                 style: TextStyle(
                                                     fontSize: 18,
                                                     color: Colors.white),
                                               )
-                                            : Text(
-                                                efl == null
-                                                    ? "️⚙️"
-                                                    : "⚙️ ${efl.start.toInt()}-${efl.end.toInt()}",
-                                                style: TextStyle(
-                                                    fontSize: 18,
-                                                    color: Colors.black87),
+                                            : AutoSizeText(
+                                                itemSettings,
+                                                maxLines: 1,
+                                                minFontSize: 3,
+                                                style: TextStyle(fontSize: 20),
                                               ),
                                       ),
                                     ),
@@ -456,7 +466,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     setState(() {
       selectedItem = -1;
     });
-    await RangeSliderDialog.display<int>(context,
+    /*await RangeSliderDialog.display<int>(context,
         minValue: 0,
         width: UniversalPlatform.isWindows || UniversalPlatform.isMacOS || UniversalPlatform.isLinux
             ? MediaQuery.of(context).size.width / 2
@@ -475,7 +485,24 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         item.minMaxEfl = value;
       }
       Navigator.pop(context);
-    });
+    });*/
+    showDialog(
+        context: context,
+        builder: (context) {
+          return Dialog(
+              child: CardSettingsWidget(
+                  item.minMaxEfl, item.minDistanceToPrevTransit,
+                  (value, distance) {
+            setState(() {
+              if (value.start == 0) {
+                item.minMaxEfl = null;
+              } else {
+                item.minMaxEfl = value;
+              }
+              item.minDistanceToPrevTransit = distance;
+            });
+          }));
+        });
   }
 
   Future<void> calculate() async {
@@ -812,7 +839,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
           padding: EdgeInsets.only(
               top:
                   MediaQuery.of(context).orientation == Orientation.landscape &&
-                      UniversalPlatform.isAndroid
+                          UniversalPlatform.isAndroid
                       ? 20
                       : 0),
           child: SingleChildScrollView(

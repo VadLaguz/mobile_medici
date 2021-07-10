@@ -49,6 +49,9 @@ dependencies:
   fixnum: ^1.0.0
   flutter_widget_from_html_core: ^0.6.1+3
   universal_platform: ^1.0.0+1
+  syncfusion_flutter_sliders: ^19.2.46
+  auto_size_text: ^3.0.0-nullsafety.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
