@@ -99,7 +99,7 @@ class DeckTask {
   int threadIdx;
   bool reverse = false;
   bool mirror = false;
-  var balance = [0,0,0,0,0,0];
+  var balance = [0, 0, 0, 0, 0, 0];
   bool onlyDifferentHexes = false;
 
   DeckTask(this.mask, this.needHex, this.maxTransits, this.threadIdx,
@@ -662,7 +662,7 @@ class Deck {
   bool check(
       {int maxTransits = 0,
       bool reverse = false,
-      List<int> balance = const [0,0,0,0,0,0],
+      List<int> balance = const [0, 0, 0, 0, 0, 0],
       bool onlyDifferentHexes = false}) {
     mobiles.clear();
     stationars.clear();
@@ -762,17 +762,17 @@ class Deck {
 
       if (bool) {
         //поиск с балансом на линии
-        balance.forEach((lineBalance) {
-          if (lineBalance == 1) {
+        for (var i = 0; i < balance.length; i++) {
+          if (balance[i] == 1) {
             var sum = 0;
             CardSuit.values.forEach((suit) {
-              sum += this.hex[suit]!.data[lineBalance]!.first ? 1 : 0;
+              sum += this.hex[suit]!.data[i]!.first ? 1 : 0;
             });
             if (sum != 2) {
               bool = false;
             }
           }
-        });
+        }
       }
 
       if (bool) {
@@ -822,7 +822,6 @@ class Deck {
           lastTransit = card.indexInDeck;
         }
       }
-
     }
     return bool;
   }
