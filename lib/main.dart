@@ -348,6 +348,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                   var cardItem = CardItem(element.suit, element.nominal);
                   cardItem.fixed = element.fixed;
                   cardItem.minMaxEfl = element.minMaxEfl;
+                  cardItem.minDistanceToPrevTransit = element.minDistanceToPrevTransit;
                   if (cardItem.fixed) {
                     deck.maskCards.add(cardItem);
                   }
