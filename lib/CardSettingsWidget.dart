@@ -100,17 +100,23 @@ class CardSettingsState extends State<CardSettingsWidget> {
                           widget.callback(eflValues, distanceValue.toInt());
                           Navigator.pop(context);
                         },
-                        child: Text(
-                          "OK",
-                          style: TextStyle(fontSize: 24),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Text(
+                            "OK",
+                            style: TextStyle(fontSize: 24),
+                          ),
                         )),
                     TextButton(
                         onPressed: () {
                           Navigator.pop(context);
                         },
-                        child: Text(
-                          "Cancel",
-                          style: TextStyle(fontSize: 24),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Text(
+                            "Cancel",
+                            style: TextStyle(fontSize: 24),
+                          ),
                         )),
                   ],
                 )

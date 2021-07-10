@@ -154,7 +154,6 @@ class BotWidgetState extends State<BotWidget> {
       child: GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: Container(
-          color: Colors.white,
           child: SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -284,11 +283,17 @@ class BotWidgetState extends State<BotWidget> {
     );
 
     return isMobile()
-        ? KeyboardActions(config: _buildConfig(context), child: content)
-        : ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: 400, maxHeight: 500),
-            child: Container(
-              child: content,
+        ? ClipRRect(
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+            child:
+                KeyboardActions(config: _buildConfig(context), child: content))
+        : ClipRRect(
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: 400, maxHeight: 500),
+              child: Container(
+                child: content,
+              ),
             ),
           );
   }

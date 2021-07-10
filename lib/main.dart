@@ -114,7 +114,7 @@ Future<void> isolateFunc(List<Object> message) async {
     if (deck.check(
         maxTransits: task.maxTransits,
         reverse: task.reverse,
-        fullBalanced: task.fullBalanced,
+        balance: task.balance,
         onlyDifferentHexes: task.onlyDifferentHexes)) {
       port.send(deck);
     }
@@ -233,7 +233,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
           calcSettings.maxTransits,
           index,
           calcSettings.reverse,
-          calcSettings.fullBalanced,
+          calcSettings.balance,
           calcSettings.mirror,
           calcSettings.onlyDifferentHexes);
       isolateInitializer.isolate = await Isolate.spawn(
@@ -781,7 +781,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                 barrierDismissible: !isMobile(),
                                 context: context,
                                 builder: (context) {
-                                  return Center(child: BotWidget(item));
+                                  return Dialog(child: BotWidget(item));
                                 },
                               );
                             },
@@ -941,12 +941,13 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                               showDialog(
                                                 context: context,
                                                 builder: (context) {
-                                                  return Center(
-                                                      child:
-                                                          CalculateSettingsWidget(
-                                                              calcSettings, () {
-                                                    setState(() {});
-                                                  }));
+                                                  return Dialog(
+                                                    child:
+                                                        CalculateSettingsWidget(
+                                                            calcSettings, () {
+                                                      setState(() {});
+                                                    }),
+                                                  );
                                                 },
                                               );
                                             },
