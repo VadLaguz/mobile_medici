@@ -348,7 +348,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                   var cardItem = CardItem(element.suit, element.nominal);
                   cardItem.fixed = element.fixed;
                   cardItem.minMaxEfl = element.minMaxEfl;
-                  cardItem.minDistanceToPrevTransit = element.minDistanceToPrevTransit;
+                  cardItem.minDistanceToPrevTransit =
+                      element.minDistanceToPrevTransit;
                   if (cardItem.fixed) {
                     deck.maskCards.add(cardItem);
                   }
@@ -431,11 +432,14 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                       padding: const EdgeInsets.all(2.0),
                                       child: Center(
                                         child: currentEfl > 0
-                                            ? Text(
-                                                "⚡️️ $currentEfl",
-                                                style: TextStyle(
-                                                    fontSize: 18,
-                                                    color: Colors.white),
+                                            ? FittedBox(
+                                                fit: BoxFit.fitHeight,
+                                                child: Text(
+                                                  "⚡️️ $currentEfl",
+                                                  style: TextStyle(
+                                                      fontSize: 18,
+                                                      color: Colors.white),
+                                                ),
                                               )
                                             : AutoSizeText(
                                                 itemSettings,

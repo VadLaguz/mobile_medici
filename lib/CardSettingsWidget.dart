@@ -76,7 +76,7 @@ class CardSettingsState extends State<CardSettingsWidget> {
                 SfSlider(
                   stepSize: 1,
                   min: 0.0,
-                  max: 34.0,
+                  max: 35.0,
                   value: distanceValue,
                   interval: 10,
                   showTicks: true,
