@@ -486,6 +486,33 @@ class Deck {
   }
 
   void shuffle() {
+    //Алгоритм Ромы moramaf
+    /*var noms = List.generate(9, (index) {
+      return Nominal.values[index];
+    });
+    var suits = List.generate(4, (index) {
+      return CardSuit.values[index];
+    });
+    noms.shuffle();
+    suits.shuffle();
+    var chain = "".split(" ");
+    this.cards.clear();
+    this.maskCards.clear();
+    var index = 0;
+    chain.forEach((item) {
+      var nomNum = int.parse(item.substring(0, 1)) - 1;
+      var suitNum = int.parse(item.substring(1, 2)) - 1;
+      var cardItem = CardItem(suits[suitNum], noms[nomNum]);
+      maskCards.add(cardItem);
+      cardItem.fixed = true;
+      cardItem.indexInDeck = index;
+      this.cards.add(cardItem);
+      index++;
+    });
+    if (true) {
+      return;
+    }*/
+
     // cards.shuffle(MersenneTwister(DateTime.now().microsecond));
     cards.shuffle();
     cards.removeWhere((element) => maskCards.contains(element));
@@ -697,7 +724,8 @@ class Deck {
       }
     }
     reverseDeck = null;
-    if (bool && reverse) {
+
+    void checkReverse() {
       final deck = Deck();
       deck.cards.clear();
       var index = 0;
@@ -707,12 +735,17 @@ class Deck {
         index++;
         return cardItem;
       }));
+      bool = deck.check(maxTransits: maxTransits);
       if (bool) {
-        bool = deck.check(maxTransits: maxTransits);
-        if (bool) {
-          reverseDeck = deck;
-        }
+        reverseDeck = deck;
       }
+      if (!reverse) {
+        //bool = true;
+      }
+    }
+
+    if (bool && reverse) {
+      checkReverse();
     }
 
     if (bool) {
@@ -823,6 +856,12 @@ class Deck {
         }
       }
     }
+
+    /*if (bool && !reverse) {
+      checkReverse();
+      bool = true;
+    }*/
+
     return bool;
   }
 

@@ -118,6 +118,9 @@ Future<void> isolateFunc(List<Object> message) async {
         onlyDifferentHexes: task.onlyDifferentHexes)) {
       port.send(deck);
     }
+    /*if (counter > 300) {
+      work = false;
+    }*/
     if (circleWatch.elapsedMilliseconds >= 1000) {
       circleWatch.reset();
       port.send(counter);
@@ -209,6 +212,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
               }
             } else {
               foundItems.insert(0, param);
+              /*print(param.asString(true, true));
+              print("\n");*/
               if (selectedItem > -1) {
                 selectedItem++;
               }
