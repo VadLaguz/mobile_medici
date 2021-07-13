@@ -774,7 +774,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                             onPressed: () {
                               Clipboard.setData(ClipboardData(
                                   text: foundItems[selectedItem]
-                                      .asString(true, true)));
+                                      .asString(true, true, stndmob: calcSettings.showMobiles)));
                             },
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
@@ -1059,7 +1059,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                 child: ListView.builder(
                                   itemBuilder: (context, index) {
                                     var asString =
-                                        foundItems[index].asString(true, false);
+                                        foundItems[index].asString(true, false, stndmob: calcSettings.showMobiles);
                                     return InkWell(
                                       onTap: () {
                                         setState(() {

@@ -247,7 +247,7 @@ class Deck {
     return retVal;
   }
 
-  String asString(bool efl, bool withoutEfl, {bool stndmob = false}) {
+  String asString(bool efl, bool withoutEfl, {bool stndmob = true}) {
     var retVal = "";
     cards.forEach((card) {
       if (true || card.suit == CardSuit.hearts) {
@@ -256,9 +256,9 @@ class Deck {
         var cardS = s + other;
         if (stndmob) {
           if (mobiles.contains(card)) {
-            cardS = "(${cardS})";
+            cardS = "$cardS*";
           } else {
-            cardS = "[${cardS}]";
+            cardS = "$cardS";
           }
         }
         retVal += cardS + " ";
@@ -283,7 +283,7 @@ class Deck {
     return retVal.trim().replaceAll("X", "10") +
         (reverseDeck == null
             ? ""
-            : "\nReverse:\n" + reverseDeck!.asString(efl, withoutEfl));
+            : "\nReverse:\n" + reverseDeck!.asString(efl, withoutEfl, stndmob: stndmob));
   }
 
   void shuffle34() {

@@ -156,6 +156,18 @@ class CalculateSettingsState extends State<CalculateSettingsWidget> {
                                   widget.callback();
                                 },
                               ),
+                              CheckboxListTile(
+                                controlAffinity: ListTileControlAffinity.leading,
+                                title: Text("Print mobiles with asterisk"),
+                                value: widget.settings.showMobiles,
+                                onChanged: (value) {
+                                  setState(() {
+                                    widget.settings.showMobiles =
+                                        !widget.settings.showMobiles;
+                                  });
+                                  widget.callback();
+                                },
+                              ),
                               Row(
                                 children: [
                                   Expanded(

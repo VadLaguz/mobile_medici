@@ -5,6 +5,7 @@ class CalcSettings {
   var balance = <int>[0, 0, 0, 0, 0, 0];
   var mirror = false;
   var onlyDifferentHexes = false;
+  var showMobiles = false;
 
   bool isDefault() {
     return maxTransits == 0 &&
@@ -14,7 +15,7 @@ class CalcSettings {
                 0, (previousValue, element) => previousValue + element) ==
             0 &&
         mirror == false &&
-        onlyDifferentHexes == false;
+        onlyDifferentHexes == false && showMobiles == false;
   }
 
   void setDefault() {
@@ -24,5 +25,6 @@ class CalcSettings {
     balance = [0, 0, 0, 0, 0, 0];
     mirror = false;
     onlyDifferentHexes = false;
+    showMobiles = false;
   }
 }
