@@ -30,97 +30,99 @@ class CardSettingsState extends State<CardSettingsWidget> {
             UniversalPlatform.isMacOS ||
             UniversalPlatform.isLinux
         ? MediaQuery.of(context).size.width / 2
-        : MediaQuery.of(context).size.height * 0.8;
+        : MediaQuery.of(context).size.width * 0.9;
 
     final height = MediaQuery.of(context).size.height * 0.8;
 
     return ClipRRect(
       borderRadius: BorderRadius.all(Radius.circular(10)),
-      child: Container(
-        color: Colors.transparent,
-        width: width,
-        child: Material(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  "Min & Max EFL",
-                  style: TextStyle(fontSize: 24),
-                ),
-                SfRangeSlider(
-                  stepSize: 1,
-                  min: 0.0,
-                  max: 34.0,
-                  values: eflValues,
-                  interval: 10,
-                  showTicks: true,
-                  showLabels: true,
-                  enableTooltip: true,
-                  minorTicksPerInterval: 0,
-                  onChanged: (value) {
-                    setState(() {
-                      eflValues = value;
-                    });
-                  },
-                ),
-                SizedBox(
-                  height: 24,
-                ),
-                Text(
-                  "Min distance to previous transit",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 24),
-                ),
-                SfSlider(
-                  stepSize: 1,
-                  min: 0.0,
-                  max: 35.0,
-                  value: distanceValue,
-                  interval: 10,
-                  showTicks: true,
-                  showLabels: true,
-                  enableTooltip: true,
-                  minorTicksPerInterval: 0,
-                  onChanged: (value) {
-                    setState(() {
-                      distanceValue = value;
-                    });
-                  },
-                ),
-                SizedBox(
-                  height: 24,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    TextButton(
-                        onPressed: () {
-                          widget.callback(eflValues, distanceValue.toInt());
-                          Navigator.pop(context);
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Text(
-                            "OK",
-                            style: TextStyle(fontSize: 24),
-                          ),
-                        )),
-                    TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Text(
-                            "Cancel",
-                            style: TextStyle(fontSize: 24),
-                          ),
-                        )),
-                  ],
-                )
-              ],
+      child: SingleChildScrollView(
+        child: Container(
+          color: Colors.transparent,
+          width: width,
+          child: Material(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "Min & Max EFL",
+                    style: TextStyle(fontSize: 24),
+                  ),
+                  SfRangeSlider(
+                    stepSize: 1,
+                    min: 0.0,
+                    max: 34.0,
+                    values: eflValues,
+                    interval: 3,
+                    showTicks: true,
+                    showLabels: true,
+                    enableTooltip: true,
+                    minorTicksPerInterval: 0,
+                    onChanged: (value) {
+                      setState(() {
+                        eflValues = value;
+                      });
+                    },
+                  ),
+                  SizedBox(
+                    height: 24,
+                  ),
+                  Text(
+                    "Min distance to previous transit",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 24),
+                  ),
+                  SfSlider(
+                    stepSize: 1,
+                    min: 0.0,
+                    max: 35.0,
+                    value: distanceValue,
+                    interval: 5,
+                    showTicks: true,
+                    showLabels: true,
+                    enableTooltip: true,
+                    minorTicksPerInterval: 0,
+                    onChanged: (value) {
+                      setState(() {
+                        distanceValue = value;
+                      });
+                    },
+                  ),
+                  SizedBox(
+                    height: 24,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      TextButton(
+                          onPressed: () {
+                            widget.callback(eflValues, distanceValue.toInt());
+                            Navigator.pop(context);
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Text(
+                              "OK",
+                              style: TextStyle(fontSize: 24),
+                            ),
+                          )),
+                      TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Text(
+                              "Cancel",
+                              style: TextStyle(fontSize: 24),
+                            ),
+                          )),
+                    ],
+                  )
+                ],
+              ),
             ),
           ),
         ),

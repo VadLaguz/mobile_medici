@@ -5,6 +5,7 @@ import 'dart:math';
 
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:easy_dynamic_theme/easy_dynamic_theme.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +34,7 @@ import 'IChingSelectWidget.dart';
 import 'model/Deck.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(EasyDynamicThemeWidget(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -43,10 +44,10 @@ class MyApp extends StatelessWidget {
     return OKToast(
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
+        theme: ThemeData.light(),
+        darkTheme: ThemeData.dark(),
+        themeMode: EasyDynamicTheme.of(context).themeMode,
         title: 'Medici Calculator',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-        ),
         home: MyHomePage(title: 'Medici Calculator'),
       ),
     );

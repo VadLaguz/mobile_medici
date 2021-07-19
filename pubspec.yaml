@@ -51,6 +51,8 @@ dependencies:
   universal_platform: ^1.0.0+1
   syncfusion_flutter_sliders: ^19.2.46
   auto_size_text: ^3.0.0-nullsafety.0
+  easy_dynamic_theme: ^2.2.0
+
 
 dev_dependencies:
   flutter_test:
