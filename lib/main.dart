@@ -1,19 +1,16 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:isolate';
 import 'dart:math';
 
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:easy_dynamic_theme/easy_dynamic_theme.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttericon/elusive_icons.dart';
 import 'package:fluttericon/entypo_icons.dart';
-import 'package:fluttericon/font_awesome_icons.dart';
 import 'package:fluttericon/linearicons_free_icons.dart';
 import 'package:graphite/core/matrix.dart';
 import 'package:graphite/graphite.dart';
@@ -27,7 +24,6 @@ import 'package:mobile_medici/model/Settings.dart';
 import 'package:mobile_medici/reorderables/src/widgets/reorderable_wrap.dart';
 import 'package:mobile_medici/shared_ui.dart';
 import 'package:oktoast/oktoast.dart';
-import 'package:range_slider_dialog/range_slider_dialog.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 import 'IChingSelectWidget.dart';
@@ -157,6 +153,13 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   var threadsLaunchingCount = 0;
   var calcSettings = CalcSettings();
   CardItem? swapCard;
+  final menuItemsSize = (isMobile() ? 30 : 36).toDouble();
+  final menuItemsPadding = EdgeInsets.all((isMobile() ? 0 : 8).toDouble());
+  final menuDividerSize = (isMobile() ? 4 : 8).toDouble();
+
+  double menuItemConstraint() {
+    return menuItemsSize * 1.2;
+  }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -307,14 +310,14 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       "ten": "10",
     };
     final replaceDark = {
-      "clubs": "Clovers",
-      "hearts": "Hearts",
-      "spades": "Pikes",
-      "diamonds": "Tiles",
-      "ace": "A",
-      "king": "King",
-      "queen": "Queen",
-      "jack": "Jack",
+      "clubs": "clover",
+      "hearts": "heart",
+      "spades": "spade",
+      "diamonds": "diamond",
+      "ace": "1",
+      "king": "13",
+      "queen": "12",
+      "jack": "11",
     };
     chainModel.forEach((widgetCard) {
       var name = "";
@@ -326,7 +329,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
           widgetCard.suit.toString().toLowerCase().replaceAll("cardsuit.", "");
       var isDark = Theme.of(context).brightness == Brightness.dark;
       if (isDark) {
-        name = "${suit}_${nominal}_black.png";
+        //name = "${suit}_${nominal}_black.png";
+        name = "card_${nominal}_${suit}.png";
       } else {
         name = "${nominal}_of_${suit}.png";
       }
@@ -337,7 +341,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         replaceDark.forEach((key, value) {
           name = name.replaceAll(key, value);
         });
-        name = "cards_dark/$name";
+        name = "px/$name";
       } else {
         name = "cards/$name";
       }
@@ -436,18 +440,20 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(4.0),
                   child: Container(
-                    color:
-                        isDark ? Color.fromARGB(255, 77, 77, 77) : Colors.white,
+                    color: isDark ? Colors.transparent : Colors.white,
                     height: height / 1.3,
                     child: Stack(
                       alignment: Alignment.bottomCenter,
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.all(0.0),
-                          child: Image.asset(
-                            "assets/$name",
-                            fit: BoxFit.cover,
-                          ),
+                        Image.asset(
+                          "assets/$name",
+                          filterQuality: isDark && !isMobile()
+                              ? FilterQuality.none
+                              : FilterQuality.low,
+                          height: isDark ? double.infinity : null,
+                          width: isDark ? double.infinity : null,
+                          alignment: Alignment.center,
+                          fit: BoxFit.cover,
                         ),
                         FractionallySizedBox(
                           heightFactor: 0.3,
@@ -461,7 +467,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                 child: Container(
                                   color: currentEfl > 0
                                       ? (themeData.brightness == Brightness.dark
-                                          ? Colors.indigo
+                                          ? Color.fromARGB(255, 20, 20, 50)
                                           : Colors.indigoAccent)
                                       : themeData.dialogBackgroundColor,
                                   child: InkWell(
@@ -597,13 +603,18 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       var suit = suitsList[index];
       return Stack(
         children: [
-          IconButton(
-              iconSize: 36,
-              color: suitColors[index],
-              onPressed: () async {
-                setIChing(context, suit);
-              },
-              icon: Icon(suitIconsData[index])),
+          SizedBox(
+            width: menuItemConstraint(),
+            height: menuItemConstraint(),
+            child: IconButton(
+                padding: menuItemsPadding,
+                color: suitColors[index],
+                onPressed: () async {
+                  setIChing(context, suit);
+                },
+                iconSize: menuItemsSize,
+                icon: Icon(suitIconsData[index])),
+          ),
           IgnorePointer(
             child: Container(
               width: 10,
@@ -876,11 +887,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         appBar: MediaQuery.of(context).orientation == Orientation.portrait
             ? AppBar(
                 title: Text("Medici Calculator"),
-                actions: [
-                  isMobile()
-                      ? (isLandscape(context) ?  Container() : ThemeButton())
-                      : Container()
-                ],
+                actions: [isLandscape(context) ? Container() : ThemeButton()],
               )
             : null,
         body: Padding(
@@ -908,178 +915,214 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                               child: Text(
                                   "$checkedCount ($speed / sec.), ${foundItems.length} found"),
                             ),
-                            Wrap(
-                              crossAxisAlignment: WrapCrossAlignment.center,
-                              children: iChingButtons(context) +
-                                  [
-                                    /*Container(
-                                      width: 8,
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: TextButton(
-                                        child: Text("HEX"),
-                                        onPressed: () {
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    AdvancedHexSelectWidget(),
-                                              ));
-                                        },
+                            Padding(
+                              padding: const EdgeInsets.only(top: 4, bottom: 8),
+                              child: Wrap(
+                                alignment: WrapAlignment.center,
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                children: iChingButtons(context) +
+                                    [
+                                      /*Container(
+                                        width: 8,
                                       ),
-                                    ),*/
-                                    Container(
-                                      width: 8,
-                                    ),
-                                    IconButton(
-                                      onPressed: () async {
-                                        final result = await showTextInputDialog(
-                                            style: AdaptiveStyle.material,
-                                            title:
-                                                "Chain input (pm3421, pmcalc.ru and this app formats allowed)",
-                                            context: context,
-                                            textFields: [
-                                              DialogTextField(
-                                                  maxLines: 3,
-                                                  hintText:
-                                                      "Examples: <[Вк][Вб]><[6п][8п]....,[Вч 9к Тк Вп 7ч 10ч Тп Дп 7б Дк],...Вч 6ч Тк Вп Тп!2...etc")
-                                            ]);
-                                        if (result != null) {
-                                          final deck = Deck();
-                                          if (deck.parse(result.first)) {
-                                            chainModel.clear();
-                                            chainModel.addAll(deck.cards);
-                                            setState(() {
-                                              if (deck.check(reverse: true) ||
-                                                  deck.check()) {
-                                                foundItems.insert(0, deck);
-                                                selectedItem = 0;
-                                              }
-                                            });
-                                          } else {
-                                            showAlertDialog(
-                                                context: context,
-                                                title: "Error",
-                                                message:
-                                                    "Maybe the chain is too short (less than 36 cards) or the format is not supported.",
-                                                actions: [
-                                                  AlertDialogAction(
-                                                      key: 1, label: "OK 🤨")
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: TextButton(
+                                          child: Text("HEX"),
+                                          onPressed: () {
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      AdvancedHexSelectWidget(),
+                                                ));
+                                          },
+                                        ),
+                                      ),*/
+                                      Container(
+                                        width: menuDividerSize,
+                                      ),
+                                      SizedBox(
+                                        width: menuItemConstraint(),
+                                        height: menuItemConstraint(),
+                                        child: IconButton(
+                                          onPressed: () async {
+                                            final result =
+                                                await showTextInputDialog(
+                                                    style:
+                                                        AdaptiveStyle.material,
+                                                    title:
+                                                        "Chain input (pm3421, pmcalc.ru and this app formats allowed)",
+                                                    context: context,
+                                                    textFields: [
+                                                  DialogTextField(
+                                                      maxLines: 3,
+                                                      hintText:
+                                                          "Examples: <[Вк][Вб]><[6п][8п]....,[Вч 9к Тк Вп 7ч 10ч Тп Дп 7б Дк],...Вч 6ч Тк Вп Тп!2...etc")
                                                 ]);
-                                          }
-                                        }
-                                      },
-                                      icon: Icon(Entypo.pencil),
-                                      iconSize: 36,
-                                      color: Colors.cyan,
-                                    ),
-                                    Container(
-                                      width: 8,
-                                    ),
-                                    Stack(
-                                        alignment: Alignment.topRight,
-                                        children: [
-                                          IconButton(
-                                            onPressed: () async {
-                                              showDialog(
-                                                context: context,
-                                                builder: (context) {
-                                                  return Dialog(
-                                                    child:
-                                                        CalculateSettingsWidget(
-                                                            calcSettings, () {
-                                                      setState(() {});
-                                                    }),
+                                            if (result != null) {
+                                              final deck = Deck();
+                                              if (deck.parse(result.first)) {
+                                                chainModel.clear();
+                                                chainModel.addAll(deck.cards);
+                                                setState(() {
+                                                  if (deck.check(
+                                                          reverse: true) ||
+                                                      deck.check()) {
+                                                    foundItems.insert(0, deck);
+                                                    selectedItem = 0;
+                                                  }
+                                                });
+                                              } else {
+                                                showAlertDialog(
+                                                    context: context,
+                                                    title: "Error",
+                                                    message:
+                                                        "Maybe the chain is too short (less than 36 cards) or the format is not supported.",
+                                                    actions: [
+                                                      AlertDialogAction(
+                                                          key: 1,
+                                                          label: "OK 🤨")
+                                                    ]);
+                                              }
+                                            }
+                                          },
+                                          icon: Icon(Entypo.pencil),
+                                          iconSize: menuItemsSize,
+                                          constraints: BoxConstraints(
+                                              maxWidth: menuItemConstraint()),
+                                          padding: menuItemsPadding,
+                                          color: Colors.cyan,
+                                        ),
+                                      ),
+                                      Container(
+                                        width: menuDividerSize,
+                                      ),
+                                      Stack(
+                                          alignment: Alignment.topRight,
+                                          children: [
+                                            SizedBox(
+                                              width: menuItemConstraint(),
+                                              height: menuItemConstraint(),
+                                              child: IconButton(
+                                                onPressed: () async {
+                                                  showDialog(
+                                                    context: context,
+                                                    builder: (context) {
+                                                      return Dialog(
+                                                        child:
+                                                            CalculateSettingsWidget(
+                                                                calcSettings,
+                                                                () {
+                                                          setState(() {});
+                                                        }),
+                                                      );
+                                                    },
                                                   );
                                                 },
-                                              );
-                                            },
-                                            icon: Icon(Icons.settings),
-                                            iconSize: 36,
-                                            color: Colors.orange,
-                                          ),
-                                          IgnorePointer(
-                                            child: Container(
-                                              width: 10,
-                                              height: 10,
-                                              decoration: BoxDecoration(
-                                                  color:
-                                                      calcSettings.isDefault()
-                                                          ? Colors.transparent
-                                                          : Colors.purpleAccent,
-                                                  shape: BoxShape.circle),
+                                                icon: Icon(Icons.settings),
+                                                iconSize: menuItemsSize,
+                                                padding: menuItemsPadding,
+                                                color: Colors.orange,
+                                              ),
                                             ),
-                                          )
-                                        ]),
-                                    Container(
-                                      width: 8,
-                                    ),
-                                    IconButton(
-                                        color: calculating
-                                            ? Colors.red
-                                            : Colors.lightBlue,
-                                        iconSize: 36,
-                                        onPressed: () {
-                                          calculate();
-                                        },
-                                        icon: threadsLaunching
-                                            ? Stack(
-                                                alignment: Alignment.center,
-                                                children: [
-                                                  Text(
-                                                    "",
-                                                    //костыль для центрирования крутилки по вертикали сорян
-                                                    style:
-                                                        TextStyle(fontSize: 48),
-                                                  ),
-                                                  CircularProgressIndicator(),
+                                            IgnorePointer(
+                                              child: Container(
+                                                width: 10,
+                                                height: 10,
+                                                decoration: BoxDecoration(
+                                                    color: calcSettings
+                                                            .isDefault()
+                                                        ? Colors.transparent
+                                                        : Colors.purpleAccent,
+                                                    shape: BoxShape.circle),
+                                              ),
+                                            )
+                                          ]),
+                                      Container(
+                                        width: menuDividerSize,
+                                      ),
+                                      SizedBox(
+                                        width: menuItemConstraint(),
+                                        height: menuItemConstraint(),
+                                        child: IconButton(
+                                            color: calculating
+                                                ? Colors.red
+                                                : Colors.lightBlue,
+                                            iconSize: menuItemsSize,
+                                            constraints: BoxConstraints(
+                                                maxWidth: menuItemConstraint()),
+                                            padding: menuItemsPadding,
+                                            onPressed: () {
+                                              calculate();
+                                            },
+                                            icon: threadsLaunching
+                                                ? Stack(
+                                                    alignment: Alignment.center,
+                                                    children: [
+                                                      Text(
+                                                        "",
+                                                        //костыль для центрирования крутилки по вертикали сорян
+                                                        style: TextStyle(
+                                                            fontSize: 48),
+                                                      ),
+                                                      CircularProgressIndicator(),
+                                                    ],
+                                                  )
+                                                : Icon(
+                                                    calculating
+                                                        ? Elusive.error_alt
+                                                        : LineariconsFree
+                                                            .rocket,
+                                                  )),
+                                      ),
+                                      Container(
+                                        width: menuDividerSize,
+                                      ),
+                                      SizedBox(
+                                        width: menuItemConstraint(),
+                                        height: menuItemConstraint(),
+                                        child: IconButton(
+                                          onPressed: () async {
+                                            var result = await showAlertDialog(
+                                                actions: [
+                                                  AlertDialogAction(
+                                                      key: 1,
+                                                      label: "Clear results"),
+                                                  AlertDialogAction(
+                                                      key: 2,
+                                                      label:
+                                                          "Clear Task & Results"),
+                                                  AlertDialogAction(
+                                                      key: 3, label: "Cancel")
                                                 ],
-                                              )
-                                            : Icon(
-                                                calculating
-                                                    ? Elusive.error_alt
-                                                    : LineariconsFree.rocket,
-                                              )),
-                                    Container(
-                                      width: 8,
-                                    ),
-                                    IconButton(
-                                      onPressed: () async {
-                                        var result = await showAlertDialog(
-                                            actions: [
-                                              AlertDialogAction(
-                                                  key: 1,
-                                                  label: "Clear results"),
-                                              AlertDialogAction(
-                                                  key: 2,
-                                                  label:
-                                                      "Clear Task & Results"),
-                                              AlertDialogAction(
-                                                  key: 3, label: "Cancel")
-                                            ],
-                                            context: context,
-                                            title: "Clear? Really?");
-                                        if (result == 1) {
-                                          setState(() {
-                                            clearResults();
-                                          });
-                                        } else if (result == 2) {
-                                          setState(() {
-                                            resetChain();
-                                          });
-                                        }
-                                      },
-                                      icon: Icon(LineariconsFree.trash),
-                                      iconSize: 36,
-                                      color: Colors.red,
-                                    ),
-                                    isMobile()
-                                        ? (isLandscape(context)
-                                            ? ThemeButton()
-                                            : Container())
-                                        : ThemeButton()
-                                  ],
+                                                context: context,
+                                                title: "Clear? Really?");
+                                            if (result == 1) {
+                                              setState(() {
+                                                clearResults();
+                                              });
+                                            } else if (result == 2) {
+                                              setState(() {
+                                                resetChain();
+                                              });
+                                            }
+                                          },
+                                          icon: Icon(LineariconsFree.trash),
+                                          iconSize: menuItemsSize,
+                                          padding: menuItemsPadding,
+                                          color: Colors.red,
+                                        ),
+                                      ),
+                                      isLandscape(context)
+                                          ? SizedBox(
+                                              width: menuItemConstraint(),
+                                              height: menuItemConstraint(),
+                                              child: ThemeButton(
+                                                  size: menuItemsSize))
+                                          : Container()
+                                    ],
+                              ),
                             ),
                           ],
                         ),

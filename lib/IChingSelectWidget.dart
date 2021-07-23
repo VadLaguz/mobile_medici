@@ -72,7 +72,7 @@ class IChingSelectState extends State<IChingSelectWidget> {
   @override
   Widget build(BuildContext context) {
     var widthFactor = isMobile() ? 1 : 0.8;
-    var heightFactor = isMobile() ? 0.5 : 0.8;
+    var heightFactor = isMobile() ? 0.55 : 0.8;
     final width = MediaQuery.of(context).size.width * widthFactor;
     final height = MediaQuery.of(context).size.height * heightFactor;
     return Container(

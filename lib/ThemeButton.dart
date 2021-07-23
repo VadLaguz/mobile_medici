@@ -12,16 +12,25 @@ class ThemeButton extends StatelessWidget {
             : Icons.brightness_4;
   }
 
+  double size = 36;
+
+  ThemeButton({this.size = 36});
+
   @override
   Widget build(BuildContext context) {
-    return IconButton(
-      key: Key('EasyDynamicThemeBtn'),
-      onPressed: EasyDynamicTheme.of(context).changeTheme,
-      icon: Icon(
-        _getIcon(context),
+    return Container(
+      child: IconButton(
+        alignment: Alignment.center,
+        key: Key('EasyDynamicThemeBtn'),
+        onPressed: EasyDynamicTheme.of(context).changeTheme,
+        icon: Icon(
+          _getIcon(context),
+        ),
+        color: Theme.of(context).brightness == Brightness.dark
+            ? Colors.indigo
+            : Colors.indigoAccent,
+        iconSize: isMobile() ? 24 : 36,
       ),
-      color: Theme.of(context).brightness == Brightness.dark ? Colors.indigo : Colors.indigoAccent,
-      iconSize: 36,
     );
   }
 }
