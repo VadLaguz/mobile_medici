@@ -11,7 +11,7 @@ class CalcSettings {
 
   bool isDefault() {
     return maxTransits == 0 &&
-        threads == 5 &&
+        threads == (UniversalPlatform.isAndroid ? 3 : 5) &&
         reverse == false &&
         balance.fold<int>(
                 0, (previousValue, element) => previousValue + element) ==
