@@ -31,6 +31,7 @@ import 'package:range_slider_dialog/range_slider_dialog.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 import 'IChingSelectWidget.dart';
+import 'ThemeButton.dart';
 import 'model/Deck.dart';
 
 void main() {
@@ -305,18 +306,48 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       "nine": "9",
       "ten": "10",
     };
+    final replaceDark = {
+      "clubs": "Clovers",
+      "hearts": "Hearts",
+      "spades": "Pikes",
+      "diamonds": "Tiles",
+      "ace": "A",
+      "king": "King",
+      "queen": "Queen",
+      "jack": "Jack",
+    };
     chainModel.forEach((widgetCard) {
-      var name =
-          "${widgetCard.nominal.toString().toLowerCase().replaceAll("nominal.", "")}_of_${widgetCard.suit.toString().toLowerCase().replaceAll("cardsuit.", "")}.png";
+      var name = "";
+      var nominal = widgetCard.nominal
+          .toString()
+          .toLowerCase()
+          .replaceAll("nominal.", "");
+      var suit =
+          widgetCard.suit.toString().toLowerCase().replaceAll("cardsuit.", "");
+      var isDark = Theme.of(context).brightness == Brightness.dark;
+      if (isDark) {
+        name = "${suit}_${nominal}_black.png";
+      } else {
+        name = "${nominal}_of_${suit}.png";
+      }
       replace.forEach((key, value) {
         name = name.replaceAll(key, value);
       });
+      if (isDark) {
+        replaceDark.forEach((key, value) {
+          name = name.replaceAll(key, value);
+        });
+        name = "cards_dark/$name";
+      } else {
+        name = "cards/$name";
+      }
+
       final width = MediaQuery.of(context).size.width /
           (MediaQuery.of(context).orientation == Orientation.portrait ? 7 : 13);
       final height = width * 1.3;
       var efl = widgetCard.minMaxEfl;
       var currentEfl = selectedItem > -1 ? widgetCard.efl : 0;
-      var itemSettings = "️⚙️";
+      var itemSettings = "";
       var minDistanceDescr = "${widgetCard.minDistanceToPrevTransit}";
       if (efl != null) {
         itemSettings = "$itemSettings ${efl.start.toInt()}-${efl.end.toInt()}";
@@ -326,6 +357,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       } else if (widgetCard.minDistanceToPrevTransit > 0) {
         itemSettings = "$itemSettings ️D:$minDistanceDescr";
       }
+      var themeData = Theme.of(context);
       var card = GestureDetector(
           onLongPress: () async {
             if (selectedItem != -1) {
@@ -404,6 +436,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(4.0),
                   child: Container(
+                    color:
+                        isDark ? Color.fromARGB(255, 77, 77, 77) : Colors.white,
                     height: height / 1.3,
                     child: Stack(
                       alignment: Alignment.bottomCenter,
@@ -411,7 +445,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                         Padding(
                           padding: const EdgeInsets.all(0.0),
                           child: Image.asset(
-                            "assets/cards/$name",
+                            "assets/$name",
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -426,8 +460,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                               Expanded(
                                 child: Container(
                                   color: currentEfl > 0
-                                      ? Colors.indigoAccent
-                                      : Colors.white,
+                                      ? (themeData.brightness == Brightness.dark
+                                          ? Colors.indigo
+                                          : Colors.indigoAccent)
+                                      : themeData.dialogBackgroundColor,
                                   child: InkWell(
                                     onTap: () {
                                       eflDialog(context, widgetCard, () {
@@ -447,12 +483,24 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                       color: Colors.white),
                                                 ),
                                               )
-                                            : AutoSizeText(
-                                                itemSettings,
-                                                maxLines: 1,
-                                                minFontSize: 3,
-                                                style: TextStyle(fontSize: 20),
-                                              ),
+                                            : (itemSettings.length > 0
+                                                ? AutoSizeText(
+                                                    itemSettings,
+                                                    maxLines: 1,
+                                                    minFontSize: 3,
+                                                    style:
+                                                        TextStyle(fontSize: 20),
+                                                  )
+                                                : FittedBox(
+                                                    fit: BoxFit.fitHeight,
+                                                    child: Icon(
+                                                      Icons.settings,
+                                                      color: isDark
+                                                          ? Colors.white
+                                                          : Colors.black26,
+                                                      size: 20,
+                                                    ),
+                                                  )),
                                       ),
                                     ),
                                   ),
@@ -477,26 +525,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     setState(() {
       selectedItem = -1;
     });
-    /*await RangeSliderDialog.display<int>(context,
-        minValue: 0,
-        width: UniversalPlatform.isWindows || UniversalPlatform.isMacOS || UniversalPlatform.isLinux
-            ? MediaQuery.of(context).size.width / 2
-            : null,
-        maxValue: chainModel.length - 2,
-        acceptButtonText: 'OK',
-        cancelButtonText: 'Cancel',
-        headerText: 'Set Min And Max EFL',
-        selectedRangeValues:
-            item.minMaxEfl ?? RangeValues(0, chainModel.length.toDouble() - 2),
-        onApplyButtonClick: (value) {
-      onSet();
-      if (value != null && value.start == 0) {
-        item.minMaxEfl = null;
-      } else {
-        item.minMaxEfl = value;
-      }
-      Navigator.pop(context);
-    });*/
     showDialog(
         context: context,
         builder: (context) {
@@ -553,7 +581,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     showDialog(
       context: context,
       builder: (context) {
-        return Center(
+        return Dialog(
             child: IChingSelectWidget(needHex[suit]!, () {
           setState(() {
             print(suit);
@@ -670,6 +698,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
             orientation: MatrixOrientation.Vertical,
             pathBuilder: customEdgePathBuilder,
             builder: (ctx, node) {
+              var isDark = Theme.of(context).brightness == Brightness.dark;
               return Padding(
                 padding: const EdgeInsets.all(2.0),
                 child: Container(
@@ -677,7 +706,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(4),
                       boxShadow: [
-                        BoxShadow(color: Colors.blue[100]!, spreadRadius: 1),
+                        BoxShadow(
+                            color: isDark ? Colors.black26 : Colors.blue[100]!,
+                            spreadRadius: 1),
                       ],
                     ),
                     child: Center(
@@ -774,8 +805,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                         TextButton(
                             onPressed: () {
                               Clipboard.setData(ClipboardData(
-                                  text: foundItems[selectedItem]
-                                      .asString(true, true, stndmob: calcSettings.showMobiles)));
+                                  text: foundItems[selectedItem].asString(
+                                      true, true,
+                                      stndmob: calcSettings.showMobiles)));
                             },
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
@@ -844,6 +876,11 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         appBar: MediaQuery.of(context).orientation == Orientation.portrait
             ? AppBar(
                 title: Text("Medici Calculator"),
+                actions: [
+                  isMobile()
+                      ? (isLandscape(context) ?  Container() : ThemeButton())
+                      : Container()
+                ],
               )
             : null,
         body: Padding(
@@ -898,6 +935,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                     IconButton(
                                       onPressed: () async {
                                         final result = await showTextInputDialog(
+                                            style: AdaptiveStyle.material,
                                             title:
                                                 "Chain input (pm3421, pmcalc.ru and this app formats allowed)",
                                             context: context,
@@ -940,9 +978,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                       width: 8,
                                     ),
                                     Stack(
-                                      alignment: Alignment.topRight,
-                                      children: [
-                                        IconButton(
+                                        alignment: Alignment.topRight,
+                                        children: [
+                                          IconButton(
                                             onPressed: () async {
                                               showDialog(
                                                 context: context,
@@ -957,24 +995,23 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                 },
                                               );
                                             },
-                                            icon: Icon(
-                                              FontAwesome.cog,
-                                              size: 36,
-                                              color: Colors.orange,
-                                            )),
-                                        IgnorePointer(
-                                          child: Container(
-                                            width: 10,
-                                            height: 10,
-                                            decoration: BoxDecoration(
-                                                color: calcSettings.isDefault()
-                                                    ? Colors.transparent
-                                                    : Colors.purpleAccent,
-                                                shape: BoxShape.circle),
+                                            icon: Icon(Icons.settings),
+                                            iconSize: 36,
+                                            color: Colors.orange,
                                           ),
-                                        )
-                                      ],
-                                    ),
+                                          IgnorePointer(
+                                            child: Container(
+                                              width: 10,
+                                              height: 10,
+                                              decoration: BoxDecoration(
+                                                  color:
+                                                      calcSettings.isDefault()
+                                                          ? Colors.transparent
+                                                          : Colors.purpleAccent,
+                                                  shape: BoxShape.circle),
+                                            ),
+                                          )
+                                        ]),
                                     Container(
                                       width: 8,
                                     ),
@@ -1037,6 +1074,11 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                       iconSize: 36,
                                       color: Colors.red,
                                     ),
+                                    isMobile()
+                                        ? (isLandscape(context)
+                                            ? ThemeButton()
+                                            : Container())
+                                        : ThemeButton()
                                   ],
                             ),
                           ],
@@ -1059,8 +1101,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                               child: Container(
                                 child: ListView.builder(
                                   itemBuilder: (context, index) {
-                                    var asString =
-                                        foundItems[index].asString(true, false, stndmob: calcSettings.showMobiles);
+                                    var asString = foundItems[index].asString(
+                                        true, false,
+                                        stndmob: calcSettings.showMobiles);
                                     return InkWell(
                                       onTap: () {
                                         setState(() {

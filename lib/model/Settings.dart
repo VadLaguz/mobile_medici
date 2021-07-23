@@ -1,6 +1,8 @@
+import 'package:universal_platform/universal_platform.dart';
+
 class CalcSettings {
   var maxTransits = 0;
-  var threads = 5;
+  var threads = UniversalPlatform.isAndroid ? 3 : 5;
   var reverse = false;
   var balance = <int>[0, 0, 0, 0, 0, 0];
   var mirror = false;
@@ -15,7 +17,8 @@ class CalcSettings {
                 0, (previousValue, element) => previousValue + element) ==
             0 &&
         mirror == false &&
-        onlyDifferentHexes == false && showMobiles == false;
+        onlyDifferentHexes == false &&
+        showMobiles == false;
   }
 
   void setDefault() {

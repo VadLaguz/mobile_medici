@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:easy_dynamic_theme/easy_dynamic_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobile_medici/Helpers.dart';
@@ -25,7 +26,6 @@ class CalculateSettingsState extends State<CalculateSettingsWidget> {
       child: ClipRRect(
         borderRadius: BorderRadius.all(Radius.circular(10)),
         child: Container(
-            color: Colors.white,
             child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: SingleChildScrollView(
@@ -89,8 +89,7 @@ class CalculateSettingsState extends State<CalculateSettingsWidget> {
                                       onChanged: (value) {
                                         setState(() {
                                           widget.settings.balance[index] =
-                                              widget.settings
-                                                          .balance[index] ==
+                                              widget.settings.balance[index] ==
                                                       0
                                                   ? 1
                                                   : 0;
